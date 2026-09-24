@@ -185,17 +185,17 @@ export function SystemBuilder() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+    <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[260px_1fr]">
       {/* Progreso */}
-      <aside className="lg:sticky lg:top-28 lg:self-start">
-        <ol className="flex gap-2 overflow-x-auto lg:flex-col">
+      <aside className="min-w-0 lg:sticky lg:top-28 lg:self-start">
+        <ol className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:flex-col [&::-webkit-scrollbar]:hidden">
           {STEPS.map((s, i) => (
             <li key={s} className="shrink-0">
               <button
                 disabled={i > step}
                 onClick={() => i < step && setStep(i)}
                 className={clsx(
-                  "flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-colors",
+                  "flex w-full items-center gap-2.5 whitespace-nowrap rounded-2xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors sm:gap-3 sm:px-4 sm:py-3",
                   i === step ? "border-lime-400/60 bg-lime-400/10 text-white" : i < step ? "border-white/10 text-white/80 hover:border-white/30" : "border-white/5 text-white/35",
                 )}
               >
@@ -225,7 +225,7 @@ export function SystemBuilder() {
       </aside>
 
       {/* Panel */}
-      <div className="relative min-h-[560px] overflow-hidden rounded-[2rem] border border-white/10 bg-navy-900/60 p-5 backdrop-blur-xl sm:p-10">
+      <div className="relative min-h-[520px] min-w-0 overflow-hidden rounded-[1.6rem] border border-white/10 bg-navy-900/60 p-4 backdrop-blur-xl sm:min-h-[560px] sm:rounded-[2rem] sm:p-10">
         <HudCorners className="m-4 text-white/15" />
         <AnimatePresence mode="wait">
           <motion.div
@@ -238,7 +238,7 @@ export function SystemBuilder() {
             {step === 0 && (
               <>
                 <StepTitle n="01" title="¿Qué espacio quieres proteger?" text="Elige el tipo de inmueble para adaptar la recomendación." />
-                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
                   {SPACES.map((s) => (
                     <OptionCard key={s.id} active={space === s.id} onClick={() => setSpace(s.id)} icon={s.icon} label={s.label} />
                   ))}
@@ -249,7 +249,7 @@ export function SystemBuilder() {
             {step === 1 && (
               <>
                 <StepTitle n="02" title="¿Qué quieres lograr?" text="Puedes elegir varias opciones. Así diseñamos un sistema integrado." />
-                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
                   {GOALS.map((g) => (
                     <OptionCard
                       key={g.id}
@@ -407,7 +407,7 @@ function StepTitle({ n, title, text }: { n: string; title: string; text: string 
   return (
     <div>
       <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-lime-400">Paso {n}</p>
-      <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl">{title}</h2>
+      <h2 className="mt-2 text-balance text-2xl font-bold tracking-tight text-white sm:text-4xl">{title}</h2>
       <p className="mt-2 text-white/55">{text}</p>
     </div>
   );
@@ -418,11 +418,11 @@ function OptionCard({ active, onClick, icon, label, multi }: { active: boolean; 
     <button
       onClick={onClick}
       className={clsx(
-        "group relative flex aspect-[1.15] flex-col justify-between rounded-2xl border p-4 text-left transition-all duration-300",
+        "group relative flex h-28 flex-col justify-between rounded-2xl border p-3.5 text-left transition-all duration-300 sm:aspect-[1.15] sm:h-auto sm:p-4",
         active ? "border-lime-400 bg-lime-400 text-navy-900" : "border-white/10 bg-white/[0.03] text-white hover:-translate-y-0.5 hover:border-white/30",
       )}
     >
-      <Icon name={icon} className="size-7" />
+      <Icon name={icon} className="size-6 sm:size-7" />
       <span className="text-sm font-semibold leading-tight sm:text-base">{label}</span>
       <span
         className={clsx(

@@ -10,7 +10,7 @@ export function Process() {
   const h = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <section className="relative bg-ice-50 py-24 text-navy-900 sm:py-32">
+    <section className="relative bg-ice-50 py-16 text-navy-900 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:grid-cols-[1fr_1.2fr]">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <Eyebrow dark>Cómo trabajamos</Eyebrow>

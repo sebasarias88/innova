@@ -35,7 +35,7 @@ export function SolarCalculator() {
   ].join("\n");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
+    <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[400px_1fr]">
       {/* Controles */}
       <div className="space-y-6 rounded-[2rem] border border-white/10 bg-navy-900/60 p-6 backdrop-blur-xl sm:p-8 lg:sticky lg:top-28 lg:self-start">
         <div>

@@ -13,7 +13,7 @@ type Props = {
 /** Encabezado de páginas internas */
 export function PageHero({ eyebrow, title, text, image, children }: Props) {
   return (
-    <section className="relative overflow-hidden pb-16 pt-36 sm:pb-24 sm:pt-44">
+    <section className="relative overflow-hidden pb-10 pt-28 sm:pb-24 sm:pt-44">
       {image && (
         <div className="absolute inset-0">
           <Image src={image} alt="" fill priority className="duotone object-cover opacity-30" sizes="100vw" />
@@ -24,10 +24,10 @@ export function PageHero({ eyebrow, title, text, image, children }: Props) {
       <div className="grid-bg absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h1 className="mt-6 max-w-4xl text-balance text-5xl font-bold leading-[0.95] tracking-tight text-white sm:text-7xl">
+        <h1 className="mt-5 max-w-4xl text-balance text-[2.6rem] font-bold sm:mt-6 sm:text-5xl leading-[0.95] tracking-tight text-white sm:text-7xl">
           {title}
         </h1>
-        {text && <p className="mt-6 max-w-2xl text-pretty text-lg text-white/70">{text}</p>}
+        {text && <p className="mt-5 max-w-2xl text-pretty text-base text-white/70 sm:mt-6 sm:text-lg">{text}</p>}
         {children}
       </div>
       <HudCorners className="m-4 hidden text-white/15 sm:block" size={28} />

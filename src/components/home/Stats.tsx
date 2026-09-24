@@ -7,9 +7,9 @@ export function Stats() {
     <section className="relative overflow-hidden bg-lime-400 text-navy-900">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-navy-900/10 lg:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-lime-400 px-4 py-12 sm:px-8 sm:py-16">
-            <CountUp to={s.value} suffix={s.suffix} className="block text-5xl font-bold tracking-tighter tabular-nums sm:text-7xl" />
-            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-navy-900/70">{s.label}</p>
+          <div key={s.label} className="bg-lime-400 px-4 py-7 sm:px-8 sm:py-16">
+            <CountUp to={s.value} suffix={s.suffix} className="block text-4xl font-bold tracking-tighter tabular-nums sm:text-7xl" />
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-navy-900/70 sm:mt-2 sm:text-[11px]">{s.label}</p>
           </div>
         ))}
       </div>

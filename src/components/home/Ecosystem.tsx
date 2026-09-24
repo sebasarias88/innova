@@ -46,6 +46,7 @@ export function Ecosystem() {
   const [active, setActive] = useState(0);
   const [touched, setTouched] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const inView = useInView(ref, { margin: "-20%" });
   const svc = services[active];
 
@@ -54,6 +55,14 @@ export function Ecosystem() {
     const t = setTimeout(() => setActive((a) => (a + 1) % services.length), 3800);
     return () => clearTimeout(t);
   }, [active, touched, inView]);
+
+  // En móvil, mantiene visible el chip activo
+  useEffect(() => {
+    const ul = listRef.current;
+    if (!ul || window.innerWidth >= 640) return;
+    const li = ul.children[active] as HTMLElement | undefined;
+    if (li) ul.scrollTo({ left: li.offsetLeft - 16, behavior: "smooth" });
+  }, [active]);
 
   const pick = (i: number) => {
     setTouched(true);
@@ -73,7 +82,7 @@ export function Ecosystem() {
   );
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-navy-950 py-24 sm:py-32">
+    <section ref={ref} className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
       <div className="absolute left-1/2 top-1/2 size-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-royal-500/15 blur-[160px]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="max-w-3xl">
@@ -86,29 +95,29 @@ export function Ecosystem() {
           </p>
         </div>
 
-        <div className="mt-14 grid items-center gap-10 lg:grid-cols-[340px_1fr]">
+        <div className="mt-8 grid items-center gap-4 sm:mt-14 sm:gap-10 lg:grid-cols-[340px_1fr]">
           {/* Lista */}
-          <ul className="order-2 grid gap-1.5 sm:grid-cols-2 lg:order-1 lg:grid-cols-1">
+          <ul ref={listRef} className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-1.5 sm:overflow-visible sm:px-0 lg:order-1 lg:grid-cols-1 [&::-webkit-scrollbar]:hidden">
             {services.map((s, i) => (
-              <li key={s.slug}>
+              <li key={s.slug} className="shrink-0 snap-start sm:shrink">
                 <button
                   onClick={() => pick(i)}
                   onMouseEnter={() => pick(i)}
                   className={clsx(
-                    "group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition-all duration-300",
+                    "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border py-2 pl-2 pr-4 text-left transition-all duration-300 sm:gap-4 sm:px-4 sm:py-3.5",
                     i === active ? "border-lime-400/60 bg-lime-400/10" : "border-white/5 bg-white/[0.02] hover:border-white/15",
                   )}
                 >
-                  <span className="font-mono text-[11px] text-white/40">0{i + 1}</span>
+                  <span className="hidden font-mono text-[11px] text-white/40 sm:inline">0{i + 1}</span>
                   <span
                     className={clsx(
-                      "grid size-10 place-items-center rounded-xl transition-colors",
+                      "grid size-9 place-items-center rounded-xl transition-colors sm:size-10",
                       i === active ? "bg-lime-400 text-navy-900" : "bg-white/5 text-royal-300",
                     )}
                   >
                     <Icon name={s.icon} className="size-5" />
                   </span>
-                  <span className={clsx("font-semibold transition-colors", i === active ? "text-white" : "text-white/70")}>{s.name}</span>
+                  <span className={clsx("whitespace-nowrap text-sm font-semibold transition-colors sm:whitespace-normal sm:text-base", i === active ? "text-white" : "text-white/70")}>{s.name}</span>
                   {i === active && !touched && (
                     <motion.span
                       key={active}
@@ -124,8 +133,8 @@ export function Ecosystem() {
           </ul>
 
           {/* Escena isométrica */}
-          <div className="relative order-1 lg:order-2">
-            <svg viewBox="-240 -215 820 500" className="w-full" role="img" aria-label="Edificio con los servicios de INNOVA">
+          <div className="relative lg:order-2">
+            <svg viewBox="-240 -215 820 500" className="-mx-[12%] w-[124%] max-w-none sm:mx-0 sm:w-full" role="img" aria-label="Edificio con los servicios de INNOVA">
               <defs>
                 <linearGradient id="glowWin" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0" stopColor="#6aa6ff" />
@@ -363,7 +372,7 @@ export function Ecosystem() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.4 }}
-                className="mt-4 rounded-3xl border border-white/10 bg-navy-900/80 p-5 backdrop-blur-xl sm:absolute sm:bottom-0 sm:right-0 sm:mt-0 sm:max-w-sm"
+                className="-mt-4 rounded-3xl border border-white/10 bg-navy-900/80 p-5 backdrop-blur-xl sm:absolute sm:bottom-0 sm:right-0 sm:mt-0 sm:max-w-sm"
               >
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 place-items-center rounded-xl bg-lime-400 text-navy-900">

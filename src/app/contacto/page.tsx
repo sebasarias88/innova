@@ -25,7 +25,7 @@ export default function ContactoPage() {
 
       <section className="pb-24">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_1.3fr]">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {site.phones.map((p, i) => (
               <a
                 key={p.raw}
@@ -50,7 +50,7 @@ export default function ContactoPage() {
             <Card icon={<Phone className="size-6" />} label="Llámanos" value={site.phones[0].label} href={`tel:+${site.phones[0].raw}`} />
           </div>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <div className="rounded-[2rem] border border-white/10 bg-navy-900/60 p-6 backdrop-blur-xl sm:p-10">
               <h2 className="text-3xl font-bold tracking-tight text-white">Escríbenos</h2>
               <p className="mt-2 mb-8 text-white/55">Completa el formulario y continúa la conversación por WhatsApp.</p>
@@ -77,11 +77,11 @@ function Card({ icon, label, value, href }: { icon: React.ReactNode; label: stri
       <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-royal-500 text-white">{icon}</span>
       <span className="min-w-0">
         <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">{label}</span>
-        <span className="block break-words text-lg font-semibold text-white">{value}</span>
+        <span className="block break-all text-base font-semibold text-white sm:text-lg">{value}</span>
       </span>
     </>
   );
-  const cls = "flex items-center gap-5 rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-lime-400/50";
+  const cls = "flex items-center gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-lime-400/50 sm:gap-5 sm:p-6";
   return href ? (
     <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className={cls}>
       {inner}

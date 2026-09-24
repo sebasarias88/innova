@@ -39,7 +39,7 @@ export function ProjectsRail() {
   }, []);
 
   return (
-    <section ref={section} className="relative overflow-hidden bg-navy-950 py-24 lg:flex lg:h-screen lg:flex-col lg:justify-center lg:py-0">
+    <section ref={section} className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:flex lg:h-screen lg:flex-col lg:justify-center lg:py-0">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>

@@ -14,6 +14,7 @@ const TABS = [
   {
     id: "hogar",
     label: "Hogar",
+    short: "Hogar",
     icon: "Home",
     image: "/img/domotica-tablet.jpg",
     title: "Tu familia segura y tu casa más inteligente.",
@@ -28,6 +29,7 @@ const TABS = [
   {
     id: "empresa",
     label: "Empresa y comercio",
+    short: "Empresa",
     icon: "Store",
     image: "/img/redes-tecnico.jpg",
     title: "Tu negocio protegido, conectado y siempre operando.",
@@ -42,6 +44,7 @@ const TABS = [
   {
     id: "industria",
     label: "Industria",
+    short: "Industria",
     icon: "Factory",
     image: "/img/tecnico-torre.jpg",
     title: "Continuidad operativa para proyectos de gran escala.",
@@ -60,7 +63,7 @@ export function Audience() {
   const t = TABS[tab];
 
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <div>
@@ -69,27 +72,27 @@ export function Audience() {
               Una solución para cada espacio.
             </h2>
           </div>
-          <div className="flex flex-wrap gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1.5">
+          <div className="grid w-full grid-cols-3 gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1 sm:flex sm:w-auto sm:p-1.5">
             {TABS.map((x, i) => (
               <button
                 key={x.id}
                 onClick={() => setTab(i)}
                 className={clsx(
-                  "relative flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors sm:px-5",
+                  "relative flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-2 py-2.5 text-[13px] font-semibold transition-colors sm:px-5 sm:text-sm",
                   i === tab ? "text-navy-900" : "text-white/70 hover:text-white",
                 )}
               >
                 {i === tab && (
                   <motion.span layoutId="aud-pill" className="absolute inset-0 rounded-full bg-lime-400" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
                 )}
-                <Icon name={x.icon} className="relative size-4" />
-                <span className="relative">{x.label}</span>
+                <Icon name={x.icon} className="relative hidden size-4 sm:block" />
+                <span className="relative">{x.short}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 lg:grid-cols-2">
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] lg:aspect-auto lg:min-h-[520px]">
             <AnimatePresence mode="popLayout">
               <motion.div
@@ -116,11 +119,11 @@ export function Audience() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.45 }}
-              className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.03] p-7 sm:p-10"
+              className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 sm:p-10"
             >
               <div>
-                <h3 className="text-balance text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">{t.title}</h3>
-                <ul className="mt-8 space-y-4">
+                <h3 className="text-balance text-[1.7rem] font-bold leading-tight tracking-tight text-white sm:text-4xl">{t.title}</h3>
+                <ul className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
                   {t.points.map((p) => (
                     <li key={p} className="flex items-start gap-3 text-white/80">
                       <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-lime-400/15 text-lime-400">

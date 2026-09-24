@@ -21,7 +21,7 @@ const layout: Record<string, string> = {
 
 export function ServicesBento() {
   return (
-    <section className="relative bg-ice-50 py-24 text-navy-900 sm:py-32">
+    <section className="relative bg-ice-50 py-16 text-navy-900 sm:py-24 lg:py-32">
       <div className="grid-bg-light absolute inset-0" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -36,11 +36,11 @@ export function ServicesBento() {
           </p>
         </div>
 
-        <div className="mt-14 grid auto-rows-[minmax(260px,auto)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-14 sm:grid sm:auto-rows-[minmax(260px,auto)] sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {services.map((s, i) => {
             const big = s.slug === "cctv";
             return (
-              <Reveal key={s.slug} delay={(i % 4) * 0.06} className={clsx(layout[s.slug])}>
+              <Reveal key={s.slug} delay={(i % 4) * 0.06} className={clsx("h-[400px] w-[80vw] shrink-0 snap-center sm:h-auto sm:w-auto sm:shrink", layout[s.slug])}>
                 <Link href={`/servicios/${s.slug}`} className="block h-full">
                   <SpotlightCard className="h-full border-navy-900/10 bg-navy-900">
                     <Image
@@ -62,7 +62,7 @@ export function ServicesBento() {
                       </div>
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-lime-400">{s.kicker}</p>
-                        <h3 className={clsx("mt-2 font-bold leading-tight tracking-tight text-white", big ? "text-3xl sm:text-5xl" : "text-2xl")}>
+                        <h3 className={clsx("mt-2 font-bold leading-tight tracking-tight text-white", big ? "text-3xl sm:text-5xl" : "text-[1.7rem] sm:text-2xl")}>
                           {s.name}
                         </h3>
                         <p className={clsx("mt-3 text-pretty text-white/65", big ? "max-w-md text-base" : "text-sm")}>{s.short}</p>
@@ -83,6 +83,9 @@ export function ServicesBento() {
             );
           })}
         </div>
+        <p className="mt-4 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-navy-900/40 sm:hidden">
+          Desliza para ver los 7 servicios →
+        </p>
       </div>
     </section>
   );

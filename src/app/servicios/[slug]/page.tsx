@@ -97,7 +97,7 @@ export default async function ServicePage({ params }: Props) {
       </div>
 
       {/* Incluye */}
-      <section className="bg-ice-50 py-24 text-navy-900 sm:py-32">
+      <section className="bg-ice-50 py-16 text-navy-900 sm:py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <Eyebrow dark>¿Qué incluye?</Eyebrow>
@@ -119,7 +119,7 @@ export default async function ServicePage({ params }: Props) {
       </section>
 
       {/* Beneficios */}
-      <section className="relative py-24 sm:py-32">
+      <section className="relative py-16 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Eyebrow>Beneficios</Eyebrow>
           <h2 className="mt-5 max-w-3xl text-balance text-4xl font-bold leading-[1] tracking-tight text-white sm:text-6xl">
@@ -158,7 +158,7 @@ export default async function ServicePage({ params }: Props) {
       <Process />
 
       {/* FAQ */}
-      <section className="py-24 sm:py-32">
+      <section className="py-16 sm:py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.5fr]">
           <div>
             <Eyebrow>Preguntas frecuentes</Eyebrow>

@@ -41,7 +41,7 @@ export function Header() {
       <header
         className={clsx(
           "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled || mega ? "bg-navy-950/80 py-3 backdrop-blur-xl" : "py-5",
+          scrolled || mega ? "bg-navy-950/95 py-3 backdrop-blur-xl lg:bg-navy-950/80" : "py-4 sm:py-5",
         )}
         onMouseLeave={() => setMega(false)}
       >

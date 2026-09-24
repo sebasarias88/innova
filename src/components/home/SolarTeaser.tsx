@@ -13,7 +13,7 @@ export function SolarTeaser() {
   const pct = ((bill - 100000) / (3000000 - 100000)) * 100;
 
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
           <Image src="/img/solar-campo.jpg" alt="Técnicos INNOVA en parque solar" fill sizes="100vw" className="object-cover" />

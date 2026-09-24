@@ -8,8 +8,8 @@ import { ArrowUpRight } from "lucide-react";
 export function Coverage() {
   const hub = cities.find((c) => c.hub)!;
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-24 sm:py-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2">
+    <section className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
         <div>
           <Eyebrow>Cobertura</Eyebrow>
           <h2 className="mt-5 text-balance text-4xl font-bold leading-[1] tracking-tight text-white sm:text-6xl">
@@ -18,12 +18,12 @@ export function Coverage() {
           <p className="mt-6 max-w-lg text-pretty text-lg text-white/65">
             Nacimos en el Quindío y llevamos nuestras soluciones a todo el Eje Cafetero y a cualquier ciudad donde esté tu proyecto.
           </p>
-          <div className="mt-10 grid gap-2 sm:grid-cols-2">
+          <div className="mt-8 grid grid-cols-2 gap-2 sm:mt-10">
             {cities.map((c) => (
               <Link
                 key={c.slug}
                 href={`/cobertura/${c.slug}`}
-                className="group flex items-center justify-between rounded-2xl border border-white/10 px-5 py-4 transition-colors hover:border-lime-400/50 hover:bg-lime-400/5"
+                className="group flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3 sm:px-5 sm:py-4 transition-colors hover:border-lime-400/50 hover:bg-lime-400/5"
               >
                 <span>
                   <span className="block font-semibold text-white">{c.name}</span>
@@ -35,7 +35,7 @@ export function Coverage() {
           </div>
         </div>
 
-        <div className="relative aspect-square w-full">
+        <div className="relative mx-auto aspect-square w-full max-w-[420px] lg:max-w-none">
           <div className="grid-bg absolute inset-0 rounded-[2rem] border border-white/10 [mask-image:radial-gradient(circle,black_55%,transparent_75%)]" />
           <svg viewBox="0 0 100 100" className="absolute inset-0 size-full">
             {/* radar */}

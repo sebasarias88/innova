@@ -130,6 +130,11 @@ html.lenis, html.lenis body { height: auto; }
   .text-pretty { text-wrap: pretty; }
 }
 
+@keyframes shine {
+  0%, 60% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @keyframes grain {
   0%, 100% { transform: translate(0, 0); }
   20% { transform: translate(-6%, 4%); }

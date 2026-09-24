@@ -15,7 +15,7 @@ export function CtaBand({
   wa?: string;
 }) {
   return (
-    <section className="relative px-4 py-24 sm:px-6">
+    <section className="relative px-4 py-14 sm:px-6 sm:py-24">
       <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-royal-500 px-6 py-16 sm:px-14 sm:py-20">
         <div className="grid-bg absolute inset-0 opacity-50" />
         <Logo

@@ -137,7 +137,7 @@ export function HeroCCTV() {
 
   return (
     <section
-      className="relative isolate overflow-hidden bg-navy-950 pb-16 pt-32 sm:pt-36 lg:min-h-[100svh] lg:pb-10"
+      className="relative isolate overflow-hidden bg-navy-950 pb-12 pt-24 sm:pb-16 sm:pt-36 lg:min-h-[100svh] lg:pb-10"
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         mx.set((e.clientX - r.left) / r.width - 0.5);
@@ -149,22 +149,22 @@ export function HeroCCTV() {
       <div className="absolute right-[-10%] top-[10%] -z-10 size-[720px] rounded-full bg-royal-500/30 blur-[140px]" />
       <div className="absolute bottom-[-20%] left-[-10%] -z-10 size-[520px] rounded-full bg-lime-400/10 blur-[140px]" />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[1.02fr_1fr] lg:gap-10">
-        {/* Texto */}
-        <div className="relative z-10">
+      <div className="mx-auto grid max-w-7xl items-center px-4 sm:px-6 lg:grid-cols-[1.02fr_1fr] lg:gap-10">
+        {/* Texto (en móvil sus hijos se reordenan alrededor del monitor) */}
+        <div className="contents lg:relative lg:z-10 lg:block">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4 backdrop-blur"
+            className="order-1 inline-flex items-center gap-3 justify-self-start rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4 backdrop-blur lg:order-none"
           >
             <span className="rounded-full bg-lime-400 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-navy-900">
               Armenia · Quindío
             </span>
-            <span className="text-xs text-white/70">Seguridad y sistemas para hogares, empresas e industrias</span>
+            <span className="text-xs text-white/70"><span className="sm:hidden">Seguridad y sistemas</span><span className="hidden sm:inline">Seguridad y sistemas para hogares, empresas e industrias</span></span>
           </motion.div>
 
-          <h1 className="mt-7 text-[2.9rem] font-bold leading-[0.95] tracking-[-0.035em] text-white sm:text-7xl xl:text-[5.4rem]">
+          <h1 className="order-2 mt-5 text-[2.75rem] sm:mt-7 lg:order-none font-bold leading-[0.95] tracking-[-0.035em] text-white sm:text-7xl xl:text-[5.4rem]">
             {HEADLINE.map((h, i) => (
               <span key={i} className="mr-[0.22em] inline-block overflow-hidden pb-[0.08em] align-top">
                 <motion.span
@@ -183,7 +183,7 @@ export function HeroCCTV() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.7 }}
-            className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-white/70"
+            className="order-4 mt-7 max-w-xl text-pretty text-base leading-relaxed text-white/70 sm:text-lg lg:order-none"
           >
             Cámaras de seguridad, energía solar, automatización, domótica, redes y respaldo eléctrico.{" "}
             <span className="text-white">Un solo aliado</span> que diseña, instala y responde por todo.
@@ -193,15 +193,16 @@ export function HeroCCTV() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.85 }}
-            className="mt-10 flex flex-wrap gap-3"
+            className="order-5 mt-7 grid gap-2.5 sm:mt-10 sm:flex sm:flex-wrap lg:order-none"
           >
-            <Button href="/arma-tu-sistema" icon={<ArrowRight className="size-3.5" />}>
+            <Button href="/arma-tu-sistema" className="px-4 sm:px-6" icon={<ArrowRight className="size-3.5" />}>
               Arma tu sistema
             </Button>
             <Button
               href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
               external
               variant="ghost"
+              className="px-4 sm:px-6"
               icon={<WhatsAppIcon className="size-3.5" />}
             >
               Asesoría gratis
@@ -212,7 +213,7 @@ export function HeroCCTV() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.1 }}
-            className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-6"
+            className="order-6 mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6 sm:mt-12 sm:gap-6 lg:order-none"
           >
             {[
               ["7", "Soluciones integradas"],
@@ -234,7 +235,7 @@ export function HeroCCTV() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           style={{ rotateX: rx, rotateY: ry, transformPerspective: 1400 }}
-          className="relative"
+          className="relative order-3 mt-8 lg:order-none lg:mt-0"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
@@ -339,7 +340,7 @@ export function HeroCCTV() {
             </div>
 
             {/* Miniaturas */}
-            <div className="mt-2 grid grid-cols-5 gap-2">
+            <div className="mt-2 grid grid-cols-5 gap-1.5 sm:gap-2">
               {FEEDS.map((f, i) => (
                 <button
                   key={f.cam}

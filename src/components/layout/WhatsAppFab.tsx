@@ -13,7 +13,7 @@ export function WhatsAppFab() {
   }, []);
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex items-end gap-3 sm:bottom-7 sm:right-7">
+    <div className="fixed bottom-7 right-7 z-40 hidden items-end gap-3 sm:flex">
       <AnimatePresence>
         {bubble && (
           <motion.div

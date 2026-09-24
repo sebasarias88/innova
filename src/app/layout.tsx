@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
+import { MobileDock } from "@/components/layout/MobileDock";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { site } from "@/lib/site";
 
@@ -58,13 +59,14 @@ const jsonLd = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es-CO">
-      <body className="overflow-x-clip">
+      <body className="overflow-x-clip pb-[84px] sm:pb-0">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <SmoothScroll>
           <Header />
           <main>{children}</main>
           <Footer />
           <WhatsAppFab />
+          <MobileDock />
         </SmoothScroll>
       </body>
     </html>
