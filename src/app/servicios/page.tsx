@@ -13,7 +13,7 @@ export default function ServiciosPage() {
     <>
       <PageHero
         eyebrow="Portafolio de servicios"
-        image="/img/tecnico-cables.jpg"
+        image="/img/tecnico-cables.webp"
         title={
           <>
             7 soluciones. <span className="text-lime-400">Un solo aliado.</span>

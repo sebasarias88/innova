@@ -13,7 +13,7 @@ export default function CalculadoraSolarPage() {
     <>
       <PageHero
         eyebrow="Energía solar"
-        image="/img/solar-campo.jpg"
+        image="/img/solar-campo.webp"
         title={
           <>
             Calcula tu <span className="text-lime-400">ahorro solar.</span>

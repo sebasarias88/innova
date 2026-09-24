@@ -313,7 +313,7 @@ export function SystemBuilder() {
             {step === 3 && thinking && (
               <div className="flex min-h-[460px] flex-col items-center justify-center text-center">
                 <div className="relative size-28">
-                  <motion.span className="absolute inset-0 rounded-full border-2 border-lime-400/20 border-t-lime-400" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                  <span className="absolute inset-0 animate-spin rounded-full border-2 border-lime-400/20 border-t-lime-400" />
                   <ShieldCheck className="absolute inset-0 m-auto size-10 text-lime-400" />
                 </div>
                 <p className="mt-8 font-mono text-xs uppercase tracking-[0.25em] text-lime-400">Diseñando tu sistema</p>

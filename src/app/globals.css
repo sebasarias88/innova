@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "@fontsource-variable/sora";
-@import "@fontsource-variable/jetbrains-mono";
 
 /* ─────────────────────────────────────────────
    INNOVA · Sistema de diseño
@@ -22,8 +20,8 @@
   --color-steel-500: #677172; /* franja 5 */
   --color-steel-400: #8a9496;
 
-  --font-sans: "Sora Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -32,6 +30,10 @@
   --animate-marquee: marquee 38s linear infinite;
   --animate-pulse-ring: pulse-ring 2.2s var(--ease-out-expo) infinite;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-rise: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-word-up: word-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-kenburns: kenburns 6s linear both;
+  --animate-progress: progress 6s linear both;
 
   @keyframes blink {
     to { visibility: hidden; }
@@ -46,6 +48,20 @@
   @keyframes pulse-ring {
     0% { transform: scale(0.6); opacity: 0.9; }
     100% { transform: scale(2.4); opacity: 0; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+  }
+  @keyframes word-up {
+    from { transform: translateY(110%); }
+  }
+  @keyframes kenburns {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
+  }
+  @keyframes progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
@@ -87,9 +103,7 @@ html.lenis, html.lenis body { height: auto; }
     inset: -50%;
     pointer-events: none;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.55'/></svg>");
-    opacity: 0.07;
-    mix-blend-mode: overlay;
-    animation: grain 1.2s steps(6) infinite;
+    opacity: 0.05;
   }
   /* Líneas de escaneo tipo monitor CCTV */
   .scanlines {
@@ -141,6 +155,42 @@ html.lenis, html.lenis body { height: auto; }
   40% { transform: translate(5%, -7%); }
   60% { transform: translate(-3%, 8%); }
   80% { transform: translate(7%, -2%); }
+}
+
+/* ───── Escena isométrica (animaciones CSS, se pausan fuera de pantalla) ───── */
+.eco-breathe { animation: eco-breathe 3s ease-in-out infinite; }
+.eco-blink { animation: eco-blink 1.2s ease-in-out infinite; }
+.eco-door { animation: eco-door 3.4s ease-in-out infinite; }
+.eco-dash { animation: eco-dash 0.8s linear infinite; }
+.eco-progress { animation: progress 3.8s linear both; }
+.eco-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eco-ring 2.4s ease-out infinite;
+}
+[data-paused] *, [data-paused],
+[data-offscreen] *, [data-offscreen] { animation-play-state: paused !important; }
+
+@keyframes scroll-hint { from { transform: translateY(-16px); } to { transform: translateY(40px); } }
+@keyframes eco-breathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+@keyframes eco-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes eco-door { 0%, 100% { transform: translateY(0); } 35%, 70% { transform: translateY(-58px); } }
+@keyframes eco-dash { to { stroke-dashoffset: -36; } }
+@keyframes eco-ring { from { transform: scale(0.15); opacity: 0.9; } to { transform: scale(1); opacity: 0; } }
+
+/* ───── Rendimiento en móviles / pantallas táctiles ─────
+   backdrop-filter y los fondos con blur son de lo más costoso para la GPU del celular. */
+@media (hover: none), (max-width: 1023px) {
+  *, *::before, *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .grain::after { display: none; }
+  /* Animaciones decorativas en bucle: apagadas en celulares */
+  .animate-ping, .animate-float, .animate-pulse-ring, .animate-blink {
+    animation: none !important;
+  }
+  .animate-ping { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

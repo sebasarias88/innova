@@ -1,11 +1,30 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
 import { MobileDock } from "@/components/layout/MobileDock";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { AnimationGate } from "@/components/layout/AnimationGate";
 import { site } from "@/lib/site";
+
+// Fuentes autoalojadas con next/font: se precargan y el texto no "salta" al cargar
+const sora = localFont({
+  src: "./fonts/sora.woff2",
+  variable: "--font-sora",
+  weight: "100 800",
+  display: "swap",
+  adjustFontFallback: "Arial",
+});
+const mono = localFont({
+  src: "./fonts/jetbrains-mono.woff2",
+  variable: "--font-jetbrains",
+  weight: "100 800",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: "Arial",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -30,7 +49,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: "INNOVA Seguridad y Sistemas",
     description: site.description,
-    images: ["/img/cctv-poste.jpg"],
+    images: ["/img/cctv-poste.webp"],
   },
 };
 
@@ -58,7 +77,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es-CO">
+    <html lang="es-CO" className={`${sora.variable} ${mono.variable}`}>
       <body className="overflow-x-clip pb-[84px] sm:pb-0">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <SmoothScroll>
@@ -67,6 +86,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <Footer />
           <WhatsAppFab />
           <MobileDock />
+          <AnimationGate />
         </SmoothScroll>
       </body>
     </html>

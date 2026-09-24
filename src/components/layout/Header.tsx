@@ -53,7 +53,7 @@ export function Header() {
         />
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 sm:px-6">
           <Link href="/" aria-label="INNOVA inicio" className="relative z-10 shrink-0 text-white">
-            <Logo className="h-9 w-auto sm:h-10" accent />
+            <Logo className="h-9 w-auto sm:h-10" priority />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
@@ -170,7 +170,7 @@ export function Header() {
           >
             <div className="grid-bg absolute inset-0 opacity-50" />
             <div className="relative flex items-center justify-between px-4 py-5 sm:px-6">
-              <Logo className="h-9 w-auto text-white" accent />
+              <Logo className="h-9 w-auto" />
               <button
                 onClick={() => setOpen(false)}
                 className="grid size-11 place-items-center rounded-full border border-white/15 text-white"

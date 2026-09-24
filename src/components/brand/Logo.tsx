@@ -1,21 +1,29 @@
-import { SHIELD, WORDMARK, TAGLINE } from "./logo-paths";
+/* eslint-disable @next/next/no-img-element */
 
-type Props = { className?: string; variant?: "full" | "mark"; accent?: boolean };
+type Tone = "light" | "white" | "navy";
+type Props = { className?: string; variant?: "full" | "mark"; tone?: Tone; priority?: boolean };
 
-/** Logo INNOVA vectorizado. Hereda el color con `currentColor`. */
-export function Logo({ className, variant = "full", accent }: Props) {
-  if (variant === "mark") {
-    return (
-      <svg viewBox="0 0 1220 1360" className={className} role="img" aria-label="INNOVA">
-        <path d={SHIELD} fill="currentColor" fillRule="evenodd" />
-      </svg>
-    );
-  }
+/**
+ * Logo INNOVA como archivo SVG estático (public/brand), optimizado con SVGO (~12 KB).
+ * Se sirve una sola vez y queda en caché: no se repite dentro del HTML ni del JS.
+ */
+export function Logo({ className, variant = "full", tone = "light", priority }: Props) {
+  const src =
+    variant === "mark"
+      ? tone === "navy" ? "/brand/mark-navy.svg" : "/brand/mark-white.svg"
+      : `/brand/logo-${tone}.svg`;
+  const [w, h] = variant === "mark" ? [1220, 1360] : [4720, 1360];
   return (
-    <svg viewBox="0 0 4720 1360" className={className} role="img" aria-label="INNOVA Seguridad y Sistemas">
-      <path d={SHIELD} fill={accent ? "var(--color-royal-400)" : "currentColor"} fillRule="evenodd" />
-      <path d={WORDMARK} transform="translate(1380 200)" fill="currentColor" fillRule="evenodd" />
-      <path d={TAGLINE} transform="translate(1420 980)" fill="currentColor" fillRule="evenodd" opacity={0.75} />
-    </svg>
+    <img
+      src={src}
+      width={w}
+      height={h}
+      alt={variant === "mark" ? "INNOVA" : "INNOVA Seguridad y Sistemas"}
+      className={className}
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
+      decoding="async"
+      draggable={false}
+    />
   );
 }

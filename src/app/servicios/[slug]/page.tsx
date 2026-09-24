@@ -48,7 +48,7 @@ export default async function ServicePage({ params }: Props) {
       {/* Hero */}
       <section className="relative overflow-hidden pb-20 pt-32 sm:pt-40">
         <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
-        <div className="absolute -right-40 top-0 size-[700px] rounded-full bg-royal-500/25 blur-[150px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_90%_20%,rgb(6_96_216/0.25),transparent_70%)]" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr]">
           <div>
             <nav className="mb-8 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
@@ -129,7 +129,7 @@ export default async function ServicePage({ params }: Props) {
             {s.highlights.map((h, i) => (
               <Reveal key={h.title} delay={i * 0.08}>
                 <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-7 transition-colors hover:border-lime-400/40">
-                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-royal-500/20 blur-2xl transition-colors group-hover:bg-lime-400/20" />
+                  <div className="absolute -right-10 -top-10 size-40 rounded-full bg-[radial-gradient(circle,rgb(6_96_216/0.25),transparent_70%)]" />
                   <span className="relative grid size-12 place-items-center rounded-2xl bg-royal-500 text-white transition-colors group-hover:bg-lime-400 group-hover:text-navy-900">
                     <Icon name={h.icon} className="size-6" />
                   </span>
@@ -147,7 +147,7 @@ export default async function ServicePage({ params }: Props) {
                 <h3 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">Protección las 24 horas, incluso en total oscuridad.</h3>
                 <p className="mt-4 text-white/60">Arrastra el control para comparar la imagen diurna con la visión infrarroja de nuestras cámaras.</p>
               </div>
-              <NightVision src="/img/puertas-instalacion.jpg" />
+              <NightVision src="/img/puertas-instalacion.webp" />
             </div>
           )}
         </div>

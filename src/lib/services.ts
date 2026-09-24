@@ -31,7 +31,7 @@ export const services: Service[] = [
     short: "Vigilancia profesional con acceso remoto y almacenamiento en la nube.",
     description:
       "Diseñamos e instalamos sistemas de videovigilancia para hogares, comercios, conjuntos e industrias. Ve tus cámaras desde el celular en tiempo real, recibe alertas inteligentes y guarda tus grabaciones de forma segura en la nube.",
-    image: "/img/cctv-poste.jpg",
+    image: "/img/cctv-poste.webp",
     icon: "Cctv",
     includes: [
       "Cámaras IP, analógicas y sistemas híbridos",
@@ -62,7 +62,7 @@ export const services: Service[] = [
     short: "Soluciones solares fotovoltaicas personalizadas on-grid, off-grid e híbridas.",
     description:
       "Reduce tu factura de energía y gana independencia. Diseñamos sistemas fotovoltaicos a la medida de tu consumo, con estudio de dimensionamiento, equipos de calidad e instalación profesional.",
-    image: "/img/solar-campo.jpg",
+    image: "/img/solar-campo.webp",
     icon: "Sun",
     includes: [
       "Sistemas on-grid, off-grid e híbridos",
@@ -92,7 +92,7 @@ export const services: Service[] = [
     short: "Puertas corredizas, batientes, seccionales y enrollables automatizadas.",
     description:
       "Comodidad y seguridad al entrar y salir. Automatizamos puertas de garaje, portones, bodegas y locales con motores, sensores y controles de alta durabilidad.",
-    image: "/img/puertas-instalacion.jpg",
+    image: "/img/puertas-instalacion.webp",
     icon: "DoorOpen",
     includes: [
       "Motores, brazos hidráulicos y sensores",
@@ -121,7 +121,7 @@ export const services: Service[] = [
     short: "Controla iluminación, clima, seguridad y entretenimiento desde tu móvil.",
     description:
       "Convierte tu casa u oficina en un espacio inteligente. Automatiza escenas, controla todo desde una sola app y ahorra energía sin renunciar a la comodidad.",
-    image: "/img/domotica-tablet.jpg",
+    image: "/img/domotica-tablet.webp",
     icon: "HousePlug",
     includes: ["Iluminación", "Climatización", "Seguridad", "Entretenimiento"],
     highlights: [
@@ -145,7 +145,7 @@ export const services: Service[] = [
     short: "Instalación de redes de datos y voz bajo normativas internacionales.",
     description:
       "La base de toda empresa conectada. Diseñamos e instalamos redes ordenadas, certificadas y listas para crecer, bajo normativas internacionales.",
-    image: "/img/redes-tecnico.jpg",
+    image: "/img/redes-tecnico.webp",
     icon: "Cable",
     includes: [
       "Categorías 5e, 6 y 6A",
@@ -174,7 +174,7 @@ export const services: Service[] = [
     short: "Continuidad eléctrica para oficinas, servidores, equipos médicos y seguridad.",
     description:
       "Un corte de energía no debería detener tu negocio. Instalamos UPS y bancos de baterías que protegen tus equipos y mantienen tu operación funcionando.",
-    image: "/img/ups-tecnico.jpg",
+    image: "/img/ups-tecnico.webp",
     icon: "BatteryCharging",
     includes: [
       "UPS online e interactivos",
@@ -203,7 +203,7 @@ export const services: Service[] = [
     short: "Venta de equipos, reparación, software, antivirus y mantenimiento preventivo.",
     description:
       "Mantén tus equipos rápidos, seguros y funcionando. Soporte técnico para hogares y empresas, desde la venta del equipo hasta su mantenimiento.",
-    image: "/img/informatica.jpg",
+    image: "/img/informatica.webp",
     icon: "Laptop",
     includes: [
       "Venta de equipos y accesorios",

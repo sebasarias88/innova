@@ -39,7 +39,7 @@ export default async function CityPage({ params }: Props) {
     <>
       <PageHero
         eyebrow={`${c.name} · ${c.dept}`}
-        image="/img/cctv-poste.jpg"
+        image="/img/cctv-poste.webp"
         title={
           <>
             Cámaras de seguridad y energía solar en <span className="text-lime-400">{c.name}.</span>

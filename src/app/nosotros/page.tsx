@@ -26,7 +26,7 @@ export default function NosotrosPage() {
     <>
       <PageHero
         eyebrow="Quiénes somos"
-        image="/img/tecnico-torre.jpg"
+        image="/img/tecnico-torre.webp"
         title={
           <>
             Tecnología que protege, <span className="text-lime-400">conecta y transforma.</span>
@@ -50,10 +50,10 @@ export default function NosotrosPage() {
           </Reveal>
           <Reveal delay={0.1} className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
-              <Image src="/img/tecnico-campo.jpg" alt="Técnico INNOVA en campo" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
+              <Image src="/img/tecnico-campo.webp" alt="Técnico INNOVA en campo" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
             </div>
             <div className="absolute -bottom-6 -left-6 grid size-36 place-items-center rounded-3xl bg-lime-400 p-6 text-navy-900 shadow-2xl">
-              <Logo variant="mark" className="h-full w-auto" />
+              <Logo variant="mark" tone="navy" className="h-full w-auto" />
             </div>
           </Reveal>
         </div>
@@ -61,7 +61,7 @@ export default function NosotrosPage() {
 
       <Stats />
 
-      <section className="py-24 sm:py-32">
+      <section className="py-16 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Eyebrow>Nuestros valores</Eyebrow>
           <div className="mt-10 grid gap-4 md:grid-cols-3">

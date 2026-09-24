@@ -16,7 +16,7 @@ const TABS = [
     label: "Hogar",
     short: "Hogar",
     icon: "Home",
-    image: "/img/domotica-tablet.jpg",
+    image: "/img/domotica-tablet.webp",
     title: "Tu familia segura y tu casa más inteligente.",
     points: [
       "Mira tu casa desde el celular cuando viajas",
@@ -31,7 +31,7 @@ const TABS = [
     label: "Empresa y comercio",
     short: "Empresa",
     icon: "Store",
-    image: "/img/redes-tecnico.jpg",
+    image: "/img/redes-tecnico.webp",
     title: "Tu negocio protegido, conectado y siempre operando.",
     points: [
       "Controla inventario, cajas y accesos con cámaras",
@@ -46,7 +46,7 @@ const TABS = [
     label: "Industria",
     short: "Industria",
     icon: "Factory",
-    image: "/img/tecnico-torre.jpg",
+    image: "/img/tecnico-torre.webp",
     title: "Continuidad operativa para proyectos de gran escala.",
     points: [
       "Videovigilancia perimetral de largo alcance",

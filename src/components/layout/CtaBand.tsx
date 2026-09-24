@@ -20,7 +20,7 @@ export function CtaBand({
         <div className="grid-bg absolute inset-0 opacity-50" />
         <Logo
           variant="mark"
-          className="pointer-events-none absolute -right-16 -top-10 h-[130%] w-auto text-white/[0.07]"
+          className="pointer-events-none absolute -right-16 -top-10 h-[130%] w-auto opacity-[0.07]"
         />
         <div className="relative max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-lime-400">Asesoría personalizada</p>

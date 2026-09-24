@@ -83,7 +83,7 @@ export function Ecosystem() {
 
   return (
     <section ref={ref} className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
-      <div className="absolute left-1/2 top-1/2 size-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-royal-500/15 blur-[160px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_60%_60%,rgb(6_96_216/0.16),transparent_70%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="max-w-3xl">
           <Eyebrow>Un solo aliado</Eyebrow>
@@ -119,13 +119,7 @@ export function Ecosystem() {
                   </span>
                   <span className={clsx("whitespace-nowrap text-sm font-semibold transition-colors sm:whitespace-normal sm:text-base", i === active ? "text-white" : "text-white/70")}>{s.name}</span>
                   {i === active && !touched && (
-                    <motion.span
-                      key={active}
-                      className="absolute bottom-0 left-0 h-0.5 bg-lime-400"
-                      initial={{ width: 0 }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: 3.8, ease: "linear" }}
-                    />
+                    <span key={active} className="eco-progress absolute bottom-0 left-0 h-0.5 w-full origin-left bg-lime-400" />
                   )}
                 </button>
               </li>
@@ -134,7 +128,7 @@ export function Ecosystem() {
 
           {/* Escena isométrica */}
           <div className="relative lg:order-2">
-            <svg viewBox="-240 -215 820 500" className="-mx-[12%] w-[124%] max-w-none sm:mx-0 sm:w-full" role="img" aria-label="Edificio con los servicios de INNOVA">
+            <svg viewBox="-240 -215 820 500" data-paused={inView ? undefined : ""} className="-mx-[12%] w-[124%] max-w-none sm:mx-0 sm:w-full" role="img" aria-label="Edificio con los servicios de INNOVA">
               <defs>
                 <linearGradient id="glowWin" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0" stopColor="#6aa6ff" />
@@ -174,29 +168,20 @@ export function Ecosystem() {
 
               {/* Conos de visión de cámaras */}
               <g className={clsx("transition-opacity duration-500", svc.slug === "cctv" ? "opacity-100" : "opacity-40")}>
-                <motion.polygon
-                  points={pts([[6.1, 5.1, 4.3], [4.5, 9.2, 0], [9.2, 8.4, 0]])}
-                  fill="url(#cone)"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                />
-                <motion.polygon
-                  points={pts([[10.1, 5.1, 2.4], [10.2, 9.4, 0], [13.4, 6.4, 0]])}
-                  fill="url(#cone)"
-                  animate={{ opacity: [1, 0.4, 1] }}
-                  transition={{ duration: 3.4, repeat: Infinity }}
-                />
+                <polygon className="eco-breathe" points={pts([[6.1, 5.1, 4.3], [4.5, 9.2, 0], [9.2, 8.4, 0]])} fill="url(#cone)" />
+                <polygon className="eco-breathe" style={{ animationDelay: "-1.2s" }} points={pts([[10.1, 5.1, 2.4], [10.2, 9.4, 0], [13.4, 6.4, 0]])} fill="url(#cone)" />
               </g>
 
               {/* UPS */}
               <Box x={10.5} y={3.6} z={0} w={1} d={1} h={1.3} top="#1a3f8f" />
               {[0.3, 0.55, 0.8].map((z, i) => (
-                <motion.polygon
+                <polygon
                   key={z}
                   points={rectY(4.6, 10.65, 11.35, z, z + 0.14)}
                   fill="#e9f205"
-                  animate={{ opacity: svc.slug === "ups" ? [0.3, 1, 0.3] : 0.35 }}
-                  transition={{ duration: 1.2, delay: i * 0.2, repeat: Infinity }}
+                  className={svc.slug === "ups" ? "eco-blink" : undefined}
+                  opacity={svc.slug === "ups" ? undefined : 0.35}
+                  style={{ animationDelay: `${i * 0.2}s` }}
                 />
               ))}
 
@@ -205,15 +190,12 @@ export function Ecosystem() {
               {/* Puerta seccional */}
               <polygon points={rectY(5, 6.6, 9.6, 0, 2.1)} fill="#031029" stroke="rgba(106,166,255,.4)" />
               <g clipPath="url(#doorClip)">
-                <motion.g
-                  animate={svc.slug === "automatizacion-de-puertas" ? { y: [0, -58, -58, 0] } : { y: 0 }}
-                  transition={{ duration: 3.4, repeat: svc.slug === "automatizacion-de-puertas" ? Infinity : 0, times: [0, 0.35, 0.7, 1], ease: "easeInOut" }}
-                >
+                <g className={svc.slug === "automatizacion-de-puertas" ? "eco-door" : undefined}>
                   <polygon points={rectY(5, 6.6, 9.6, 0, 2.1)} fill="#1d4a9e" />
                   {[0.42, 0.84, 1.26, 1.68].map((z) => (
                     <line key={z} x1={iso([6.6, 5, z])[0]} y1={iso([6.6, 5, z])[1]} x2={iso([9.6, 5, z])[0]} y2={iso([9.6, 5, z])[1]} stroke="rgba(106,166,255,.45)" />
                   ))}
-                </motion.g>
+                </g>
               </g>
               {/* Paneles en el garaje */}
               {[1.4, 2.9].map((y) =>
@@ -265,14 +247,14 @@ export function Ecosystem() {
                 <g key={z}>
                   <polygon points={rectX(6.001, 1.3, 2.6, z, z + 0.16)} fill="#0b2c73" />
                   {[1.45, 1.7, 1.95, 2.2].map((y, j) => (
-                    <motion.circle
+                    <circle
                       key={y}
+                      className="eco-blink"
                       cx={iso([6.002, y, z + 0.08])[0]}
                       cy={iso([6.002, y, z + 0.08])[1]}
                       r="1.3"
                       fill={j % 2 ? "#e9f205" : "#6aa6ff"}
-                      animate={{ opacity: [1, 0.2, 1] }}
-                      transition={{ duration: 0.6 + ((i + j) % 4) * 0.35, repeat: Infinity }}
+                      style={{ animationDuration: `${0.6 + ((i + j) % 4) * 0.35}s` }}
                     />
                   ))}
                 </g>
@@ -282,14 +264,15 @@ export function Ecosystem() {
               {/* Paneles solares techo principal */}
               {[0.4, 1.9, 3.4].map((y) =>
                 [0.4, 2.3, 4.2].map((x) => (
-                  <motion.polygon
+                  <polygon
                     key={`${x}-${y}`}
                     points={pts([[x, y, 5.15], [x + 1.6, y, 5.15], [x + 1.6, y + 1.25, 4.72], [x, y + 1.25, 4.72]])}
                     fill="url(#panel)"
                     stroke="#6aa6ff"
                     strokeWidth=".6"
-                    animate={svc.slug === "energia-solar" ? { opacity: [0.75, 1, 0.75] } : { opacity: 0.85 }}
-                    transition={{ duration: 1.6, repeat: Infinity, delay: (x + y) * 0.1 }}
+                    className={svc.slug === "energia-solar" ? "eco-breathe" : undefined}
+                    opacity={svc.slug === "energia-solar" ? undefined : 0.85}
+                    style={{ animationDelay: `${(x + y) * 0.1}s` }}
                   />
                 )),
               )}
@@ -298,15 +281,16 @@ export function Ecosystem() {
               <line x1={iso([5.3, 0.9, 4.5])[0]} y1={iso([5.3, 0.9, 4.5])[1]} x2={hub[0]} y2={hub[1]} stroke="#6aa6ff" strokeWidth="2" />
               <circle cx={hub[0]} cy={hub[1]} r="5" fill="#e9f205" />
               {[0, 1, 2].map((i) => (
-                <motion.circle
+                <circle
                   key={i}
                   cx={hub[0]}
                   cy={hub[1]}
+                  r={38}
                   fill="none"
                   stroke="#e9f205"
-                  initial={{ r: 5, opacity: 0.8 }}
-                  animate={{ r: 38, opacity: 0 }}
-                  transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.8, ease: "easeOut" }}
+                  strokeWidth={0.8}
+                  className="eco-ring"
+                  style={{ animationDelay: `${i * 0.8}s` }}
                 />
               ))}
 
@@ -331,9 +315,8 @@ export function Ecosystem() {
                   stroke={i === active ? "#e9f205" : "rgba(106,166,255,.35)"}
                   strokeWidth={i === active ? 1.6 : 1}
                   strokeDasharray="3 6"
-                  className="transition-[stroke] duration-500"
+                  className={i === active ? "eco-dash" : undefined}
                 >
-                  <animate attributeName="stroke-dashoffset" from="0" to="-36" dur={i === active ? "0.8s" : "2.4s"} repeatCount="indefinite" />
                 </path>
               ))}
 
@@ -344,15 +327,7 @@ export function Ecosystem() {
                 return (
                   <g key={s.slug} transform={`translate(${x} ${y})`} className="cursor-pointer" onClick={() => pick(i)} onMouseEnter={() => pick(i)}>
                     {on && (
-                      <motion.circle
-                        r={10}
-                        fill="none"
-                        stroke="#e9f205"
-                        strokeWidth="2"
-                        initial={{ scale: 0.8, opacity: 1 }}
-                        animate={{ scale: 2.6, opacity: 0 }}
-                        transition={{ duration: 1.4, repeat: Infinity }}
-                      />
+                      <circle r={26} fill="none" stroke="#e9f205" strokeWidth="1.2" className="eco-ring" />
                     )}
                     <circle r="18" fill="transparent" />
                     <circle r={on ? 12 : 9} fill={on ? "#e9f205" : "#0660d8"} stroke="#fff" strokeWidth="2" className="transition-all duration-300" />

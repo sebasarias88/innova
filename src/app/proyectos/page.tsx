@@ -13,7 +13,7 @@ export default function ProyectosPage() {
     <>
       <PageHero
         eyebrow="Portafolio"
-        image="/img/tecnico-campo.jpg"
+        image="/img/tecnico-campo.webp"
         title={
           <>
             Proyectos que <span className="text-lime-400">hablan por nosotros.</span>

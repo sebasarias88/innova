@@ -1,12 +1,15 @@
 "use client";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { motion, useInView } from "motion/react";
+import { useRef } from "react";
 import { cities } from "@/lib/cities";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ArrowUpRight } from "lucide-react";
 
 export function Coverage() {
   const hub = cities.find((c) => c.hub)!;
+  const mapRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(mapRef);
   return (
     <section className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
@@ -35,7 +38,7 @@ export function Coverage() {
           </div>
         </div>
 
-        <div className="relative mx-auto aspect-square w-full max-w-[420px] lg:max-w-none">
+        <div ref={mapRef} data-paused={inView ? undefined : ""} className="relative mx-auto aspect-square w-full max-w-[420px] lg:max-w-none">
           <div className="grid-bg absolute inset-0 rounded-[2rem] border border-white/10 [mask-image:radial-gradient(circle,black_55%,transparent_75%)]" />
           <svg viewBox="0 0 100 100" className="absolute inset-0 size-full">
             {/* radar */}
@@ -72,7 +75,7 @@ export function Coverage() {
               <g key={c.slug}>
                 <circle cx={c.x} cy={c.y} r={c.hub ? 2.2 : 1.2} fill={c.hub ? "#e9f205" : "#6aa6ff"} />
                 {c.hub && (
-                  <motion.circle cx={c.x} cy={c.y} fill="none" stroke="#e9f205" strokeWidth=".4" initial={{ r: 2, opacity: 1 }} animate={{ r: 9, opacity: 0 }} transition={{ duration: 2, repeat: Infinity }} />
+                  <circle cx={c.x} cy={c.y} r={9} fill="none" stroke="#e9f205" strokeWidth=".4" className="eco-ring" />
                 )}
                 <text x={c.slug === "montenegro" || c.slug === "cali" ? c.x - 3 : c.x + 3} y={c.y + 1} textAnchor={c.slug === "montenegro" || c.slug === "cali" ? "end" : "start"} fontSize={c.hub ? 3.4 : 2.6} fill={c.hub ? "#fff" : "rgba(255,255,255,.7)"} fontWeight={c.hub ? 700 : 500}>
                   {c.name}

@@ -13,7 +13,7 @@ export function Footer() {
       <div className="relative mx-auto max-w-7xl px-4 pt-14 sm:px-6 sm:pt-20">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-12">
           <div className="col-span-2 lg:col-span-1">
-            <Logo className="h-12 w-auto text-white" accent />
+            <Logo className="h-12 w-auto" />
             <p className="mt-6 max-w-sm text-pretty text-white/60">
               Soluciones integrales en seguridad electrónica, energía solar, automatización y redes. {site.slogan}.
             </p>
@@ -97,8 +97,8 @@ export function Footer() {
         </div>
 
         {/* Wordmark gigante */}
-        <div className="pointer-events-none mt-10 select-none text-white/[0.04] sm:mt-14" aria-hidden>
-          <Logo variant="full" className="w-full" />
+        <div className="pointer-events-none mt-10 select-none sm:mt-14" aria-hidden>
+          <Logo tone="white" className="h-auto w-full opacity-[0.04]" />
         </div>
 
         <div className="flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row sm:justify-between">

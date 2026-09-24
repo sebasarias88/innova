@@ -36,7 +36,7 @@ export function WhyUs() {
         {/* Imagen en franjas, tal como el brochure */}
         <div className="relative h-[340px] sm:h-[480px] lg:h-[640px]">
           <Reveal y={40} className="absolute inset-0">
-            <Image src="/img/tecnico-lima.jpg" alt="Técnico INNOVA certificado" fill sizes="50vw" className="object-contain object-right" />
+            <Image src="/img/tecnico-lima.webp" alt="Técnico INNOVA certificado" fill sizes="50vw" className="object-contain object-right" />
           </Reveal>
           <div className="absolute -bottom-4 right-0 rounded-2xl bg-navy-900 p-4 text-white shadow-2xl sm:p-5">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-lime-400">Garantía</p>

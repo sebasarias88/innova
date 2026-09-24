@@ -15,7 +15,7 @@ const FEEDS: Feed[] = [
   {
     cam: "CAM-01",
     zone: "Cuarto de red",
-    src: "/img/redes-tecnico.jpg",
+    src: "/img/redes-tecnico.webp",
     aspect: 1020 / 1070,
     boxes: [
       { x: 0.3, y: 0.13, w: 0.42, h: 0.6, label: "Técnico INNOVA", conf: 99 },
@@ -25,7 +25,7 @@ const FEEDS: Feed[] = [
   {
     cam: "CAM-02",
     zone: "Acceso vehicular",
-    src: "/img/puertas-instalacion.jpg",
+    src: "/img/puertas-instalacion.webp",
     aspect: 1080 / 1045,
     boxes: [
       { x: 0.15, y: 0.3, w: 0.34, h: 0.68, label: "Persona", conf: 97 },
@@ -35,7 +35,7 @@ const FEEDS: Feed[] = [
   {
     cam: "CAM-03",
     zone: "Parque solar",
-    src: "/img/solar-campo.jpg",
+    src: "/img/solar-campo.webp",
     aspect: 910 / 1040,
     boxes: [
       { x: 0.45, y: 0.34, w: 0.24, h: 0.54, label: "Persona", conf: 98 },
@@ -46,7 +46,7 @@ const FEEDS: Feed[] = [
   {
     cam: "CAM-04",
     zone: "Perímetro norte",
-    src: "/img/cctv-poste.jpg",
+    src: "/img/cctv-poste.webp",
     aspect: 620 / 1080,
     boxes: [
       { x: 0.62, y: 0.07, w: 0.33, h: 0.15, label: "PTZ · Online" },
@@ -56,7 +56,7 @@ const FEEDS: Feed[] = [
   {
     cam: "CAM-05",
     zone: "Sala UPS",
-    src: "/img/ups-tecnico.jpg",
+    src: "/img/ups-tecnico.webp",
     aspect: 950 / 900,
     boxes: [
       { x: 0.04, y: 0.12, w: 0.6, h: 0.86, label: "Persona", conf: 98 },
@@ -90,7 +90,8 @@ function mapBox(b: Box, imgAspect: number): Box | null {
   return { ...b, x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
 
-function useClock() {
+/** Reloj aislado: solo este pequeño componente se re-renderiza cada segundo. */
+function LiveClock() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     const tick = () => setNow(new Date());
@@ -101,9 +102,14 @@ function useClock() {
       clearInterval(t);
     };
   }, []);
-  if (!now) return { date: "----/--/--", time: "--:--:--" };
+  if (!now) return <>----/--/-- <span className="text-lime-400">--:--:--</span></>;
   const f = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota", ...o }).format(now);
-  return { date: f({ year: "numeric", month: "2-digit", day: "2-digit" }), time: f({ hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }) };
+  return (
+    <>
+      {f({ year: "numeric", month: "2-digit", day: "2-digit" })}{" "}
+      <span className="text-lime-400">{f({ hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}</span>
+    </>
+  );
 }
 
 const HEADLINE = [
@@ -118,7 +124,6 @@ const HEADLINE = [
 export function HeroCCTV() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const clock = useClock();
 
   useEffect(() => {
     if (paused) return;
@@ -139,6 +144,7 @@ export function HeroCCTV() {
     <section
       className="relative isolate overflow-hidden bg-navy-950 pb-12 pt-24 sm:pb-16 sm:pt-36 lg:min-h-[100svh] lg:pb-10"
       onPointerMove={(e) => {
+        if (e.pointerType !== "mouse") return; // sin inclinación 3D en táctiles
         const r = e.currentTarget.getBoundingClientRect();
         mx.set((e.clientX - r.left) / r.width - 0.5);
         my.set((e.clientY - r.top) / r.height - 0.5);
@@ -146,54 +152,41 @@ export function HeroCCTV() {
     >
       {/* Fondo */}
       <div className="grid-bg absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_80%_70%_at_60%_40%,black,transparent)]" />
-      <div className="absolute right-[-10%] top-[10%] -z-10 size-[720px] rounded-full bg-royal-500/30 blur-[140px]" />
-      <div className="absolute bottom-[-20%] left-[-10%] -z-10 size-[520px] rounded-full bg-lime-400/10 blur-[140px]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(640px_circle_at_85%_35%,rgb(6_96_216/0.28),transparent_70%),radial-gradient(480px_circle_at_0%_100%,rgb(233_242_5/0.07),transparent_70%)]" />
 
       <div className="mx-auto grid max-w-7xl items-center px-4 sm:px-6 lg:grid-cols-[1.02fr_1fr] lg:gap-10">
         {/* Texto (en móvil sus hijos se reordenan alrededor del monitor) */}
         <div className="contents lg:relative lg:z-10 lg:block">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="order-1 inline-flex items-center gap-3 justify-self-start rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4 backdrop-blur lg:order-none"
+          <div
+            className="order-1 inline-flex animate-rise items-center gap-3 justify-self-start rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4 lg:order-none"
           >
             <span className="rounded-full bg-lime-400 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-navy-900">
               Armenia · Quindío
             </span>
             <span className="text-xs text-white/70"><span className="sm:hidden">Seguridad y sistemas</span><span className="hidden sm:inline">Seguridad y sistemas para hogares, empresas e industrias</span></span>
-          </motion.div>
+          </div>
 
           <h1 className="order-2 mt-5 text-[2.75rem] sm:mt-7 lg:order-none font-bold leading-[0.95] tracking-[-0.035em] text-white sm:text-7xl xl:text-[5.4rem]">
             {HEADLINE.map((h, i) => (
               <span key={i} className="mr-[0.22em] inline-block overflow-hidden pb-[0.08em] align-top">
-                <motion.span
-                  className={`inline-block ${h.c}`}
-                  initial={{ y: "110%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 1, delay: 0.15 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <span className={`inline-block animate-word-up ${h.c}`} style={{ animationDelay: `${0.1 + i * 0.07}s` }}>
                   {h.w}
-                </motion.span>
+                </span>
               </span>
             ))}
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.7 }}
-            className="order-4 mt-7 max-w-xl text-pretty text-base leading-relaxed text-white/70 sm:text-lg lg:order-none"
+          <p
+            style={{ animationDelay: "0.45s" }}
+            className="order-4 animate-rise mt-7 max-w-xl text-pretty text-base leading-relaxed text-white/70 sm:text-lg lg:order-none"
           >
             Cámaras de seguridad, energía solar, automatización, domótica, redes y respaldo eléctrico.{" "}
             <span className="text-white">Un solo aliado</span> que diseña, instala y responde por todo.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.85 }}
-            className="order-5 mt-7 grid gap-2.5 sm:mt-10 sm:flex sm:flex-wrap lg:order-none"
+          <div
+            style={{ animationDelay: "0.55s" }}
+            className="order-5 animate-rise mt-7 grid gap-2.5 sm:mt-10 sm:flex sm:flex-wrap lg:order-none"
           >
             <Button href="/arma-tu-sistema" className="px-4 sm:px-6" icon={<ArrowRight className="size-3.5" />}>
               Arma tu sistema
@@ -207,13 +200,11 @@ export function HeroCCTV() {
             >
               Asesoría gratis
             </Button>
-          </motion.div>
+          </div>
 
-          <motion.dl
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.1 }}
-            className="order-6 mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6 sm:mt-12 sm:gap-6 lg:order-none"
+          <dl
+            style={{ animationDelay: "0.7s" }}
+            className="order-6 animate-rise mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6 sm:mt-12 sm:gap-6 lg:order-none"
           >
             {[
               ["7", "Soluciones integradas"],
@@ -225,21 +216,18 @@ export function HeroCCTV() {
                 <dd className="mt-1 text-xs leading-snug text-white/50">{l}</dd>
               </div>
             ))}
-          </motion.dl>
+          </dl>
         </div>
 
         {/* Monitor VMS */}
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, scale: 0.94, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           style={{ rotateX: rx, rotateY: ry, transformPerspective: 1400 }}
           className="relative order-3 mt-8 lg:order-none lg:mt-0"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <div className="relative overflow-hidden rounded-[1.6rem] border border-white/15 bg-navy-900/80 p-2 shadow-[0_40px_120px_-20px_rgba(6,96,216,0.55)] backdrop-blur-xl">
+          <div className="relative animate-rise overflow-hidden rounded-[1.6rem] border border-white/15 bg-navy-900 p-2 shadow-[0_30px_80px_-20px_rgba(6,96,216,0.5)]" style={{ animationDelay: "0.2s" }}>
             {/* Barra superior */}
             <div className="flex items-center justify-between px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
               <div className="flex items-center gap-2">
@@ -266,18 +254,12 @@ export function HeroCCTV() {
                   animate={{
                     opacity: 1,
                     clipPath: "inset(0 0 0% 0)",
-                    filter: ["brightness(2.4) contrast(1.6) hue-rotate(40deg)", "brightness(1) contrast(1) hue-rotate(0deg)"],
                     x: [-14, 10, -5, 0],
                   }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.55, ease: "easeOut" }}
                 >
-                  <motion.div
-                    className="absolute inset-0"
-                    initial={{ scale: 1 }}
-                    animate={{ scale: 1.06 }}
-                    transition={{ duration: CYCLE_MS / 1000, ease: "linear" }}
-                  >
+                  <div className="absolute inset-0 animate-kenburns">
                     <Image
                       src={feed.src}
                       alt={`Vista en vivo ${feed.zone}`}
@@ -286,7 +268,7 @@ export function HeroCCTV() {
                       sizes="(max-width: 1024px) 100vw, 640px"
                       className="object-cover"
                     />
-                  </motion.div>
+                  </div>
                 </motion.div>
               </AnimatePresence>
 
@@ -294,7 +276,6 @@ export function HeroCCTV() {
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.65))]" />
               <div className="scanlines pointer-events-none absolute inset-0 opacity-70" />
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 animate-scan bg-gradient-to-b from-transparent via-white/[0.07] to-transparent" />
-              <div className="grain pointer-events-none absolute inset-0 overflow-hidden" />
 
               {/* Cajas de detección */}
               <AnimatePresence mode="popLayout">
@@ -320,17 +301,17 @@ export function HeroCCTV() {
               {/* HUD */}
               <div className="pointer-events-none absolute inset-0 p-3 font-mono text-[10px] uppercase tracking-[0.16em] text-white sm:p-4 sm:text-[11px]">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 rounded bg-black/45 px-2 py-1 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 rounded bg-black/55 px-2 py-1">
                     <span className="size-2 animate-blink rounded-full bg-red-500" />
                     REC · {feed.cam}
                   </div>
-                  <div className="rounded bg-black/45 px-2 py-1 text-right backdrop-blur-sm tabular-nums">
-                    {clock.date} <span className="text-lime-400">{clock.time}</span>
+                  <div className="rounded bg-black/55 px-2 py-1 text-right tabular-nums">
+                    <LiveClock />
                   </div>
                 </div>
                 <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between sm:bottom-4 sm:left-4 sm:right-4">
-                  <div className="rounded bg-black/45 px-2 py-1 backdrop-blur-sm">{feed.zone}</div>
-                  <div className="hidden rounded bg-black/45 px-2 py-1 backdrop-blur-sm sm:block">4K · 30FPS · H.265 · ☁ Nube</div>
+                  <div className="rounded bg-black/55 px-2 py-1">{feed.zone}</div>
+                  <div className="hidden rounded bg-black/55 px-2 py-1 sm:block">4K · 30FPS · H.265 · ☁ Nube</div>
                 </div>
                 {/* Mira central */}
                 <svg className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2 text-white/40" viewBox="0 0 40 40" aria-hidden>
@@ -350,16 +331,10 @@ export function HeroCCTV() {
                   }`}
                   aria-label={`Ver ${f.cam} ${f.zone}`}
                 >
-                  <Image src={f.src} alt="" fill sizes="120px" className={`object-cover transition ${i === active ? "" : "opacity-50 grayscale group-hover:opacity-80"}`} />
+                  <Image src={f.src.replace("/img/", "/img/thumbs/")} alt="" fill sizes="120px" className={`object-cover transition ${i === active ? "" : "opacity-50 grayscale group-hover:opacity-80"}`} />
                   <span className="absolute left-1 top-1 font-mono text-[8px] text-white/90">{f.cam}</span>
                   {i === active && !paused && (
-                    <motion.span
-                      key={active}
-                      className="absolute bottom-0 left-0 h-0.5 bg-lime-400"
-                      initial={{ width: "0%" }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: CYCLE_MS / 1000, ease: "linear" }}
-                    />
+                    <span key={active} className="absolute bottom-0 left-0 h-0.5 w-full origin-left animate-progress bg-lime-400" />
                   )}
                 </button>
               ))}
@@ -378,11 +353,7 @@ export function HeroCCTV() {
       <div className="pointer-events-none absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">Scroll</span>
         <span className="h-10 w-px overflow-hidden bg-white/10">
-          <motion.span
-            className="block h-4 w-px bg-lime-400"
-            animate={{ y: [-16, 40] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          />
+          <span className="block h-4 w-px animate-[scroll-hint_1.6s_ease-in-out_infinite] bg-lime-400" />
         </span>
       </div>
     </section>

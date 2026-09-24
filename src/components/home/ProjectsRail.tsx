@@ -1,25 +1,26 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { projects } from "@/lib/projects";
 import { getService } from "@/lib/services";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { HudCorners } from "@/components/ui/HudCorners";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export function ProjectsRail() {
   const section = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 1024px)", () => {
-      const el = track.current!;
+  // Scroll horizontal fijado solo en escritorio. GSAP se descarga únicamente ahí.
+  useEffect(() => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+    let cleanup = () => {};
+    let cancelled = false;
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ default: gsap }, { ScrollTrigger }]) => {
+      if (cancelled || !track.current) return;
+      gsap.registerPlugin(ScrollTrigger);
+      const el = track.current;
       const dist = () => el.scrollWidth - window.innerWidth + 48;
       const tween = gsap.to(el, {
         x: () => -dist(),
@@ -33,9 +34,15 @@ export function ProjectsRail() {
           invalidateOnRefresh: true,
         },
       });
-      return () => tween.kill();
+      cleanup = () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
     });
-    return () => mm.revert();
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
   }, []);
 
   return (

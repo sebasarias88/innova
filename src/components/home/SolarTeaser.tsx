@@ -16,7 +16,7 @@ export function SolarTeaser() {
     <section className="relative overflow-hidden bg-navy-950 py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
-          <Image src="/img/solar-campo.jpg" alt="Técnicos INNOVA en parque solar" fill sizes="100vw" className="object-cover" />
+          <Image src="/img/solar-campo.webp" alt="Técnicos INNOVA en parque solar" fill sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/90 to-navy-950/30" />
           <div className="relative grid gap-12 p-6 sm:p-12 lg:grid-cols-2 lg:p-16">
             <div>
