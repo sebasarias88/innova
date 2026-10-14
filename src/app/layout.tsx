@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
-import { MobileDock } from "@/components/layout/MobileDock";
-import { SmoothScroll } from "@/components/layout/SmoothScroll";
-import { AnimationGate } from "@/components/layout/AnimationGate";
 import { site } from "@/lib/site";
 
 // Fuentes autoalojadas con next/font: se precargan y el texto no "salta" al cargar
@@ -78,16 +72,9 @@ const jsonLd = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es-CO" className={`${sora.variable} ${mono.variable}`}>
-      <body className="overflow-x-clip pb-[84px] sm:pb-0">
+      <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <SmoothScroll>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppFab />
-          <MobileDock />
-          <AnimationGate />
-        </SmoothScroll>
+        {children}
       </body>
     </html>
   );
