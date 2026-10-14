@@ -3,12 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { Check, CalendarDays } from "lucide-react";
 import clsx from "clsx";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { getService } from "@/lib/services";
+import { booking } from "@/lib/site";
 
 const TABS = [
   {
@@ -39,7 +40,7 @@ const TABS = [
       "Tus equipos siguen trabajando aunque se vaya la luz",
       "Soporte técnico y mantenimiento preventivo",
     ],
-    services: ["cctv", "cableado-estructurado", "ups", "servicios-informaticos"],
+    services: ["cctv", "ups", "servicios-informaticos", "automatizacion-de-puertas"],
   },
   {
     id: "industria",
@@ -151,8 +152,8 @@ export function Audience() {
                     );
                   })}
                 </div>
-                <Button href={`/arma-tu-sistema?tipo=${t.id}`} className="mt-6" icon={<ArrowRight className="size-3.5" />}>
-                  Armar mi sistema
+                <Button href={booking.href} external className="mt-6" icon={<CalendarDays className="size-3.5" />}>
+                  {booking.label}
                 </Button>
               </div>
             </motion.div>

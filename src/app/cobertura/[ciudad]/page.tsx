@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { cities, getCity } from "@/lib/cities";
 import { services } from "@/lib/services";
-import { waLink } from "@/lib/site";
+import { booking, waLink } from "@/lib/site";
 import { PageHero } from "@/components/layout/PageHero";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -39,7 +39,7 @@ export default async function CityPage({ params }: Props) {
     <>
       <PageHero
         eyebrow={`${c.name} · ${c.dept}`}
-        image="/img/cctv-poste.webp"
+        image="/img/cctv-domo.webp"
         title={
           <>
             Cámaras de seguridad y energía solar en <span className="text-lime-400">{c.name}.</span>
@@ -51,8 +51,8 @@ export default async function CityPage({ params }: Props) {
           <Button href={waLink(wa)} external icon={<WhatsAppIcon className="size-3.5" />}>
             Asesoría en {c.name}
           </Button>
-          <Button href="/arma-tu-sistema" variant="ghost" icon={<ArrowRight className="size-3.5" />}>
-            Arma tu sistema
+          <Button href={booking.href} external variant="ghost" icon={<CalendarDays className="size-3.5" />}>
+            {booking.label}
           </Button>
         </div>
       </PageHero>

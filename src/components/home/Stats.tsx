@@ -14,7 +14,7 @@ export function Stats() {
         ))}
       </div>
       <div className="border-t border-navy-900/15 bg-navy-900 py-4 font-mono text-sm uppercase tracking-[0.2em] text-lime-400">
-        <Marquee items={["CCTV", "Energía solar", "Automatización de puertas", "Domótica", "Cableado estructurado", "Sistemas UPS", "Servicios informáticos"]} />
+        <Marquee items={["CCTV", "Energía solar", "Automatización de puertas", "Domótica", "Sistemas UPS", "Servicios informáticos"]} />
       </div>
     </section>
   );

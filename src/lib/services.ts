@@ -31,7 +31,7 @@ export const services: Service[] = [
     short: "Vigilancia profesional con acceso remoto y almacenamiento en la nube.",
     description:
       "Diseñamos e instalamos sistemas de videovigilancia para hogares, comercios, conjuntos e industrias. Ve tus cámaras desde el celular en tiempo real, recibe alertas inteligentes y guarda tus grabaciones de forma segura en la nube.",
-    image: "/img/cctv-poste.webp",
+    image: "/img/cctv-domo.webp",
     icon: "Cctv",
     includes: [
       "Cámaras IP, analógicas y sistemas híbridos",
@@ -138,35 +138,6 @@ export const services: Service[] = [
     wa: "Hola INNOVA 🏠 Quiero hacer mi hogar/oficina inteligente (domótica).",
   },
   {
-    slug: "cableado-estructurado",
-    name: "Cableado estructurado",
-    title: ["Cableado", "Estructurado"],
-    kicker: "Redes de datos y voz",
-    short: "Instalación de redes de datos y voz bajo normativas internacionales.",
-    description:
-      "La base de toda empresa conectada. Diseñamos e instalamos redes ordenadas, certificadas y listas para crecer, bajo normativas internacionales.",
-    image: "/img/redes-tecnico.webp",
-    icon: "Cable",
-    includes: [
-      "Categorías 5e, 6 y 6A",
-      "Patch panels, racks y canalización",
-      "Certificación y pruebas de red",
-      "Migración de sistemas existentes",
-    ],
-    highlights: [
-      { title: "Cat 5e, 6 y 6A", text: "La categoría correcta para la velocidad que tu negocio necesita.", icon: "Network" },
-      { title: "Racks organizados", text: "Patch panels, gabinetes y canalización limpia y etiquetada.", icon: "Server" },
-      { title: "Certificación", text: "Pruebas de cada punto de red con reporte técnico.", icon: "BadgeCheck" },
-      { title: "Migraciones", text: "Actualizamos tu red existente sin detener tu operación.", icon: "Router" },
-    ],
-    useCases: ["Oficinas", "Colegios", "Clínicas", "Hoteles", "Industrias", "Centros de datos"],
-    faqs: [
-      { q: "¿Qué categoría de cable necesito?", a: "Para la mayoría de oficinas Cat 6 es ideal. Para alta velocidad o proyección futura recomendamos Cat 6A." },
-      { q: "¿Entregan certificación?", a: "Sí, certificamos cada punto y entregamos el reporte de pruebas." },
-    ],
-    wa: "Hola INNOVA 🌐 Necesito una cotización de cableado estructurado.",
-  },
-  {
     slug: "ups",
     name: "Sistemas de respaldo UPS",
     title: ["UPS", "Sistemas de respaldo"],
@@ -203,7 +174,7 @@ export const services: Service[] = [
     short: "Venta de equipos, reparación, software, antivirus y mantenimiento preventivo.",
     description:
       "Mantén tus equipos rápidos, seguros y funcionando. Soporte técnico para hogares y empresas, desde la venta del equipo hasta su mantenimiento.",
-    image: "/img/informatica.webp",
+    image: "/img/informatica-pc.webp",
     icon: "Laptop",
     includes: [
       "Venta de equipos y accesorios",

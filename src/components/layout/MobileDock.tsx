@@ -1,15 +1,11 @@
 "use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Phone, Sparkles } from "lucide-react";
+import { CalendarDays, Phone } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { site, waLink } from "@/lib/site";
+import { booking, site, waLink } from "@/lib/site";
 
 /** Barra de acciones fija en móvil (reemplaza el botón flotante) */
 export function MobileDock() {
-  const pathname = usePathname();
-  if (pathname === "/arma-tu-sistema") return null;
   return (
     <motion.nav
       initial={{ y: 100 }}
@@ -21,7 +17,7 @@ export function MobileDock() {
     >
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-[1.4rem] border border-white/10 bg-navy-900/90 p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.7)] backdrop-blur-xl">
         <a
-          href={`tel:+${site.phones[0].raw}`}
+          href={`tel:+${site.phone.raw}`}
           aria-label="Llamar"
           className="grid size-12 place-items-center rounded-2xl bg-white/5 text-white active:scale-95"
         >
@@ -37,12 +33,14 @@ export function MobileDock() {
           <WhatsAppIcon className="relative size-5" />
           <span className="relative">WhatsApp</span>
         </a>
-        <Link
-          href="/arma-tu-sistema"
+        <a
+          href={booking.href}
+          target="_blank"
+          rel="noopener noreferrer"
           className="flex h-12 items-center gap-1.5 rounded-2xl bg-lime-400 px-4 text-sm font-semibold text-navy-900 active:scale-95"
         >
-          <Sparkles className="size-4" /> Cotizar
-        </Link>
+          <CalendarDays className="size-4" /> Agendar
+        </a>
       </div>
     </motion.nav>
   );

@@ -7,7 +7,7 @@ type Props = { className?: string; variant?: "full" | "mark"; tone?: Tone; prior
  * Logo INNOVA como archivo SVG estático (public/brand), optimizado con SVGO (~12 KB).
  * Se sirve una sola vez y queda en caché: no se repite dentro del HTML ni del JS.
  */
-export function Logo({ className, variant = "full", tone = "light", priority }: Props) {
+export function Logo({ className, variant = "full", tone = "white", priority }: Props) {
   const src =
     variant === "mark"
       ? tone === "navy" ? "/brand/mark-navy.svg" : "/brand/mark-white.svg"

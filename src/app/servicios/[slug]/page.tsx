@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { getService, services } from "@/lib/services";
-import { waLink } from "@/lib/site";
+import { booking, waLink } from "@/lib/site";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -66,8 +66,8 @@ export default async function ServicePage({ params }: Props) {
               <Button href={waLink(s.wa)} external icon={<WhatsAppIcon className="size-3.5" />}>
                 Cotizar por WhatsApp
               </Button>
-              <Button href="/arma-tu-sistema" variant="ghost" icon={<ArrowRight className="size-3.5" />}>
-                Arma tu sistema
+              <Button href={booking.href} external variant="ghost" icon={<CalendarDays className="size-3.5" />}>
+                {booking.label}
               </Button>
             </div>
           </div>

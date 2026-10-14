@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "paneles solares Quindío",
     "automatización de puertas",
     "domótica",
-    "cableado estructurado",
+    "alarmas de seguridad",
     "UPS",
   ],
   openGraph: {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: "INNOVA Seguridad y Sistemas",
     description: site.description,
-    images: ["/img/cctv-poste.webp"],
+    images: ["/img/cctv-domo.webp"],
   },
 };
 
@@ -62,7 +62,7 @@ const jsonLd = {
   "@type": "LocalBusiness",
   name: site.name,
   description: site.description,
-  telephone: "+57 304 355 0891",
+  telephone: "+57 321 853 9336",
   email: site.email,
   address: {
     "@type": "PostalAddress",
@@ -72,7 +72,7 @@ const jsonLd = {
     addressCountry: "CO",
   },
   areaServed: ["Armenia", "Quindío", "Eje Cafetero", "Colombia"],
-  sameAs: [site.instagram.url],
+  sameAs: [site.instagram.url, site.tiktok.url],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
