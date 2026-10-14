@@ -11,7 +11,8 @@ const S = 30;
 export type V3 = [number, number, number];
 export const iso = ([x, y, z]: V3): [number, number] => [(x - y) * 0.866 * S, (x + y) * 0.5 * S - z * S];
 const pts = (vs: V3[]) => vs.map((v) => iso(v).map((n) => n.toFixed(1)).join(",")).join(" ");
-const P = (vs: V3[], props: React.SVGProps<SVGPolygonElement> = {}) => <polygon points={pts(vs)} {...props} />;
+/** Polygon from world points. `key` is pulled out so it is passed to JSX directly (never inside a spread). */
+const P = (vs: V3[], { key, ...props }: React.SVGProps<SVGPolygonElement> = {}) => <polygon key={key} points={pts(vs)} {...props} />;
 
 /** Rectangle on a plane y = const (front face) */
 const fy = (y: number, x0: number, x1: number, z0: number, z1: number): V3[] => [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]];
