@@ -1,8 +1,8 @@
-import { ArrowRight } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Logo } from "@/components/brand/Logo";
-import { waLink } from "@/lib/site";
+import { booking, waLink } from "@/lib/site";
 import { Reveal } from "@/components/ui/Reveal";
 
 export function CtaBand({
@@ -32,8 +32,8 @@ export function CtaBand({
             <Button href={waLink(wa)} external variant="lime" icon={<WhatsAppIcon className="size-3.5" />}>
               Hablar por WhatsApp
             </Button>
-            <Button href="/arma-tu-sistema" variant="ghost" icon={<ArrowRight className="size-3.5" />}>
-              Arma tu sistema
+            <Button href={booking.href} external variant="ghost" icon={<CalendarDays className="size-3.5" />}>
+              {booking.label}
             </Button>
           </div>
         </div>

@@ -8,7 +8,7 @@ import clsx from "clsx";
 import { Logo } from "@/components/brand/Logo";
 import { Icon } from "@/components/ui/Icon";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { nav, site, waLink } from "@/lib/site";
+import { booking, nav, site, waLink } from "@/lib/site";
 import { services } from "@/lib/services";
 
 export function Header() {
@@ -136,21 +136,23 @@ export function Header() {
                       </Link>
                     ))}
                   </div>
-                  <Link
-                    href="/arma-tu-sistema"
+                  <a
+                    href={booking.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group relative flex flex-col justify-end overflow-hidden rounded-2xl bg-royal-500 p-6"
                   >
                     <div className="grid-bg absolute inset-0 opacity-40" />
                     <span className="relative font-mono text-[11px] uppercase tracking-[0.2em] text-lime-400">
-                      Nuevo · Herramienta
+                      Visita técnica
                     </span>
                     <span className="relative mt-2 text-2xl font-bold leading-tight text-white">
-                      Arma tu sistema en 60 segundos
+                      Agenda tu servicio con un técnico INNOVA
                     </span>
                     <span className="relative mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                      Empezar <ArrowUpRight className="size-4 transition-transform group-hover:rotate-45" />
+                      Agendar ahora <ArrowUpRight className="size-4 transition-transform group-hover:rotate-45" />
                     </span>
-                  </Link>
+                  </a>
                 </div>
               </div>
             </motion.div>

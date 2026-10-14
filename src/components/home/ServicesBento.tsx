@@ -14,8 +14,7 @@ const layout: Record<string, string> = {
   "energia-solar": "lg:col-span-2",
   "automatizacion-de-puertas": "",
   domotica: "",
-  "cableado-estructurado": "",
-  ups: "",
+  ups: "lg:col-span-2",
   "servicios-informaticos": "lg:col-span-2",
 };
 
@@ -84,7 +83,7 @@ export function ServicesBento() {
           })}
         </div>
         <p className="mt-4 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-navy-900/40 sm:hidden">
-          Desliza para ver los 7 servicios →
+          Desliza para ver los {services.length} servicios →
         </p>
       </div>
     </section>

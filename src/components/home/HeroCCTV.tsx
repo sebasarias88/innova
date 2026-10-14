@@ -2,10 +2,10 @@
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, BatteryCharging, Bell, DoorClosed, Sun, Wifi } from "lucide-react";
+import { BatteryCharging, Bell, DoorClosed, Sun, Wifi, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { waLink } from "@/lib/site";
+import { booking, waLink } from "@/lib/site";
 
 type Box = { x: number; y: number; w: number; h: number; label: string; conf?: number };
 type Feed = { cam: string; zone: string; src: string; aspect: number; boxes: Box[] };
@@ -24,12 +24,12 @@ const FEEDS: Feed[] = [
   },
   {
     cam: "CAM-02",
-    zone: "Acceso vehicular",
-    src: "/img/puertas-instalacion.webp",
-    aspect: 1080 / 1045,
+    zone: "Instalación en altura",
+    src: "/img/tecnico-altura.webp",
+    aspect: 1400 / 934,
     boxes: [
-      { x: 0.15, y: 0.3, w: 0.34, h: 0.68, label: "Persona", conf: 97 },
-      { x: 0.68, y: 0.23, w: 0.3, h: 0.75, label: "Persona", conf: 95 },
+      { x: 0.45, y: 0.09, w: 0.24, h: 0.78, label: "Técnico INNOVA", conf: 98 },
+      { x: 0.02, y: 0.18, w: 0.42, h: 0.52, label: "Red de fibra · OK" },
     ],
   },
   {
@@ -45,12 +45,11 @@ const FEEDS: Feed[] = [
   },
   {
     cam: "CAM-04",
-    zone: "Perímetro norte",
-    src: "/img/cctv-poste.webp",
-    aspect: 620 / 1080,
+    zone: "Fachada principal",
+    src: "/img/cctv-domo.webp",
+    aspect: 1000 / 1500,
     boxes: [
-      { x: 0.62, y: 0.07, w: 0.33, h: 0.15, label: "PTZ · Online" },
-      { x: 0.32, y: 0.54, w: 0.48, h: 0.24, label: "Iluminador IR" },
+      { x: 0.41, y: 0.3, w: 0.45, h: 0.41, label: "PTZ 4K · Online" },
     ],
   },
   {
@@ -188,8 +187,8 @@ export function HeroCCTV() {
             style={{ animationDelay: "0.55s" }}
             className="order-5 animate-rise mt-7 grid gap-2.5 sm:mt-10 sm:flex sm:flex-wrap lg:order-none"
           >
-            <Button href="/arma-tu-sistema" className="px-4 sm:px-6" icon={<ArrowRight className="size-3.5" />}>
-              Arma tu sistema
+            <Button href={booking.href} external className="px-4 sm:px-6" icon={<CalendarDays className="size-3.5" />}>
+              {booking.label}
             </Button>
             <Button
               href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
@@ -207,7 +206,7 @@ export function HeroCCTV() {
             className="order-6 animate-rise mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6 sm:mt-12 sm:gap-6 lg:order-none"
           >
             {[
-              ["7", "Soluciones integradas"],
+              ["6", "Soluciones integradas"],
               ["24/7", "Acceso remoto"],
               ["100%", "Garantía y postventa"],
             ].map(([n, l]) => (

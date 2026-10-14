@@ -5,7 +5,7 @@ import { CtaBand } from "@/components/layout/CtaBand";
 
 export const metadata: Metadata = {
   title: "Servicios",
-  description: "CCTV, energía solar, automatización de puertas, domótica, cableado estructurado, UPS y servicios informáticos en Armenia y todo Colombia.",
+  description: "CCTV, energía solar, automatización de puertas, domótica, UPS y servicios informáticos en Armenia y todo Colombia.",
 };
 
 export default function ServiciosPage() {
@@ -16,7 +16,7 @@ export default function ServiciosPage() {
         image="/img/tecnico-cables.webp"
         title={
           <>
-            7 soluciones. <span className="text-lime-400">Un solo aliado.</span>
+            6 soluciones. <span className="text-lime-400">Un solo aliado.</span>
           </>
         }
         text="Ofrecemos soluciones de alta tecnología adaptadas a las necesidades de hogares, empresas e industrias: instalación, mantenimiento, reparación y suministro de productos de calidad."

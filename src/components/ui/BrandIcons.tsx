@@ -14,3 +14,10 @@ export function InstagramIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+export function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M16.6 3c.3 2.2 1.6 3.6 3.9 3.8v2.6a6.9 6.9 0 0 1-3.8-1.2v5.6c0 3.4-2.4 6.2-5.9 6.2A5.8 5.8 0 0 1 5 14.2c0-3.5 3-6.2 6.6-5.8v2.8a2.9 2.9 0 0 0-3.8 2.9 2.9 2.9 0 0 0 3 2.9c1.7 0 3-1.3 3-3.2V3h2.8z" />
+    </svg>
+  );
+}
