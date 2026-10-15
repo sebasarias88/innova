@@ -32,6 +32,7 @@ export const booking = {
 
 export const nav = [
   { label: "Servicios", href: "/servicios" },
+  { label: "Tienda", href: "/tienda" },
   { label: "Calculadora solar", href: "/calculadora-solar" },
   { label: "Proyectos", href: "/proyectos" },
   { label: "Nosotros", href: "/nosotros" },

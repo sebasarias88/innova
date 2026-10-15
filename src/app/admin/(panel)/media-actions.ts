@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateShop } from "@/lib/admin/revalidate";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -86,6 +87,7 @@ export async function attachImage(input: { kind: string; ownerId: string; path: 
   if (parsed.data.kind === "project") {
     await supabase.from("projects").update({ cover_path: input.path }).eq("id", parsed.data.ownerId).is("cover_path", null);
   }
+  revalidateShop();
   revalidatePath(`${owner.page}/${parsed.data.ownerId}`);
   return { ok: true };
 }
@@ -116,6 +118,7 @@ export async function deleteImage(input: { kind: string; imageId: string }): Pro
       await supabase.from("projects").update({ cover_path: next?.path ?? null }).eq("id", ownerId);
     }
   }
+  revalidateShop();
   revalidatePath(`${owner.page}/${ownerId}`);
   return { ok: true };
 }
@@ -140,6 +143,7 @@ export async function moveImage(input: { kind: string; imageId: string; directio
 
   // Rewrite the whole order (few rows) so it stays consistent.
   await Promise.all(list.map((r, idx) => supabase.from(owner.table).update({ sort_order: idx }).eq("id", r.id)));
+  revalidateShop();
   revalidatePath(`${owner.page}/${ownerId}`);
   return { ok: true };
 }

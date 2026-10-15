@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateShop } from "@/lib/admin/revalidate";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
@@ -53,6 +54,7 @@ export async function saveProduct(id: string | null, _prev: ActionResult, formDa
     : await supabase.from("products").insert(row).select("id").single();
   if (error || !saved) return fail(dbError(error));
 
+  revalidateShop();
   revalidatePath("/admin/products");
   if (!id) redirect(`/admin/products/${saved.id}?created=1`);
   revalidatePath(`/admin/products/${id}`);
@@ -65,6 +67,7 @@ export async function setProductFlag(id: string, flag: "is_available" | "is_publ
   const supabase = await createClient();
   const { error } = await supabase.from("products").update(flag === "is_available" ? { is_available: value } : { is_published: value }).eq("id", id);
   if (error) return fail(dbError(error));
+  revalidateShop();
   revalidatePath("/admin/products");
   return ok();
 }
@@ -80,6 +83,7 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
   if (error) return fail(dbError(error, "No se pudo eliminar."));
   if (images?.length) await supabase.storage.from(MEDIA_BUCKET).remove(images.map((i) => i.path));
 
+  revalidateShop();
   revalidatePath("/admin/products");
   redirect("/admin/products");
 }

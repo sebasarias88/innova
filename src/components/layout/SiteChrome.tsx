@@ -5,6 +5,7 @@ import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
 import { MobileDock } from "@/components/layout/MobileDock";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { AnimationGate } from "@/components/layout/AnimationGate";
+import { Toaster } from "@/components/admin/Toaster";
 
 /** Public website shell: header, footer, floating actions and smooth scroll. */
 export function SiteChrome({ children }: { children: ReactNode }) {
@@ -17,6 +18,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
         <WhatsAppFab />
         <MobileDock />
         <AnimationGate />
+        <Toaster />
       </SmoothScroll>
     </div>
   );

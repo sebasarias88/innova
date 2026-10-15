@@ -1,0 +1,53 @@
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+import { ImageOff } from "lucide-react";
+import clsx from "clsx";
+import type { ShopProduct } from "@/lib/shop/queries";
+import { formatPrice } from "@/lib/shop/format";
+import { QuickAdd } from "@/components/shop/AddToCartButton";
+
+export function ProductCard({ product, priority }: { product: ShopProduct; priority?: boolean }) {
+  const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
+
+  return (
+    <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] transition-colors hover:border-white/25">
+      <Link href={`/tienda/${product.slug}`} className="relative block aspect-square overflow-hidden bg-white">
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            loading={priority ? "eager" : "lazy"}
+            className={clsx("size-full object-contain p-4 transition-transform duration-500 group-hover:scale-105", !product.isAvailable && "opacity-50 grayscale")}
+          />
+        ) : (
+          <span className="grid size-full place-items-center bg-navy-900 text-white/25">
+            <ImageOff className="size-8" />
+          </span>
+        )}
+        <span className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
+          {!product.isAvailable && <span className="rounded-full bg-navy-950/90 px-2.5 py-1 text-[11px] font-bold text-white">Agotado</span>}
+          {product.isAvailable && discount > 0 && <span className="rounded-full bg-lime-400 px-2.5 py-1 text-[11px] font-bold text-navy-900">-{discount}%</span>}
+        </span>
+      </Link>
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        {product.brand && <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-royal-300">{product.brand}</p>}
+        <h3 className="mt-1 line-clamp-2 font-semibold leading-snug text-white">
+          <Link href={`/tienda/${product.slug}`} className="after:absolute after:inset-0">
+            {product.name}
+          </Link>
+        </h3>
+        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+          <div>
+            {product.compareAtPrice && <p className="text-xs text-white/40 line-through">{formatPrice(product.compareAtPrice)}</p>}
+            <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
+          </div>
+          <QuickAdd
+            className="relative z-10"
+            available={product.isAvailable}
+            product={{ productId: product.id, slug: product.slug, name: product.name, price: product.price, image: product.image }}
+          />
+        </div>
+      </div>
+    </article>
+  );
+}

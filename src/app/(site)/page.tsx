@@ -4,6 +4,7 @@ import { Ecosystem } from "@/components/home/Ecosystem";
 import { ServicesBento } from "@/components/home/ServicesBento";
 import { Audience } from "@/components/home/Audience";
 import { Process } from "@/components/home/Process";
+import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { CtaBand } from "@/components/layout/CtaBand";
 import { Faq } from "@/components/ui/Faq";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -16,6 +17,9 @@ const faqs = [
   { q: "¿Cómo solicito una cotización?", a: "Escríbenos por WhatsApp, agenda una visita técnica o llena el formulario de contacto. Te respondemos el mismo día." },
 ];
 
+// Static, refreshed every 5 minutes and right after changes in the admin panel.
+export const revalidate = 300;
+
 export default function Home() {
   return (
     <>
@@ -23,6 +27,7 @@ export default function Home() {
       <Stats />
       <Ecosystem />
       <ServicesBento />
+      <FeaturedProducts />
       <Audience />
       <Process />
       <section className="py-16 sm:py-24 lg:py-32">
