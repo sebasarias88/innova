@@ -1,0 +1,135 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import clsx from "clsx";
+import { ActionForm, SaveButton, SelectField, TextArea, TextField, Toggle } from "@/components/admin/fields";
+import { WEEKDAYS } from "@/lib/admin/format";
+import { BOOKING_STATUS } from "@/lib/admin/status";
+import { addException, addRule, saveBookingSettings, toggleRule, updateBooking } from "./actions";
+
+const SLOT_OPTIONS = [30, 45, 60, 90, 120, 180, 240];
+
+export function RuleForm() {
+  return (
+    <ActionForm action={addRule} className="space-y-4">
+      <SelectField label="Día" name="weekday" defaultValue="1">
+        {WEEKDAYS.map((d, i) => (
+          <option key={d} value={i}>
+            {d}
+          </option>
+        ))}
+      </SelectField>
+      <div className="grid grid-cols-2 gap-3">
+        <TextField label="Desde" name="start_time" type="time" required defaultValue="08:00" />
+        <TextField label="Hasta" name="end_time" type="time" required defaultValue="12:00" />
+      </div>
+      <SlotSelect />
+      <SaveButton>Agregar horario</SaveButton>
+    </ActionForm>
+  );
+}
+
+function SlotSelect({ defaultValue = 60 }: { defaultValue?: number }) {
+  return (
+    <SelectField label="Duración de cada cita" name="slot_minutes" defaultValue={String(defaultValue)} hint="Cada cuánto se ofrece una hora para agendar.">
+      {SLOT_OPTIONS.map((m) => (
+        <option key={m} value={m}>
+          {m < 60 ? `${m} minutos` : `${m / 60} hora${m === 60 ? "" : "s"}`}
+        </option>
+      ))}
+    </SelectField>
+  );
+}
+
+export function ExceptionForm({ minDate }: { minDate: string }) {
+  const [mode, setMode] = useState<"closed" | "special">("closed");
+  return (
+    <ActionForm action={addException} className="space-y-4">
+      <TextField label="Fecha" name="date" type="date" required min={minDate} />
+      <input type="hidden" name="mode" value={mode} />
+      <div className="grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-navy-950/60 p-1">
+        {(
+          [
+            ["closed", "Cerrado"],
+            ["special", "Horario especial"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setMode(value)}
+            className={clsx("rounded-lg px-2 py-2 text-xs font-semibold", mode === value ? "bg-lime-400 text-navy-900" : "text-white/60 hover:text-white")}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {mode === "special" && (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <TextField label="Desde" name="start_time" type="time" required defaultValue="09:00" />
+            <TextField label="Hasta" name="end_time" type="time" required defaultValue="12:00" />
+          </div>
+          <SlotSelect />
+        </>
+      )}
+      <TextField label="Motivo (opcional)" name="note" maxLength={160} placeholder="Festivo, inventario…" />
+      <SaveButton>{mode === "closed" ? "Cerrar este día" : "Guardar horario especial"}</SaveButton>
+    </ActionForm>
+  );
+}
+
+export function SettingsForm({ settings }: { settings: { is_enabled: boolean; lead_time_hours: number; max_days_ahead: number } }) {
+  return (
+    <ActionForm action={saveBookingSettings} className="space-y-4">
+      <Toggle label="Agenda en línea activa" description="Si la apagas, la web no mostrará horarios disponibles." name="is_enabled" defaultChecked={settings.is_enabled} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TextField
+          label="Anticipación mínima (horas)"
+          name="lead_time_hours"
+          type="number"
+          min={0}
+          max={336}
+          required
+          defaultValue={settings.lead_time_hours}
+          hint="Ej: 12 = no se puede agendar para dentro de menos de 12 horas."
+        />
+        <TextField label="Días hacia adelante" name="max_days_ahead" type="number" min={1} max={180} required defaultValue={settings.max_days_ahead} hint="Hasta cuántos días en el futuro se puede agendar." />
+      </div>
+      <SaveButton>Guardar ajustes</SaveButton>
+    </ActionForm>
+  );
+}
+
+export function BookingStatusForm({ id, status, notes }: { id: string; status: string; notes: string | null }) {
+  return (
+    <ActionForm action={updateBooking.bind(null, id)} className="space-y-3">
+      <SelectField label="Estado" name="status" defaultValue={status}>
+        {Object.entries(BOOKING_STATUS).map(([value, s]) => (
+          <option key={value} value={value}>
+            {s.label}
+          </option>
+        ))}
+      </SelectField>
+      <TextArea label="Notas internas" name="internal_notes" rows={2} maxLength={1000} defaultValue={notes ?? ""} />
+      <SaveButton>Guardar</SaveButton>
+    </ActionForm>
+  );
+}
+
+export function RuleToggle({ id, active }: { id: string; active: boolean }) {
+  const [pending, start] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      onClick={() => start(async () => void (await toggleRule(id, !active)))}
+      className={clsx(
+        "rounded-full border px-2.5 py-1 text-[11px] font-semibold disabled:opacity-50",
+        active ? "border-lime-400/30 bg-lime-400/10 text-lime-300" : "border-white/15 text-white/50",
+      )}
+    >
+      {active ? "Activo" : "Pausado"}
+    </button>
+  );
+}
