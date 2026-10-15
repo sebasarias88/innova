@@ -3,7 +3,7 @@ function required(name: string, value: string | undefined): string {
   return value;
 }
 
-// NEXT_PUBLIC_* values must be read with literal property access so Next.js can inline them.
-export const supabaseUrl = () => required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
-export const supabasePublishableKey = () =>
-  required("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+// Server-only variables (no NEXT_PUBLIC_ prefix): every Supabase call runs on the
+// server — Server Components, Server Actions and the proxy — so nothing reaches the browser.
+export const supabaseUrl = () => required("SUPABASE_URL", process.env.SUPABASE_URL);
+export const supabasePublishableKey = () => required("SUPABASE_PUBLISHABLE_KEY", process.env.SUPABASE_PUBLISHABLE_KEY);
