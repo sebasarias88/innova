@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateShop } from "@/lib/admin/revalidate";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
@@ -48,6 +49,7 @@ export async function saveCategory(id: string | null, _prev: ActionResult, formD
     : await supabase.from("categories").insert(row).select("id").single();
   if (error || !saved) return fail(dbError(error));
 
+  revalidateShop();
   revalidatePath("/admin/categories");
   if (!id) redirect("/admin/categories");
   return ok("Categoría guardada.");
@@ -67,6 +69,7 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
 
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return fail(dbError(error, "No se pudo eliminar."));
+  revalidateShop();
   revalidatePath("/admin/categories");
   redirect("/admin/categories");
 }

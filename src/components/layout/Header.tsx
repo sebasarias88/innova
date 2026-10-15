@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/Icon";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { booking, nav, site, waLink } from "@/lib/site";
 import { services } from "@/lib/services";
+import { CartButton } from "@/components/shop/CartButton";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -78,7 +79,7 @@ export function Header() {
                   onMouseEnter={() => setMega(false)}
                   className={clsx(
                     "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    pathname === item.href ? "text-lime-400" : "text-white/80 hover:text-white",
+                    pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")) ? "text-lime-400" : "text-white/80 hover:text-white",
                   )}
                 >
                   {item.label}
@@ -97,6 +98,7 @@ export function Header() {
               <WhatsAppIcon className="size-4" />
               Cotizar ahora
             </a>
+            <CartButton />
             <button
               onClick={() => setOpen(true)}
               className="grid size-11 place-items-center rounded-full border border-white/15 text-white lg:hidden"
