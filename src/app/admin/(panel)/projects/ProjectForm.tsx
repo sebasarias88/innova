@@ -96,14 +96,12 @@ export function ProjectForm({
         </Card>
         <Card title="Organización">
           <div className="space-y-4">
-            <SelectField label="Servicio relacionado" name="service_slug" defaultValue={project?.service_slug ?? ""}>
-              <option value="">— Ninguno —</option>
-              {services.map((s) => (
-                <option key={s.slug} value={s.slug}>
-                  {s.name}
-                </option>
-              ))}
-            </SelectField>
+            <SelectField
+              label="Servicio relacionado"
+              name="service_slug"
+              defaultValue={project?.service_slug ?? ""}
+              options={[{ value: "", label: "— Ninguno —" }, ...services.map((s) => ({ value: s.slug, label: s.name }))]}
+            />
             <TextField label="Fecha de entrega" name="completed_on" type="date" defaultValue={project?.completed_on ?? ""} />
             <TextField label="Slug (URL)" name="slug" maxLength={140} defaultValue={project?.slug} placeholder="Se genera del título" />
             <TextField label="Orden" name="sort_order" type="number" min={-9999} max={9999} defaultValue={project?.sort_order ?? 0} />

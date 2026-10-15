@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import clsx from "clsx";
+import { toast } from "sonner";
 import { ActionForm, SaveButton, SelectField, TextArea, TextField, Toggle } from "@/components/admin/fields";
 import { WEEKDAYS } from "@/lib/admin/format";
 import { BOOKING_STATUS } from "@/lib/admin/status";
@@ -12,13 +13,7 @@ const SLOT_OPTIONS = [30, 45, 60, 90, 120, 180, 240];
 export function RuleForm() {
   return (
     <ActionForm action={addRule} className="space-y-4">
-      <SelectField label="Día" name="weekday" defaultValue="1">
-        {WEEKDAYS.map((d, i) => (
-          <option key={d} value={i}>
-            {d}
-          </option>
-        ))}
-      </SelectField>
+      <SelectField label="Día" name="weekday" defaultValue="1" options={WEEKDAYS.map((d, i) => ({ value: String(i), label: d }))} />
       <div className="grid grid-cols-2 gap-3">
         <TextField label="Desde" name="start_time" type="time" required defaultValue="08:00" />
         <TextField label="Hasta" name="end_time" type="time" required defaultValue="12:00" />
@@ -31,13 +26,13 @@ export function RuleForm() {
 
 function SlotSelect({ defaultValue = 60 }: { defaultValue?: number }) {
   return (
-    <SelectField label="Duración de cada cita" name="slot_minutes" defaultValue={String(defaultValue)} hint="Cada cuánto se ofrece una hora para agendar.">
-      {SLOT_OPTIONS.map((m) => (
-        <option key={m} value={m}>
-          {m < 60 ? `${m} minutos` : `${m / 60} hora${m === 60 ? "" : "s"}`}
-        </option>
-      ))}
-    </SelectField>
+    <SelectField
+      label="Duración de cada cita"
+      name="slot_minutes"
+      defaultValue={String(defaultValue)}
+      hint="Cada cuánto se ofrece una hora para agendar."
+      options={SLOT_OPTIONS.map((m) => ({ value: String(m), label: m < 60 ? `${m} minutos` : `${m / 60} hora${m === 60 ? "" : "s"}` }))}
+    />
   );
 }
 
@@ -104,13 +99,7 @@ export function SettingsForm({ settings }: { settings: { is_enabled: boolean; le
 export function BookingStatusForm({ id, status, notes }: { id: string; status: string; notes: string | null }) {
   return (
     <ActionForm action={updateBooking.bind(null, id)} className="space-y-3">
-      <SelectField label="Estado" name="status" defaultValue={status}>
-        {Object.entries(BOOKING_STATUS).map(([value, s]) => (
-          <option key={value} value={value}>
-            {s.label}
-          </option>
-        ))}
-      </SelectField>
+      <SelectField label="Estado" name="status" defaultValue={status} options={Object.entries(BOOKING_STATUS).map(([value, s]) => ({ value, label: s.label }))} />
       <TextArea label="Notas internas" name="internal_notes" rows={2} maxLength={1000} defaultValue={notes ?? ""} />
       <SaveButton>Guardar</SaveButton>
     </ActionForm>
@@ -123,7 +112,13 @@ export function RuleToggle({ id, active }: { id: string; active: boolean }) {
     <button
       type="button"
       disabled={pending}
-      onClick={() => start(async () => void (await toggleRule(id, !active)))}
+      onClick={() =>
+        start(async () => {
+          const r = await toggleRule(id, !active);
+          if (r && !r.ok) toast.error(r.error);
+          else toast.success(active ? "Horario pausado." : "Horario activado.");
+        })
+      }
       className={clsx(
         "rounded-full border px-2.5 py-1 text-[11px] font-semibold disabled:opacity-50",
         active ? "border-lime-400/30 bg-lime-400/10 text-lime-300" : "border-white/15 text-white/50",

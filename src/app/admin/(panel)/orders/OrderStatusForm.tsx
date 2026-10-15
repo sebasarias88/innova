@@ -20,13 +20,7 @@ export function OrderStatusForm({
 }) {
   return (
     <ActionForm action={action} className="space-y-4">
-      <SelectField label="Estado del pedido" name="status" defaultValue={status}>
-        {statuses.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.label}
-          </option>
-        ))}
-      </SelectField>
+      <SelectField label="Estado del pedido" name="status" defaultValue={status} options={statuses} />
       {canEditShipping && (
         <MoneyField
           label="Costo de envío acordado"

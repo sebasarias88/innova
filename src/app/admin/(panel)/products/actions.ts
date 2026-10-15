@@ -14,7 +14,7 @@ const schema = z
   .object({
     name: requiredText("El nombre", 2, 140),
     slug: z.string().trim().optional(),
-    category_id: uuid.refine(Boolean, "Elige una categoría."),
+    category_id: z.string().min(1, "Elige una categoría.").pipe(uuid),
     brand: optionalText(60),
     sku: optionalText(60),
     short_description: optionalText(280),
