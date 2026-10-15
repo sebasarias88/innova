@@ -4,6 +4,7 @@
 import { useState, useTransition } from "react";
 import { Copy, Check, LoaderCircle, QrCode } from "lucide-react";
 import { startTotpEnrollment, type EnrollmentState } from "../actions";
+import { toast } from "sonner";
 import { FormError } from "@/components/admin/form";
 import { VerifyTotpForm } from "./VerifyTotpForm";
 
@@ -29,7 +30,10 @@ export function EnrollTotp() {
           <button
             type="button"
             onClick={() => {
-              navigator.clipboard?.writeText(state.secret).then(() => setCopied(true));
+              navigator.clipboard?.writeText(state.secret).then(() => {
+                setCopied(true);
+                toast.success("Clave copiada.");
+              });
             }}
             className="mt-1.5 flex w-full items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-950/60 px-3 py-2.5 text-left font-mono text-xs break-all text-lime-300"
           >

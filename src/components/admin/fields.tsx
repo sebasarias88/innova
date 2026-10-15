@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, startTransition, useActionState, useContext, useEffect, useRef, useState, useTransition, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { createContext, startTransition, useActionState, useContext, useEffect, useRef, useState, useTransition, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { useFormStatus } from "react-dom";
-import { CheckCircle2, LoaderCircle, Trash2 } from "lucide-react";
+import { LoaderCircle, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Select, type SelectOption } from "@/components/ui/Select";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 import clsx from "clsx";
 import type { ActionResult } from "@/lib/admin/actions";
 
@@ -35,14 +38,22 @@ export function TextArea({ label, hint, ...props }: { label: string; hint?: stri
   );
 }
 
-export function SelectField({ label, hint, children, ...props }: { label: string; hint?: string; children: ReactNode } & SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <Label label={label} hint={hint} htmlFor={props.id ?? props.name}>
-      <select id={props.id ?? props.name} {...props} className={clsx(inputCls, "appearance-none bg-[length:16px] pr-9", props.className)}>
-        {children}
-      </select>
-    </Label>
-  );
+export function SelectField({
+  label,
+  hint,
+  name,
+  options,
+  defaultValue,
+  placeholder,
+}: {
+  label: string;
+  hint?: string;
+  name: string;
+  options: SelectOption[];
+  defaultValue?: string;
+  placeholder?: string;
+}) {
+  return <Select label={label} hint={hint} name={name} options={options} defaultValue={defaultValue} placeholder={placeholder} />;
 }
 
 /** Price input that shows thousands separators while typing (sends digits). */
@@ -107,14 +118,9 @@ export function SaveButton({ children = "Guardar cambios", className }: { childr
   );
 }
 
+/** Inline error next to the form (successes are shown as toasts). */
 export function ResultMessage({ result }: { result: ActionResult }) {
-  if (!result) return null;
-  if (result.ok)
-    return result.message ? (
-      <p role="status" className="flex items-center gap-2 rounded-xl border border-lime-400/30 bg-lime-400/10 px-3.5 py-2.5 text-sm text-lime-200">
-        <CheckCircle2 className="size-4 shrink-0" /> {result.message}
-      </p>
-    ) : null;
+  if (!result || result.ok) return null;
   return (
     <p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-200">
       {result.error}
@@ -125,7 +131,8 @@ export function ResultMessage({ result }: { result: ActionResult }) {
 type FormAction = (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
 
 /**
- * Form bound to a Server Action, with inline success / error feedback.
+ * Form bound to a Server Action. Success and errors show as toasts; errors also
+ * stay inline next to the form.
  * Submits through onSubmit (not the `action` attribute) so React does not
  * clear the fields when the server returns a validation error.
  */
@@ -146,7 +153,11 @@ export function ActionForm({
   const [result, formAction, pending] = useActionState(action, undefined);
   const ref = useRef<HTMLFormElement>(null);
   useEffect(() => {
-    if (result?.ok && resetOnSuccess) ref.current?.reset();
+    if (!result) return;
+    if (result.ok) {
+      if (result.message) toast.success(result.message);
+      if (resetOnSuccess) ref.current?.reset();
+    } else toast.error(result.error);
   }, [result, resetOnSuccess]);
 
   return (
@@ -171,44 +182,47 @@ export function ActionForm({
   );
 }
 
-/** Small button that runs a Server Action after a confirmation. */
+/** Button that asks for confirmation (styled dialog) and then runs a Server Action. */
 export function ConfirmButton({
   action,
   confirmText,
+  description,
+  confirmLabel,
   children,
   className,
   variant = "danger",
 }: {
   action: () => Promise<ActionResult>;
   confirmText: string;
+  description?: string;
+  confirmLabel?: string;
   children?: ReactNode;
   className?: string;
   variant?: "danger" | "ghost";
 }) {
+  const confirm = useConfirm();
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string>();
   return (
-    <span className="inline-flex flex-col items-end gap-1">
-      <button
-        type="button"
-        disabled={pending}
-        onClick={() => {
-          if (!window.confirm(confirmText)) return;
-          start(async () => {
-            const r = await action();
-            setError(r && !r.ok ? r.error : undefined);
-          });
-        }}
-        className={clsx(
-          "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-50",
-          variant === "danger" ? "border border-red-400/30 text-red-300 hover:bg-red-500/10" : "border border-white/15 text-white/75 hover:border-white/40",
-          className,
-        )}
-      >
-        {pending ? <LoaderCircle className="size-4 animate-spin" /> : variant === "danger" && <Trash2 className="size-4" />}
-        {children ?? "Eliminar"}
-      </button>
-      {error && <span className="max-w-xs text-right text-xs text-red-300">{error}</span>}
-    </span>
+    <button
+      type="button"
+      disabled={pending}
+      onClick={async () => {
+        const accepted = await confirm({ title: confirmText, description, confirmLabel, tone: variant === "danger" ? "danger" : "default" });
+        if (!accepted) return;
+        start(async () => {
+          const r = await action();
+          if (r && !r.ok) toast.error(r.error);
+          else if (r?.message) toast.success(r.message);
+        });
+      }}
+      className={clsx(
+        "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-50",
+        variant === "danger" ? "border border-red-400/30 text-red-300 hover:bg-red-500/10" : "border border-white/15 text-white/75 hover:border-white/40",
+        className,
+      )}
+    >
+      {pending ? <LoaderCircle className="size-4 animate-spin" /> : variant === "danger" && <Trash2 className="size-4" />}
+      {children ?? "Eliminar"}
+    </button>
   );
 }

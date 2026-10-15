@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Toaster } from "@/components/admin/Toaster";
+import { ConfirmProvider } from "@/components/admin/ConfirmDialog";
 
 export const metadata: Metadata = {
   title: { default: "Panel", template: "%s · Panel INNOVA" },
@@ -6,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminRootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="min-h-dvh bg-navy-950 text-white">{children}</div>;
+  return (
+    <div className="min-h-dvh bg-navy-950 text-white [color-scheme:dark]">
+      <ConfirmProvider>{children}</ConfirmProvider>
+      <Toaster />
+    </div>
+  );
 }

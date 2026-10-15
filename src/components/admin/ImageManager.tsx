@@ -5,6 +5,8 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, ImagePlus, LoaderCircle, Star, Trash2 } from "lucide-react";
 import clsx from "clsx";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { attachImage, deleteImage, moveImage, requestImageUpload, setProjectCover } from "@/app/admin/(panel)/media-actions";
 
 export type ManagedImage = { id: string; path: string; url: string; alt: string | null };
@@ -43,12 +45,13 @@ export function ImageManager({
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState<string>();
-  const [error, setError] = useState<string>();
+  const confirm = useConfirm();
   const [busy, start] = useTransition();
 
   async function upload(files: FileList) {
-    setError(undefined);
     const list = Array.from(files);
+    const setError = (message: string) => toast.error(message);
+    let uploaded = 0;
     for (const [i, file] of list.entries()) {
       setUploading(`Subiendo ${i + 1} de ${list.length}…`);
       if (!file.type.startsWith("image/")) {
@@ -77,11 +80,13 @@ export function ImageManager({
         }
         const attached = await attachImage({ kind, ownerId, path: signed.path, alt: file.name.replace(/\.[^.]+$/, "").slice(0, 160) });
         if (!attached.ok) setError(attached.error);
+        else uploaded++;
       } catch {
         setError(`No se pudo procesar "${file.name}".`);
       }
     }
     setUploading(undefined);
+    if (uploaded) toast.success(uploaded === 1 ? "Imagen subida." : `${uploaded} imágenes subidas.`);
     if (input.current) input.current.value = "";
     router.refresh();
   }
@@ -89,7 +94,7 @@ export function ImageManager({
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
     start(async () => {
       const r = await fn();
-      if (!r.ok) setError(r.error);
+      if (!r.ok) toast.error(r.error ?? "No se pudo completar la acción.");
       router.refresh();
     });
 
@@ -123,8 +128,9 @@ export function ImageManager({
                     label="Eliminar"
                     danger
                     disabled={busy}
-                    onClick={() => {
-                      if (window.confirm("¿Eliminar esta imagen?")) run(() => deleteImage({ kind, imageId: img.id }));
+                    onClick={async () => {
+                      if (await confirm({ title: "¿Eliminar esta imagen?", description: "Se borra de la web y del almacenamiento." }))
+                        run(() => deleteImage({ kind, imageId: img.id }));
                     }}
                   >
                     <Trash2 className="size-3.5" />
@@ -150,7 +156,6 @@ export function ImageManager({
         {uploading ?? "Agregar imágenes (JPG, PNG o WebP)"}
         {!uploading && <span className="text-xs text-white/40">Se optimizan automáticamente antes de subir.</span>}
       </button>
-      {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
     </div>
   );
 }

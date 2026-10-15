@@ -200,3 +200,18 @@ html.lenis, html.lenis body { height: auto; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Admin panel: dropdowns, dialogs ─────────────────────────────────── */
+@keyframes select-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Tailwind's -translate-* uses the `translate` property, so `transform` stays free here. */
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}

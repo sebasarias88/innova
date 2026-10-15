@@ -94,16 +94,13 @@ export function ProductForm({
         </Card>
         <Card title="Organización">
           <div className="space-y-4">
-            <SelectField label="Categoría" name="category_id" required defaultValue={product?.category_id ?? ""}>
-              <option value="" disabled>
-                Elige una categoría
-              </option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.parent ? `${c.parent} › ${c.name}` : c.name}
-                </option>
-              ))}
-            </SelectField>
+            <SelectField
+              label="Categoría"
+              name="category_id"
+              placeholder="Elige una categoría"
+              defaultValue={product?.category_id ?? ""}
+              options={categories.map((c) => ({ value: c.id, label: c.parent ? `${c.parent} › ${c.name}` : c.name }))}
+            />
             <TextField label="Slug (URL)" name="slug" maxLength={160} defaultValue={product?.slug} placeholder="Se genera del nombre" />
             <TextField label="Orden" name="sort_order" type="number" min={-9999} max={9999} defaultValue={product?.sort_order ?? 0} hint="Menor número aparece primero." />
           </div>

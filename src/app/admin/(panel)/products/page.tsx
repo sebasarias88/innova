@@ -8,6 +8,7 @@ import { mediaUrl } from "@/lib/admin/storage";
 import { formatCop } from "@/lib/admin/format";
 import { Badge, EmptyState, LinkButton, PageHeader, Pagination, Table } from "@/components/admin/ui";
 import { QuickToggle } from "./QuickToggle";
+import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = { title: "Productos" };
 
@@ -61,20 +62,23 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/35" />
           <input name="q" defaultValue={q} placeholder="Buscar por nombre, marca o referencia" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
         </label>
-        <select name="category" defaultValue={sp.category ?? ""} className="rounded-xl border border-white/10 bg-navy-950/60 px-3 py-2.5 text-sm outline-none">
-          <option value="">Todas las categorías</option>
-          {(categories ?? []).map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.parent_id ? `— ${c.name}` : c.name}
-            </option>
-          ))}
-        </select>
-        <select name="status" defaultValue={sp.status ?? ""} className="rounded-xl border border-white/10 bg-navy-950/60 px-3 py-2.5 text-sm outline-none">
-          <option value="">Todos</option>
-          <option value="sold_out">Agotados</option>
-          <option value="draft">Borradores</option>
-          <option value="featured">Destacados</option>
-        </select>
+        <Select
+          name="category"
+          ariaLabel="Categoría"
+          defaultValue={sp.category ?? ""}
+          options={[{ value: "", label: "Todas las categorías" }, ...(categories ?? []).map((c) => ({ value: c.id, label: c.parent_id ? `— ${c.name}` : c.name }))]}
+        />
+        <Select
+          name="status"
+          ariaLabel="Estado"
+          defaultValue={sp.status ?? ""}
+          options={[
+            { value: "", label: "Todos" },
+            { value: "sold_out", label: "Agotados" },
+            { value: "draft", label: "Borradores" },
+            { value: "featured", label: "Destacados" },
+          ]}
+        />
         <button className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold hover:border-white/40">Filtrar</button>
       </form>
 

@@ -2,6 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import clsx from "clsx";
+import { toast } from "sonner";
 import { setProductFlag } from "./actions";
 
 /** One-click switch in the product list (e.g. mark as sold out). */
@@ -16,7 +17,9 @@ export function QuickToggle({ id, flag, value, on, off }: { id: string; flag: "i
       onClick={() =>
         start(async () => {
           setOptimistic(!optimistic);
-          await setProductFlag(id, flag, !optimistic);
+          const r = await setProductFlag(id, flag, !optimistic);
+          if (r && !r.ok) toast.error(r.error);
+          else toast.success(!optimistic ? `Marcado como ${on.toLowerCase()}.` : `Marcado como ${off.toLowerCase()}.`);
         })
       }
       className={clsx(

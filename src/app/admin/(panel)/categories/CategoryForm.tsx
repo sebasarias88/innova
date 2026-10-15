@@ -26,14 +26,13 @@ export function CategoryForm({
   return (
     <ActionForm action={action} resetOnSuccess={!category} className="space-y-4">
       <TextField label="Nombre" name="name" required minLength={2} maxLength={80} defaultValue={category?.name} placeholder="Ej: Cámaras IP" />
-      <SelectField label="Categoría padre" name="parent_id" defaultValue={category?.parent_id ?? ""} hint="Déjalo vacío para que sea una categoría principal.">
-        <option value="">— Categoría principal —</option>
-        {parents.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </SelectField>
+      <SelectField
+        label="Categoría padre"
+        name="parent_id"
+        defaultValue={category?.parent_id ?? ""}
+        hint="Déjalo vacío para que sea una categoría principal."
+        options={[{ value: "", label: "— Categoría principal —" }, ...parents.map((p) => ({ value: p.id, label: p.name }))]}
+      />
       <TextArea label="Descripción" name="description" rows={3} maxLength={500} defaultValue={category?.description ?? ""} />
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField label="Slug (URL)" name="slug" maxLength={90} defaultValue={category?.slug} placeholder="Se genera del nombre" hint="Solo minúsculas, números y guiones." />
