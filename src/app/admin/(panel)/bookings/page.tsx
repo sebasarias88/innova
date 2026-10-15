@@ -196,7 +196,7 @@ async function WeeklySchedule() {
             <ul className="space-y-3">
               {[...preview.entries()].map(([day, times]) => (
                 <li key={day}>
-                  <p className="text-xs font-semibold capitalize text-white/60">{day}</p>
+                  <p className="text-xs font-semibold text-white/60 first-letter:uppercase">{day}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {times.map((t) => (
                       <span key={t} className="rounded-lg border border-white/10 px-2 py-1 font-mono text-[11px] text-white/70">
@@ -233,7 +233,7 @@ async function SpecialDates() {
               <li key={e.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5">
                 <CalendarX2 className={clsx("size-5", e.is_closed ? "text-red-300" : "text-royal-300")} />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold capitalize">
+                  <p className="font-semibold first-letter:uppercase">
                     {new Intl.DateTimeFormat("es-CO", { dateStyle: "full", timeZone: "UTC" }).format(new Date(`${e.date}T00:00:00Z`))}
                   </p>
                   <p className="text-xs text-white/50">
