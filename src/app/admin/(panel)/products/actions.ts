@@ -6,10 +6,9 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { MEDIA_BUCKET } from "@/lib/admin/storage";
-import { checkbox, dbError, fail, firstIssue, formToObject, intField, money, ok, optionalText, requiredText, slugField, uuid, type ActionResult } from "@/lib/admin/actions";
+import { checkbox, repeated, dbError, fail, firstIssue, formToObject, intField, money, ok, optionalText, requiredText, slugField, uuid, type ActionResult } from "@/lib/admin/actions";
 import { slugify } from "@/lib/admin/format";
 
-const asArray = (v: unknown) => (v == null ? [] : Array.isArray(v) ? v : [v]);
 
 const schema = z
   .object({
@@ -26,8 +25,8 @@ const schema = z
     is_available: checkbox,
     is_published: checkbox,
     is_featured: checkbox,
-    spec_label: z.unknown().transform(asArray),
-    spec_value: z.unknown().transform(asArray),
+    spec_label: repeated,
+    spec_value: repeated,
   })
   .refine((d) => d.compare_at_price === null || d.compare_at_price > (d.price ?? 0), {
     message: "El precio anterior debe ser mayor que el precio actual.",

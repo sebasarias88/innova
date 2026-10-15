@@ -10,7 +10,7 @@ const schema = z.object({
   name: requiredText("El nombre", 2, 80),
   description: optionalText(280),
   price_mode: z.enum(["free", "fixed", "agreed"]),
-  price: money,
+  price: money.optional(),
   is_pickup: checkbox,
   is_active: checkbox,
   sort_order: intField(-9999, 9999),
