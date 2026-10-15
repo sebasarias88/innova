@@ -42,7 +42,7 @@ const orderSchema = z.object({
 });
 
 export type PlaceOrderResult =
-  | { ok: true; orderNumber: number; whatsappUrl: string }
+  | { ok: true; whatsappUrl: string }
   | { ok: false; error: string; refresh?: boolean };
 
 const DB_ERRORS: Record<string, string> = {
@@ -79,7 +79,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
     return { ok: false, error: known ? DB_ERRORS[known] : "No pudimos registrar el pedido. Inténtalo de nuevo.", refresh: known === "product_unavailable" };
   }
 
-  const order = data as { id: string; order_number: number; reference: string; subtotal: number; shipping_cost: number | null; total: number };
+  const order = data as { id: string; reference: string; subtotal: number; shipping_cost: number | null; total: number };
   const [{ data: lines }, settings] = await Promise.all([
     supabase.from("order_items").select("product_name, quantity, line_total").eq("order_id", order.id),
     getSiteSettings(),
@@ -87,7 +87,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const { data: zone } = await supabase.from("orders").select("shipping_zone_name").eq("id", order.id).single();
 
   const message = [
-    `Hola INNOVA 👋 Acabo de hacer el pedido *#${order.order_number}* en la tienda:`,
+    "Hola INNOVA 👋 Quiero hacer este pedido de la tienda:",
     "",
     ...(lines ?? []).map((l) => `• ${l.quantity} × ${l.product_name} — ${formatPrice(l.line_total)}`),
     "",
@@ -100,9 +100,10 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
     customer.address ? `📍 ${customer.address}, ${customer.city}` : `📍 ${customer.city}`,
     ...(customer.notes ? [`📝 ${customer.notes}`] : []),
     "",
-    `Ref: ${order.reference}`,
+    // Code (not the sequential number) so the store can find the order in the panel.
+    `Código: ${order.reference}`,
   ].join("\n");
 
   const whatsapp = settings?.whatsapp ?? "573218539336";
-  return { ok: true, orderNumber: order.order_number, whatsappUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
+  return { ok: true, whatsappUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
 }

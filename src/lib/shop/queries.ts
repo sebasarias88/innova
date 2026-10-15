@@ -98,11 +98,15 @@ export async function getFeaturedProducts(limit = 8): Promise<ShopProduct[]> {
 
 export const getProductBySlug = cache(async (slug: string): Promise<ShopProductDetail | null> => {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return null;
-  const { data } = await createPublicClient()
+  const { data, error } = await createPublicClient()
     .from("products")
-    .select(`${PRODUCT_FIELDS}, sku, description, specs, product_images(path, alt, sort_order), category:categories(name, slug)`)
+    // product_images is embedded only once (PostgREST rejects the same relation twice).
+    .select(
+      "id, name, slug, brand, short_description, price, compare_at_price, is_available, is_featured, category_id, sku, description, specs, product_images(path, alt, sort_order), category:categories(name, slug)",
+    )
     .eq("slug", slug)
     .maybeSingle();
+  if (error) console.error("[shop] product query failed:", error.message);
   if (!data) return null;
   const row = data as unknown as ProductRow & {
     sku: string | null;

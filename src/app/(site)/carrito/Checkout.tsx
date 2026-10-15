@@ -24,7 +24,7 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
   const [step, setStep] = useState(0);
   const [zoneId, setZoneId] = useState<string>(shipping[0]?.id ?? "");
   const [customer, setCustomer] = useState<Customer>({ name: "", phone: "", email: "", document: "", city: "Armenia", address: "", notes: "" });
-  const [done, setDone] = useState<{ orderNumber: number; whatsappUrl: string } | null>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
   const [pending, start] = useTransition();
   // False while server-rendering (the cart lives in the browser), true afterwards.
   const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
@@ -80,11 +80,12 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
         return;
       }
       cart.clear();
-      setDone({ orderNumber: result.orderNumber, whatsappUrl: result.whatsappUrl });
-      top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setWhatsappUrl(result.whatsappUrl);
+      // Straight to WhatsApp with the order written; the fallback below covers blocked redirects.
+      window.location.assign(result.whatsappUrl);
     });
 
-  if (done) return <Success {...done} />;
+  if (whatsappUrl) return <Redirecting whatsappUrl={whatsappUrl} />;
   if (!hydrated) return <div className="h-96" />;
   if (!items.length) return <EmptyCart />;
 
@@ -381,28 +382,27 @@ function SubmitOrder({ pending, onSubmit }: { pending: boolean; onSubmit: (honey
         className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-4 font-semibold text-navy-950 transition-[filter] hover:brightness-110 disabled:opacity-60"
       >
         {pending ? <LoaderCircle className="size-5 animate-spin" /> : <WhatsAppIcon className="size-5" />}
-        Confirmar pedido
+        Enviar pedido por WhatsApp
       </button>
-      <p className="text-center text-[11px] leading-snug text-white/45">Al confirmar registramos tu pedido y lo envías a nuestro WhatsApp para coordinar pago y entrega.</p>
+      <p className="text-center text-[11px] leading-snug text-white/45">Se abrirá WhatsApp con tu pedido listo para enviar. Ahí coordinamos el pago y la entrega.</p>
     </>
   );
 }
 
-function Success({ orderNumber, whatsappUrl }: { orderNumber: number; whatsappUrl: string }) {
+/** Shown for a moment while WhatsApp opens (and as a fallback if it does not). */
+function Redirecting({ whatsappUrl }: { whatsappUrl: string }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-lime-400/30 bg-lime-400/[0.06] p-8 text-center sm:p-12">
-      <span className="mx-auto grid size-16 place-items-center rounded-full bg-lime-400 text-navy-900">
-        <Check className="size-8" />
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
+      <span className="mx-auto grid size-16 place-items-center rounded-full bg-[#25D366] text-white">
+        <WhatsAppIcon className="size-8" />
       </span>
-      <h2 className="mt-6 text-3xl font-bold text-white">¡Pedido #{orderNumber} registrado!</h2>
-      <p className="mt-3 text-pretty text-white/70">Último paso: envíanos el pedido por WhatsApp para confirmar disponibilidad, el pago y la entrega.</p>
+      <h2 className="mt-6 text-2xl font-bold text-white">Abriendo WhatsApp…</h2>
+      <p className="mt-3 text-pretty text-white/70">Tu pedido ya está escrito. Solo dale enviar en WhatsApp y te confirmamos disponibilidad, pago y entrega.</p>
       <a
         href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
         className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-semibold text-navy-950 hover:brightness-110"
       >
-        <WhatsAppIcon className="size-5" /> Enviar pedido por WhatsApp
+        <WhatsAppIcon className="size-5" /> Si no se abrió, toca aquí
       </a>
       <p className="mt-6">
         <Link href="/tienda" className="text-sm font-semibold text-white/60 hover:text-white">
