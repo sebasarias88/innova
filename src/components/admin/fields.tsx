@@ -4,7 +4,7 @@ import { createContext, startTransition, useActionState, useContext, useEffect, 
 import { useFormStatus } from "react-dom";
 import { LoaderCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Select, type SelectOption } from "@/components/admin/Select";
+import { Select, type SelectOption } from "@/components/ui/Select";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import clsx from "clsx";
 import type { ActionResult } from "@/lib/admin/actions";

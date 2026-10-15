@@ -8,7 +8,7 @@ import { mediaUrl } from "@/lib/admin/storage";
 import { formatCop } from "@/lib/admin/format";
 import { Badge, EmptyState, LinkButton, PageHeader, Pagination, Table } from "@/components/admin/ui";
 import { QuickToggle } from "./QuickToggle";
-import { Select } from "@/components/admin/Select";
+import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = { title: "Productos" };
 

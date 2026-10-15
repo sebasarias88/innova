@@ -29,6 +29,7 @@ export function Select({
   className,
   size = "md",
   ariaLabel,
+  variant = "panel",
 }: {
   name?: string;
   options: SelectOption[];
@@ -41,6 +42,8 @@ export function Select({
   className?: string;
   size?: "sm" | "md";
   ariaLabel?: string;
+  /** "panel" for the admin; "site" matches the public website inputs. */
+  variant?: "panel" | "site";
 }) {
   const [internal, setInternal] = useState(defaultValue ?? "");
   const value = controlled ?? internal;
@@ -58,10 +61,11 @@ export function Select({
       <RadixSelect.Trigger
         aria-label={ariaLabel ?? label}
         className={clsx(
-          "group flex w-full items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-950/60 text-left text-sm text-white outline-none transition-colors",
-          "hover:border-white/20 focus-visible:border-lime-400/70 data-[state=open]:border-lime-400/70 data-[placeholder]:text-white/35",
-          size === "md" ? "px-3.5 py-2.5" : "px-3 py-2",
-          label && "mt-1.5",
+          "group flex w-full items-center justify-between gap-2 rounded-xl border text-left text-white outline-none transition-colors",
+          "hover:border-white/25 focus-visible:border-lime-400/70 data-[state=open]:border-lime-400/70 data-[placeholder]:text-white/35",
+          variant === "panel"
+            ? clsx("border-white/10 bg-navy-950/60 text-sm", size === "md" ? "px-3.5 py-2.5" : "px-3 py-2", label && "mt-1.5")
+            : "mt-2 border-white/15 bg-white/5 px-4 py-3.5 text-base",
           className,
         )}
       >
@@ -78,6 +82,7 @@ export function Select({
           position="popper"
           sideOffset={6}
           className={clsx(
+            variant === "site" && "text-base",
             "z-50 max-h-[min(320px,var(--radix-select-content-available-height))] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-white/10 bg-navy-900 text-sm text-white shadow-2xl shadow-black/50",
             "data-[state=open]:animate-[select-in_160ms_cubic-bezier(0.16,1,0.3,1)]",
           )}

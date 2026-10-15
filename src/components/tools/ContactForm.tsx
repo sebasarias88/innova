@@ -3,11 +3,12 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import { services } from "@/lib/services";
 import { waLink } from "@/lib/site";
+import { Select } from "@/components/ui/Select";
 
 /** DEMO: el formulario abre WhatsApp. Al aprobar el proyecto se conecta a Supabase + correo. */
 export function ContactForm() {
   const [f, setF] = useState({ name: "", phone: "", city: "Armenia", service: services[0].name, msg: "" });
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +31,16 @@ export function ContactForm() {
         <Lbl>Ciudad</Lbl>
         <input value={f.city} onChange={set("city")} className={input} />
       </label>
-      <label className="block">
+      <div className="block">
         <Lbl>Servicio de interés</Lbl>
-        <select value={f.service} onChange={set("service")} className={input + " appearance-none"}>
-          {services.map((s) => (
-            <option key={s.slug} className="bg-navy-900">
-              {s.name}
-            </option>
-          ))}
-          <option className="bg-navy-900">Varios servicios</option>
-        </select>
-      </label>
+        <Select
+          variant="site"
+          ariaLabel="Servicio de interés"
+          value={f.service}
+          onValueChange={(service) => setF({ ...f, service })}
+          options={[...services.map((s) => ({ value: s.name, label: s.name })), { value: "Varios servicios", label: "Varios servicios" }]}
+        />
+      </div>
       <label className="block sm:col-span-2">
         <Lbl>¿Cómo te podemos ayudar?</Lbl>
         <textarea value={f.msg} onChange={set("msg")} rows={5} placeholder="Cuéntanos sobre tu proyecto…" className={input + " resize-none"} />
