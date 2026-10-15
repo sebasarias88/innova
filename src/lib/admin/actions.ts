@@ -1,6 +1,9 @@
 import "server-only";
 import { z } from "zod";
 
+// Built-in validation messages in Spanish (the admins read them).
+z.config(z.locales.es());
+
 /** Result returned by every admin Server Action (consumed by `useActionState`). */
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: string } | undefined;
 
@@ -56,9 +59,17 @@ export const money = z
   .transform((v) => (v === "" ? null : Number(v)))
   .refine((v) => v === null || (Number.isSafeInteger(v) && v >= 0 && v <= 1_000_000_000), "Precio no válido.");
 
+// Unchecked checkboxes are absent from FormData, so the key must be optional (Zod 4).
 export const checkbox = z
-  .union([z.literal("on"), z.literal("true"), z.null(), z.undefined()])
+  .union([z.literal("on"), z.literal("true"), z.null()])
+  .optional()
   .transform((v) => v === "on" || v === "true");
+
+/** Repeated fields (e.g. spec rows) as an array; absent when there are no rows. */
+export const repeated = z
+  .unknown()
+  .optional()
+  .transform((v) => (v == null ? [] : Array.isArray(v) ? v : [v]).map((x) => String(x)));
 
 export const intField = (min: number, max: number) =>
   z
