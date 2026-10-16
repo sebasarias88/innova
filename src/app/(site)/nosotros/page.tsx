@@ -11,7 +11,8 @@ import { Coverage } from "@/components/home/Coverage";
 import { CtaBand } from "@/components/layout/CtaBand";
 
 export const metadata: Metadata = {
-  title: "Nosotros",
+  title: "Quiénes somos",
+  alternates: { canonical: "/nosotros" },
   description: "INNOVA Seguridad y Sistemas: expertos en soluciones integrales de seguridad electrónica, energía solar, automatización y redes en Armenia, Quindío.",
 };
 

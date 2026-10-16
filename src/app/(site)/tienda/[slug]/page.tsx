@@ -8,6 +8,7 @@ import { AddToCart } from "@/components/shop/AddToCartButton";
 import { getProductBySlug, getProducts } from "@/lib/shop/queries";
 import { formatPrice } from "@/lib/shop/format";
 import { site, waLink } from "@/lib/site";
+import { siteUrl } from "@/lib/site-url";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Producto no encontrado" };
   const description = product.shortDescription ?? `${product.name} en INNOVA Seguridad y Sistemas, Armenia, Quindío.`;
   return {
-    title: product.name,
-    description,
+    title: product.brand ? `${product.name} · ${product.brand}` : product.name,
+    description: `${description} ${formatPrice(product.price)} en Armenia, Quindío.`.slice(0, 160),
     alternates: { canonical: `/tienda/${product.slug}` },
     openGraph: { title: product.name, description, images: product.images[0] ? [product.images[0].url] : undefined },
   };
@@ -32,6 +33,7 @@ export default async function ProductPage({ params }: Props) {
   const related = (await getProducts({ categoryIds: [product.categoryId] })).filter((p) => p.id !== product.id).slice(0, 4);
   const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
 
+  const base = siteUrl();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -45,7 +47,8 @@ export default async function ProductPage({ params }: Props) {
       priceCurrency: "COP",
       price: product.price,
       availability: product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url: `${site.url}/tienda/${product.slug}`,
+      url: `${base}/tienda/${product.slug}`,
+      itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: site.name },
     },
   };
@@ -53,6 +56,21 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Inicio", item: base },
+              { "@type": "ListItem", position: 2, name: "Tienda", item: `${base}/tienda` },
+              ...(product.category ? [{ "@type": "ListItem", position: 3, name: product.category.name, item: `${base}/tienda?categoria=${product.category.slug}` }] : []),
+              { "@type": "ListItem", position: product.category ? 4 : 3, name: product.name, item: `${base}/tienda/${product.slug}` },
+            ],
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       <section className="pb-16 pt-28 sm:pb-24 sm:pt-36">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <nav aria-label="Ruta" className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-white/50">

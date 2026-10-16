@@ -17,6 +17,8 @@ import { CtaBand } from "@/components/layout/CtaBand";
 import { Process } from "@/components/home/Process";
 import { SolarTeaser } from "@/components/home/SolarTeaser";
 import { NightVision } from "@/components/services/NightVision";
+import { JsonLd, breadcrumbJsonLd, faqJsonLd } from "@/components/seo/JsonLd";
+import { siteUrl } from "@/lib/site-url";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -31,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${s.name} en Armenia y el Eje Cafetero`,
     description: `${s.short} ${s.description}`.slice(0, 160),
+    alternates: { canonical: `/servicios/${s.slug}` },
     openGraph: { images: [s.image] },
   };
 }
@@ -42,9 +45,31 @@ export default async function ServicePage({ params }: Props) {
   const idx = services.findIndex((x) => x.slug === s.slug);
   const lname = s.name.toLowerCase().replace("cctv", "CCTV").replace("ups", "UPS");
   const related = [1, 2, 3].map((o) => services[(idx + o) % services.length]);
+  const base = siteUrl();
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: s.name,
+          serviceType: s.name,
+          description: s.description,
+          image: `${base}${s.image}`,
+          url: `${base}/servicios/${s.slug}`,
+          provider: { "@id": `${base}/#negocio` },
+          areaServed: ["Armenia", "Quindío", "Eje Cafetero", "Colombia"],
+        }}
+      />
+      {s.faqs.length > 0 && <JsonLd data={faqJsonLd(s.faqs)} />}
+      <JsonLd
+        data={breadcrumbJsonLd(base, [
+          { name: "Inicio", path: "" },
+          { name: "Servicios", path: "/servicios" },
+          { name: s.name, path: `/servicios/${s.slug}` },
+        ])}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden pb-20 pt-32 sm:pt-40">
         <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />

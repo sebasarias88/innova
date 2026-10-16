@@ -8,7 +8,8 @@ import { getProducts, getShopCategories } from "@/lib/shop/queries";
 import { waLink } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Tienda",
+  title: "Tienda de cámaras de seguridad, alarmas y UPS en Armenia",
+  alternates: { canonical: "/tienda" },
   description: "Compra cámaras de seguridad, alarmas, UPS, grabadores, reflectores y motores para puertas. Envío gratis en Armenia y a todo Colombia.",
 };
 

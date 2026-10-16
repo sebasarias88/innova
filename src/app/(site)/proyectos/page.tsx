@@ -4,7 +4,8 @@ import { ProjectsGrid } from "@/components/tools/ProjectsGrid";
 import { CtaBand } from "@/components/layout/CtaBand";
 
 export const metadata: Metadata = {
-  title: "Proyectos",
+  title: "Proyectos realizados en Armenia y el Eje Cafetero",
+  alternates: { canonical: "/proyectos" },
   description: "Proyectos de videovigilancia, energía solar, automatización, redes y respaldo energético realizados por INNOVA.",
 };
 

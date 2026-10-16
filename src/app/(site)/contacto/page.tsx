@@ -6,7 +6,8 @@ import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/BrandIc
 import { site, waLink } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contacto",
+  title: "Contacto · Asesoría en seguridad electrónica",
+  alternates: { canonical: "/contacto" },
   description: "Contáctanos para una asesoría personalizada. WhatsApp 321 853 9336 · Carrera 19A # 9-06, Armenia, Quindío.",
 };
 
