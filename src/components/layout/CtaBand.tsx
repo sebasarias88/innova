@@ -32,7 +32,7 @@ export function CtaBand({
             <Button href={waLink(wa)} external variant="lime" icon={<WhatsAppIcon className="size-3.5" />}>
               Hablar por WhatsApp
             </Button>
-            <Button href={booking.href} external variant="ghost" icon={<CalendarDays className="size-3.5" />}>
+            <Button href={booking.href} external={booking.external} variant="ghost" icon={<CalendarDays className="size-3.5" />}>
               {booking.label}
             </Button>
           </div>

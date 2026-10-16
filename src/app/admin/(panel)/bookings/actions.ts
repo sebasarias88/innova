@@ -116,6 +116,7 @@ export async function deleteException(id: string): Promise<ActionResult> {
 // ── Settings ────────────────────────────────────────────────────────────
 const settingsSchema = z.object({
   is_enabled: checkbox,
+  auto_confirm: checkbox,
   lead_time_hours: z.coerce.number().int().min(0, "Mínimo 0 horas.").max(336, "Máximo 336 horas (14 días)."),
   max_days_ahead: z.coerce.number().int().min(1, "Mínimo 1 día.").max(180, "Máximo 180 días."),
 });

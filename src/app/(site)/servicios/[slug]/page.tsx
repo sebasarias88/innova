@@ -66,7 +66,7 @@ export default async function ServicePage({ params }: Props) {
               <Button href={waLink(s.wa)} external icon={<WhatsAppIcon className="size-3.5" />}>
                 Cotizar por WhatsApp
               </Button>
-              <Button href={booking.href} external variant="ghost" icon={<CalendarDays className="size-3.5" />}>
+              <Button href={`${booking.href}?servicio=${s.slug}`} external={booking.external} variant="ghost" icon={<CalendarDays className="size-3.5" />}>
                 {booking.label}
               </Button>
             </div>

@@ -98,7 +98,7 @@ async function Appointments({ view }: { view?: string }) {
                           <span className="min-w-0 flex-1">
                             <span className="block font-semibold">{b.customer_name}</span>
                             <span className="block text-xs text-white/45">
-                              {service} · #{b.booking_number}
+                              {service} · #{b.booking_number} · {b.reference}
                             </span>
                           </span>
                           <Badge tone={status?.tone}>{status?.label ?? b.status}</Badge>
@@ -258,7 +258,7 @@ async function SpecialDates() {
 
 async function Settings() {
   const supabase = await createClient();
-  const { data: settings } = await supabase.from("booking_settings").select("is_enabled, lead_time_hours, max_days_ahead").eq("id", 1).single();
+  const { data: settings } = await supabase.from("booking_settings").select("is_enabled, auto_confirm, lead_time_hours, max_days_ahead").eq("id", 1).single();
   return (
     <div className="max-w-2xl">
       <Card title="Reglas para agendar">{settings && <SettingsForm settings={settings} />}</Card>

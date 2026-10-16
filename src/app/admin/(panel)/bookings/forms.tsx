@@ -74,10 +74,16 @@ export function ExceptionForm({ minDate }: { minDate: string }) {
   );
 }
 
-export function SettingsForm({ settings }: { settings: { is_enabled: boolean; lead_time_hours: number; max_days_ahead: number } }) {
+export function SettingsForm({ settings }: { settings: { is_enabled: boolean; auto_confirm: boolean; lead_time_hours: number; max_days_ahead: number } }) {
   return (
     <ActionForm action={saveBookingSettings} className="space-y-4">
       <Toggle label="Agenda en línea activa" description="Si la apagas, la web no mostrará horarios disponibles." name="is_enabled" defaultChecked={settings.is_enabled} />
+      <Toggle
+        label="Confirmar citas automáticamente"
+        description="La cita queda confirmada apenas el cliente la agenda (el horario se bloquea). Si la apagas, quedan “Por confirmar” hasta que las revises."
+        name="auto_confirm"
+        defaultChecked={settings.auto_confirm}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Anticipación mínima (horas)"

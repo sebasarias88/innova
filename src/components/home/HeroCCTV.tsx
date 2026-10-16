@@ -187,7 +187,7 @@ export function HeroCCTV() {
             style={{ animationDelay: "0.55s" }}
             className="order-5 animate-rise mt-7 grid gap-2.5 sm:mt-10 sm:flex sm:flex-wrap lg:order-none"
           >
-            <Button href={booking.href} external className="px-4 sm:px-6" icon={<CalendarDays className="size-3.5" />}>
+            <Button href={booking.href} external={booking.external} className="px-4 sm:px-6" icon={<CalendarDays className="size-3.5" />}>
               {booking.label}
             </Button>
             <Button
