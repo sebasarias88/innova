@@ -6,13 +6,13 @@ import { site } from "@/lib/site";
  * or the terms change: each order and booking stores the version accepted.
  */
 export const legal = {
-  version: "2026-10-16",
+  version: "2026-10-16.2",
   updatedAt: "16 de octubre de 2026",
   owner: "Jhon Albert Arias Castro",
   idLabel: "C.C. / NIT 1.094.971.378-7",
   tradeName: "INNOVA Seguridad y Sistemas",
   personType: "Persona natural comerciante, no responsable de IVA",
-  // Domicilio registrado en el RUT. TODO: confirmar con los dueños si cambió.
+  // Domicilio registrado en el RUT (confirmado por los dueños).
   registeredAddress: "Carrera 6 Norte # 3-40, Armenia, Quindío, Colombia",
   storeAddress: site.address,
   email: site.email,
@@ -25,5 +25,6 @@ export const legal = {
 export const legalLinks = {
   privacy: "/politica-de-privacidad",
   terms: "/terminos-y-condiciones",
+  warranty: "/politica-de-garantia",
   cookies: "/politica-de-privacidad#cookies",
 } as const;

@@ -29,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ["/contacto", 0.7],
     ["/terminos-y-condiciones", 0.2],
     ["/politica-de-privacidad", 0.2],
+    ["/politica-de-garantia", 0.3],
   ];
   return [
     ...pages.map(([p, priority]) => ({ url: base + p, priority })),
