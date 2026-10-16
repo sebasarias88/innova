@@ -7,6 +7,7 @@ import { getService, services } from "@/lib/services";
 import { getSiteSettings } from "@/lib/shop/queries";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { site } from "@/lib/site";
+import { legal } from "@/lib/legal";
 
 z.config(z.locales.es());
 
@@ -30,6 +31,8 @@ const schema = z.object({
     address: z.string().trim().min(5, "Escribe la dirección de la visita.").max(200),
     notes: z.string().trim().max(500).optional(),
   }),
+  /** Authorization for personal data (Ley 1581); its version is stored with the booking. */
+  acceptPrivacy: z.literal(true, "Para continuar, autoriza el tratamiento de tus datos y acepta los términos."),
   /** Honeypot: humans never fill this hidden field. */
   website: z.string().max(0).optional(),
 });
@@ -41,7 +44,8 @@ export type CreateBookingResult =
 const TZ = "America/Bogota";
 const dayLabel = (iso: string) =>
   new Intl.DateTimeFormat("es-CO", { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).format(new Date(iso));
-const timeLabel = (iso: string) => new Intl.DateTimeFormat("es-CO", { hour: "numeric", minute: "2-digit", timeZone: TZ }).format(new Date(iso));
+const timeLabel = (iso: string) =>
+  new Intl.DateTimeFormat("es-CO", { hour: "numeric", minute: "2-digit", hourCycle: "h12", timeZone: TZ }).format(new Date(iso));
 
 export async function createBooking(input: unknown): Promise<CreateBookingResult> {
   const parsed = schema.safeParse(input);
@@ -57,7 +61,7 @@ export async function createBooking(input: unknown): Promise<CreateBookingResult
   if (!ipOk || !phoneOk) return { ok: false, error: "Recibimos varias citas seguidas. Espera un momento o escríbenos por WhatsApp." };
 
   const { data, error } = await createAdminClient().rpc("create_booking", {
-    p_customer: customer,
+    p_customer: { ...customer, privacy_version: legal.version },
     p_service_slug: service,
     p_starts_at: startsAt,
   });
@@ -74,7 +78,9 @@ export async function createBooking(input: unknown): Promise<CreateBookingResult
   const day = dayLabel(booking.starts_at);
 
   const message = [
-    `Hola INNOVA 👋 Agendé una visita técnica desde la página web${confirmed ? "" : " (pendiente de confirmación)"}:`,
+    confirmed
+      ? "Hola INNOVA 👋 Agendé una visita técnica desde la página web:"
+      : "Hola INNOVA 👋 Quiero agendar esta visita técnica desde la página web. ¿Me la confirman?",
     "",
     `🛠️ Servicio: ${getService(service)?.name ?? service}`,
     `📅 Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,

@@ -11,6 +11,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { cart, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import type { ShippingOption } from "@/lib/shop/queries";
+import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 import { placeOrder, refreshCart } from "./actions";
 
 const noopSubscribe = () => () => {};
@@ -39,6 +40,7 @@ export function Checkout({
   const [customer, setCustomer] = useState<Customer>({ name: "", phone: "", email: "", document: "", city: "Armenia", address: "", notes: "" });
   const [method, setMethod] = useState<PaymentMethod>(onlinePayments ? "wompi" : "whatsapp");
   const [redirect, setRedirect] = useState<{ kind: PaymentMethod; url: string } | null>(null);
+  const [accepted, setAccepted] = useState(false);
   const [pending, start] = useTransition();
   // False while server-rendering (the cart lives in the browser), true afterwards.
   const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
@@ -99,11 +101,16 @@ export function Checkout({
 
   const submit = (honeypot: string) =>
     start(async () => {
+      if (!accepted) {
+        toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
+        return;
+      }
       const result = await placeOrder({
         customer: { ...customer, address: zone?.isPickup ? "" : customer.address },
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         shippingZoneId: zoneId,
         paymentMethod: payment,
+        acceptPrivacy: accepted,
         website: honeypot,
       });
       if (!result.ok) {
@@ -185,7 +192,12 @@ export function Checkout({
                 Revisar pedido <ArrowRight className="size-4" />
               </PrimaryButton>
             )}
-            {step === 2 && <SubmitOrder pending={pending} onSubmit={submit} payment={payment} total={total} />}
+            {step === 2 && (
+              <>
+                <ConsentCheckbox checked={accepted} onChange={setAccepted} />
+                <SubmitOrder pending={pending} onSubmit={submit} payment={payment} total={total} />
+              </>
+            )}
             {step > 0 && (
               <button type="button" onClick={() => goTo(step - 1)} className="flex w-full items-center justify-center gap-2 py-2 text-sm font-semibold text-white/60 hover:text-white">
                 <ArrowLeft className="size-4" /> Volver
