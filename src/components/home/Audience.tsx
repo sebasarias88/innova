@@ -152,7 +152,7 @@ export function Audience() {
                     );
                   })}
                 </div>
-                <Button href={booking.href} external className="mt-6" icon={<CalendarDays className="size-3.5" />}>
+                <Button href={booking.href} external={booking.external} className="mt-6" icon={<CalendarDays className="size-3.5" />}>
                   {booking.label}
                 </Button>
               </div>

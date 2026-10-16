@@ -166,6 +166,7 @@ export type Database = {
       }
       booking_settings: {
         Row: {
+          auto_confirm: boolean
           id: number
           is_enabled: boolean
           lead_time_hours: number
@@ -173,6 +174,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_confirm?: boolean
           id?: number
           is_enabled?: boolean
           lead_time_hours?: number
@@ -180,6 +182,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_confirm?: boolean
           id?: number
           is_enabled?: boolean
           lead_time_hours?: number
@@ -201,6 +204,7 @@ export type Database = {
           id: string
           internal_notes: string | null
           notes: string | null
+          reference: string
           service_slug: string
           starts_at: string
           status: string
@@ -218,6 +222,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           notes?: string | null
+          reference?: string
           service_slug: string
           starts_at: string
           status?: string
@@ -235,6 +240,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           notes?: string | null
+          reference?: string
           service_slug?: string
           starts_at?: string
           status?: string

@@ -20,14 +20,11 @@ export function waLink(message: string, phone = site.phone.raw) {
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
-/**
- * Destino del botón "Agendar servicio".
- * Temporal: abre WhatsApp. Cuando exista el módulo de agenda pasa a "/agendar".
- */
+/** Destino del botón "Agendar servicio": la agenda en línea. */
 export const booking = {
   label: "Agendar servicio",
-  href: waLink("Hola INNOVA 👋 Quiero agendar un servicio. ¿Qué disponibilidad tienen?"),
-  external: true,
+  href: "/agendar",
+  external: false,
 };
 
 export const nav = [

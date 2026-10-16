@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { CalendarDays, Phone } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
@@ -33,14 +34,12 @@ export function MobileDock() {
           <WhatsAppIcon className="relative size-5" />
           <span className="relative">WhatsApp</span>
         </a>
-        <a
+        <Link
           href={booking.href}
-          target="_blank"
-          rel="noopener noreferrer"
           className="flex h-12 items-center gap-1.5 rounded-2xl bg-lime-400 px-4 text-sm font-semibold text-navy-900 active:scale-95"
         >
           <CalendarDays className="size-4" /> Agendar
-        </a>
+        </Link>
       </div>
     </motion.nav>
   );

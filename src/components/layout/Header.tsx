@@ -138,10 +138,8 @@ export function Header() {
                       </Link>
                     ))}
                   </div>
-                  <a
+                  <Link
                     href={booking.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="group relative flex flex-col justify-end overflow-hidden rounded-2xl bg-royal-500 p-6"
                   >
                     <div className="grid-bg absolute inset-0 opacity-40" />
@@ -154,7 +152,7 @@ export function Header() {
                     <span className="relative mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
                       Agendar ahora <ArrowUpRight className="size-4 transition-transform group-hover:rotate-45" />
                     </span>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </motion.div>

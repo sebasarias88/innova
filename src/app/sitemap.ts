@@ -16,7 +16,7 @@ async function productUrls(): Promise<MetadataRoute.Sitemap> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = ["", "/servicios", "/tienda", "/calculadora-solar", "/proyectos", "/nosotros", "/contacto"];
+  const base = ["", "/servicios", "/tienda", "/calculadora-solar", "/proyectos", "/nosotros", "/contacto", "/agendar"];
   return [
     ...base.map((p) => ({ url: site.url + p })),
     ...services.map((s) => ({ url: `${site.url}/servicios/${s.slug}` })),
