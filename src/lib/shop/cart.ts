@@ -114,3 +114,25 @@ export function useCart() {
 export function useCartCount() {
   return useCart().reduce((n, i) => n + i.qty, 0);
 }
+
+// ── Paid online orders ──────────────────────────────────────────────────
+// Remembers the last online order whose approved payment this browser already
+// handled, so the cart is emptied once and never again for the same order.
+const PAID_KEY = "innova-paid-order";
+
+export const paidOrder = {
+  isHandled(reference: string) {
+    try {
+      return window.localStorage.getItem(PAID_KEY) === reference;
+    } catch {
+      return false;
+    }
+  },
+  markHandled(reference: string) {
+    try {
+      window.localStorage.setItem(PAID_KEY, reference);
+    } catch {
+      // Storage blocked: at worst the "payment approved" notice shows again.
+    }
+  },
+};

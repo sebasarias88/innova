@@ -2,13 +2,14 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { cart } from "@/lib/shop/cart";
+import { cart, paidOrder } from "@/lib/shop/cart";
 
 /** The purchase is done: empty the cart in this browser. */
-export function ClearCart() {
+export function ClearCart({ reference }: { reference: string }) {
   useEffect(() => {
     cart.clear();
-  }, []);
+    paidOrder.markHandled(reference);
+  }, [reference]);
   return null;
 }
 
