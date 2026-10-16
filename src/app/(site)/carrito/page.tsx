@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getShippingOptions } from "@/lib/shop/queries";
+import { wompiConfig } from "@/lib/payments/wompi";
 import { Checkout } from "./Checkout";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default async function CartPage() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">Tu carrito</h1>
         <div className="mt-8">
-          <Checkout shipping={shipping} />
+          <Checkout shipping={shipping} onlinePayments={wompiConfig() !== null} />
         </div>
       </div>
     </section>

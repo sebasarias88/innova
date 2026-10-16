@@ -12,10 +12,12 @@ export const metadata: Metadata = { title: "Pedidos" };
 
 const PAGE_SIZE = 25;
 const TABS = [
-  { value: "open", label: "Por atender", statuses: ["pending", "awaiting_payment", "paid", "confirmed"] },
+  { value: "open", label: "Por atender", statuses: ["pending", "paid", "confirmed"] },
   { value: "shipped", label: "Enviados", statuses: ["shipped"] },
   { value: "delivered", label: "Entregados", statuses: ["delivered"] },
   { value: "cancelled", label: "Cancelados", statuses: ["cancelled"] },
+  // Online orders whose payment was not completed (abandoned or declined).
+  { value: "unpaid", label: "Sin pagar", statuses: ["awaiting_payment"] },
   { value: "all", label: "Todos", statuses: null },
 ] as const;
 
