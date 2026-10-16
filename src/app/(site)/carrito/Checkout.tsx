@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, LoaderCircle, Lock,
 import { toast } from "sonner";
 import clsx from "clsx";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { cart, useCart, type CartItem } from "@/lib/shop/cart";
+import { cart, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import type { ShippingOption } from "@/lib/shop/queries";
 import { placeOrder, refreshCart } from "./actions";
@@ -21,7 +21,18 @@ type PaymentMethod = "whatsapp" | "wompi";
 
 type Customer = { name: string; phone: string; email: string; document: string; city: string; address: string; notes: string };
 
-export function Checkout({ shipping, onlinePayments }: { shipping: ShippingOption[]; onlinePayments: boolean }) {
+export function Checkout({
+  shipping,
+  onlinePayments,
+  paidReference,
+  whatsapp,
+}: {
+  shipping: ShippingOption[];
+  onlinePayments: boolean;
+  /** Last online order of this browser, when its payment is already approved. */
+  paidReference: string | null;
+  whatsapp: string;
+}) {
   const items = useCart();
   const [step, setStep] = useState(0);
   const [zoneId, setZoneId] = useState<string>(shipping[0]?.id ?? "");
@@ -32,6 +43,24 @@ export function Checkout({ shipping, onlinePayments }: { shipping: ShippingOptio
   // False while server-rendering (the cart lives in the browser), true afterwards.
   const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
   const top = useRef<HTMLDivElement>(null);
+  // Read once on load (client only): show the "already paid" notice the first time.
+  const [justPaid] = useState(() => (paidReference && typeof window !== "undefined" && !paidOrder.isHandled(paidReference) ? paidReference : null));
+
+  useEffect(() => {
+    if (!justPaid) return;
+    cart.clear();
+    paidOrder.markHandled(justPaid);
+  }, [justPaid]);
+
+  // Coming back with the browser's back button restores this page from memory with
+  // the old "opening…" screen: reload it so the cart and payment state are fresh.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
 
   const zone = shipping.find((z) => z.id === zoneId);
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
@@ -96,6 +125,7 @@ export function Checkout({ shipping, onlinePayments }: { shipping: ShippingOptio
 
   if (redirect) return <Redirecting kind={redirect.kind} url={redirect.url} />;
   if (!hydrated) return <div className="h-96" />;
+  if (justPaid) return <PaidNotice reference={justPaid} whatsapp={whatsapp} />;
   if (!items.length) return <EmptyCart />;
 
   return (
@@ -432,6 +462,42 @@ function SubmitOrder({ pending, onSubmit, payment, total }: { pending: boolean; 
 /** Shown for a moment while WhatsApp / the payment page opens (and as a fallback if it does not). */
 function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
   const online = kind === "wompi";
+  const [back, setBack] = useState(false);
+
+  // WhatsApp opens in another app/tab: when the customer returns, show that the order is done.
+  useEffect(() => {
+    if (online) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setBack(true);
+    };
+    const timer = setTimeout(() => setBack(true), 4000);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [online]);
+
+  if (!online && back) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
+        <span className="mx-auto grid size-16 place-items-center rounded-full bg-lime-400 text-navy-900">
+          <Check className="size-8" />
+        </span>
+        <h2 className="mt-6 text-2xl font-bold text-white">¡Pedido registrado!</h2>
+        <p className="mt-3 text-pretty text-white/70">Cuando envíes el mensaje en WhatsApp te confirmamos disponibilidad, pago y entrega.</p>
+        <Link href="/tienda" className="mt-8 inline-flex rounded-full bg-lime-400 px-8 py-4 font-semibold text-navy-900 hover:bg-white">
+          Seguir comprando
+        </Link>
+        <p className="mt-5">
+          <a href={url} className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 hover:text-white">
+            <WhatsAppIcon className="size-4" /> ¿No se envió? Abrir WhatsApp otra vez
+          </a>
+        </p>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
       <span className={clsx("mx-auto grid size-16 place-items-center rounded-full", online ? "bg-lime-400 text-navy-900" : "bg-[#25D366] text-white")}>
@@ -452,13 +518,34 @@ function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
       >
         {online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />} Si no se abrió, toca aquí
       </a>
-      {!online && (
-        <p className="mt-6">
-          <Link href="/tienda" className="text-sm font-semibold text-white/60 hover:text-white">
-            Seguir comprando
-          </Link>
-        </p>
-      )}
+    </motion.div>
+  );
+}
+
+/** The customer already paid online (came back to the cart after paying). */
+function PaidNotice({ reference, whatsapp }: { reference: string; whatsapp: string }) {
+  const message = `Hola INNOVA 👋 Acabo de pagar mi pedido en línea.\nCódigo: ${reference}`;
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
+      <span className="mx-auto grid size-16 place-items-center rounded-full bg-lime-400 text-navy-900">
+        <Check className="size-8" />
+      </span>
+      <h2 className="mt-6 text-2xl font-bold text-white">¡Tu pago fue aprobado!</h2>
+      <p className="mt-3 text-pretty text-white/70">Ya estamos preparando tu pedido y vaciamos tu carrito. Te contactaremos para coordinar la entrega.</p>
+      <p className="mt-4 font-mono text-sm text-white/50">
+        Código del pedido: <span className="text-white">{reference}</span>
+      </p>
+      <div className="mt-8 flex flex-col items-center gap-3">
+        <a
+          href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`}
+          className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 font-semibold text-navy-950 hover:brightness-110"
+        >
+          <WhatsAppIcon className="size-5" /> Coordinar la entrega
+        </a>
+        <Link href="/tienda" className="text-sm font-semibold text-white/60 hover:text-white">
+          Seguir comprando
+        </Link>
+      </div>
     </motion.div>
   );
 }

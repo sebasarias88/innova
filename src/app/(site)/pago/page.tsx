@@ -58,7 +58,7 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
   return (
     <section className="pb-20 pt-28 sm:pb-28 sm:pt-36">
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
-        {view === "approved" && <ClearCart />}
+        {view === "approved" && reference && <ClearCart reference={reference} />}
         {view === "pending" && <RefreshWhilePending />}
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center sm:p-10">
