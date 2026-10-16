@@ -1,10 +1,14 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getProductsByIds, getSiteSettings } from "@/lib/shop/queries";
+import { getProductsByIds, getShippingOptions, getSiteSettings } from "@/lib/shop/queries";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
+import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
+import { siteUrl } from "@/lib/site-url";
+import { ORDER_COOKIE } from "@/lib/payments/cookie";
 
 z.config(z.locales.es());
 
@@ -36,13 +40,13 @@ const orderSchema = z.object({
     .min(1, "Tu carrito está vacío.")
     .max(30),
   shippingZoneId: z.uuid("Elige cómo quieres recibir tu pedido."),
-  paymentMethod: z.literal("whatsapp"),
+  paymentMethod: z.enum(["whatsapp", "wompi"]),
   /** Honeypot: humans never fill this hidden field. */
   website: z.string().max(0).optional(),
 });
 
 export type PlaceOrderResult =
-  | { ok: true; whatsappUrl: string }
+  | { ok: true; kind: "whatsapp" | "wompi"; redirectUrl: string }
   | { ok: false; error: string; refresh?: boolean };
 
 const DB_ERRORS: Record<string, string> = {
@@ -66,6 +70,15 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   ]);
   if (!ipOk || !phoneOk) return { ok: false, error: "Recibimos varios pedidos seguidos. Espera un momento o escríbenos por WhatsApp." };
 
+  // Online payment needs a fixed amount: "a convenir" shipping is arranged by WhatsApp.
+  const wompi = paymentMethod === "wompi" ? wompiConfig() : null;
+  if (paymentMethod === "wompi") {
+    if (!wompi) return { ok: false, error: "El pago en línea no está disponible ahora. Envía tu pedido por WhatsApp." };
+    const zone = (await getShippingOptions()).find((z) => z.id === shippingZoneId);
+    if (!zone) return { ok: false, error: DB_ERRORS.invalid_shipping_zone };
+    if (zone.price === null) return { ok: false, error: "Para pagar en línea elige un envío con valor fijo, o envía el pedido por WhatsApp." };
+  }
+
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("create_order", {
     p_customer: customer,
@@ -79,7 +92,18 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
     return { ok: false, error: known ? DB_ERRORS[known] : "No pudimos registrar el pedido. Inténtalo de nuevo.", refresh: known === "product_unavailable" };
   }
 
-  const order = data as { id: string; reference: string; subtotal: number; shipping_cost: number | null; total: number };
+  const order = data as { id: string; reference: string; subtotal: number; shipping_cost: number | null; total: number; amount_in_cents: number };
+
+  if (wompi) {
+    // Lets the return page show the order details only to the browser that placed it.
+    (await cookies()).set(ORDER_COOKIE, order.reference, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 6 });
+    return {
+      ok: true,
+      kind: "wompi",
+      redirectUrl: checkoutUrl(wompi, { reference: order.reference, amountInCents: order.amount_in_cents, redirectUrl: `${siteUrl()}/pago` }),
+    };
+  }
+
   const [{ data: lines }, settings] = await Promise.all([
     supabase.from("order_items").select("product_name, quantity, line_total").eq("order_id", order.id),
     getSiteSettings(),
@@ -105,5 +129,5 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   ].join("\n");
 
   const whatsapp = settings?.whatsapp ?? "573218539336";
-  return { ok: true, whatsappUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
+  return { ok: true, kind: "whatsapp", redirectUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
 }

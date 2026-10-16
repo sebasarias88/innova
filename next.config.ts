@@ -1,8 +1,17 @@
 import type { NextConfig } from "next";
 
-// Security headers for every response. A full Content-Security-Policy is added
-// together with the Wompi checkout (it needs the widget's domains).
+// Restrictive directives that do not interfere with Next.js inline scripts.
+// Payments use Wompi's hosted page by redirect, so no third-party script runs here.
+const csp = [
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://checkout.wompi.co",
+].join("; ");
+
+// Security headers for every response.
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },

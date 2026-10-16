@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, LoaderCircle, MapPin, Minus, Plus, ShoppingBag, Store, Trash2, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, LoaderCircle, Lock, MapPin, Minus, Plus, ShoppingBag, Store, Trash2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
@@ -17,14 +17,17 @@ const noopSubscribe = () => () => {};
 
 const STEPS = ["Carrito", "Envío y datos", "Confirmar"] as const;
 
+type PaymentMethod = "whatsapp" | "wompi";
+
 type Customer = { name: string; phone: string; email: string; document: string; city: string; address: string; notes: string };
 
-export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
+export function Checkout({ shipping, onlinePayments }: { shipping: ShippingOption[]; onlinePayments: boolean }) {
   const items = useCart();
   const [step, setStep] = useState(0);
   const [zoneId, setZoneId] = useState<string>(shipping[0]?.id ?? "");
   const [customer, setCustomer] = useState<Customer>({ name: "", phone: "", email: "", document: "", city: "Armenia", address: "", notes: "" });
-  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  const [method, setMethod] = useState<PaymentMethod>(onlinePayments ? "wompi" : "whatsapp");
+  const [redirect, setRedirect] = useState<{ kind: PaymentMethod; url: string } | null>(null);
   const [pending, start] = useTransition();
   // False while server-rendering (the cart lives in the browser), true afterwards.
   const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
@@ -33,6 +36,10 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
   const zone = shipping.find((z) => z.id === zoneId);
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const total = subtotal + (zone?.price ?? 0);
+  // Online payment needs a fixed amount ("a convenir" shipping is arranged by WhatsApp).
+  const canPayOnline = onlinePayments && zone?.price !== null && zone !== undefined;
+  const payment: PaymentMethod = method === "wompi" && canPayOnline ? "wompi" : "whatsapp";
+  const units = items.reduce((n, i) => n + i.qty, 0);
 
   // Refresh names, prices and availability from the server when the cart opens.
   useEffect(() => {
@@ -67,7 +74,7 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
         customer: { ...customer, address: zone?.isPickup ? "" : customer.address },
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         shippingZoneId: zoneId,
-        paymentMethod: "whatsapp",
+        paymentMethod: payment,
         website: honeypot,
       });
       if (!result.ok) {
@@ -79,13 +86,15 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
         }
         return;
       }
-      cart.clear();
-      setWhatsappUrl(result.whatsappUrl);
-      // Straight to WhatsApp with the order written; the fallback below covers blocked redirects.
-      window.location.assign(result.whatsappUrl);
+      // WhatsApp: the order is already written in the message. Wompi: the cart is kept
+      // until the payment is approved, so a declined card can try again.
+      if (result.kind === "whatsapp") cart.clear();
+      setRedirect({ kind: result.kind, url: result.redirectUrl });
+      // Straight to WhatsApp / the payment page; the fallback below covers blocked redirects.
+      window.location.assign(result.redirectUrl);
     });
 
-  if (whatsappUrl) return <Redirecting whatsappUrl={whatsappUrl} />;
+  if (redirect) return <Redirecting kind={redirect.kind} url={redirect.url} />;
   if (!hydrated) return <div className="h-96" />;
   if (!items.length) return <EmptyCart />;
 
@@ -99,7 +108,9 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
             <motion.div key={step} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.25 }}>
               {step === 0 && <CartStep items={items} />}
               {step === 1 && <DetailsStep shipping={shipping} zoneId={zoneId} setZoneId={setZoneId} customer={customer} setCustomer={setCustomer} />}
-              {step === 2 && zone && <ReviewStep items={items} customer={customer} zone={zone} onEdit={goTo} />}
+              {step === 2 && zone && (
+                <ReviewStep items={items} customer={customer} zone={zone} onEdit={goTo} onlinePayments={onlinePayments} canPayOnline={canPayOnline} payment={payment} setMethod={setMethod} />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -108,7 +119,9 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
           <h2 className="text-lg font-bold text-white">Resumen</h2>
           <dl className="mt-4 space-y-2.5 text-sm">
             <div className="flex justify-between text-white/70">
-              <dt>Subtotal ({items.reduce((n, i) => n + i.qty, 0)} productos)</dt>
+              <dt>
+                Subtotal ({units} {units === 1 ? "producto" : "productos"})
+              </dt>
               <dd className="font-mono">{formatPrice(subtotal)}</dd>
             </div>
             <div className="flex justify-between text-white/70">
@@ -142,7 +155,7 @@ export function Checkout({ shipping }: { shipping: ShippingOption[] }) {
                 Revisar pedido <ArrowRight className="size-4" />
               </PrimaryButton>
             )}
-            {step === 2 && <SubmitOrder pending={pending} onSubmit={submit} />}
+            {step === 2 && <SubmitOrder pending={pending} onSubmit={submit} payment={payment} total={total} />}
             {step > 0 && (
               <button type="button" onClick={() => goTo(step - 1)} className="flex w-full items-center justify-center gap-2 py-2 text-sm font-semibold text-white/60 hover:text-white">
                 <ArrowLeft className="size-4" /> Volver
@@ -312,7 +325,25 @@ function DetailsStep({
   );
 }
 
-function ReviewStep({ items, customer, zone, onEdit }: { items: CartItem[]; customer: Customer; zone: ShippingOption; onEdit: (s: number) => void }) {
+function ReviewStep({
+  items,
+  customer,
+  zone,
+  onEdit,
+  onlinePayments,
+  canPayOnline,
+  payment,
+  setMethod,
+}: {
+  items: CartItem[];
+  customer: Customer;
+  zone: ShippingOption;
+  onEdit: (s: number) => void;
+  onlinePayments: boolean;
+  canPayOnline: boolean;
+  payment: PaymentMethod;
+  setMethod: (m: PaymentMethod) => void;
+}) {
   return (
     <div className="space-y-4">
       <ReviewBlock title="Productos" onEdit={() => onEdit(0)}>
@@ -344,33 +375,35 @@ function ReviewStep({ items, customer, zone, onEdit }: { items: CartItem[]; cust
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
         <h3 className="font-bold text-white">Método de pago</h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div className="flex gap-3 rounded-2xl border border-lime-400 bg-lime-400/10 p-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#25D366] text-white">
-              <WhatsAppIcon className="size-5" />
-            </span>
-            <span>
-              <span className="block font-semibold text-white">Coordinar por WhatsApp</span>
-              <span className="mt-0.5 block text-xs leading-snug text-white/60">Te confirmamos disponibilidad y pagas por transferencia, Nequi o en tienda.</span>
-            </span>
-          </div>
-          <div className="flex gap-3 rounded-2xl border border-white/10 p-4 opacity-50">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/5 text-white/60">
-              <CreditCard className="size-5" />
-            </span>
-            <span>
-              <span className="block font-semibold text-white">Pago en línea</span>
-              <span className="mt-0.5 block text-xs leading-snug text-white/60">Tarjeta, PSE y Nequi · Muy pronto</span>
-            </span>
-          </div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Método de pago">
+          {onlinePayments && (
+            <PaymentOption
+              selected={payment === "wompi"}
+              disabled={!canPayOnline}
+              onSelect={() => setMethod("wompi")}
+              icon={<CreditCard className="size-5" />}
+              iconClass="bg-lime-400 text-navy-900"
+              title="Pagar en línea"
+              text={canPayOnline ? "Tarjeta, PSE, Nequi o Bancolombia. Pago seguro con Wompi." : "No disponible con envío a convenir: primero acordamos el valor del envío."}
+            />
+          )}
+          <PaymentOption
+            selected={payment === "whatsapp"}
+            onSelect={() => setMethod("whatsapp")}
+            icon={<WhatsAppIcon className="size-5" />}
+            iconClass="bg-[#25D366] text-white"
+            title="Coordinar por WhatsApp"
+            text="Te confirmamos disponibilidad y pagas por transferencia, Nequi o en tienda."
+          />
         </div>
       </section>
     </div>
   );
 }
 
-function SubmitOrder({ pending, onSubmit }: { pending: boolean; onSubmit: (honeypot: string) => void }) {
+function SubmitOrder({ pending, onSubmit, payment, total }: { pending: boolean; onSubmit: (honeypot: string) => void; payment: PaymentMethod; total: number }) {
   const [honeypot, setHoneypot] = useState("");
+  const online = payment === "wompi";
   return (
     <>
       {/* Hidden from people; bots tend to fill every field. */}
@@ -379,36 +412,53 @@ function SubmitOrder({ pending, onSubmit }: { pending: boolean; onSubmit: (honey
         type="button"
         disabled={pending}
         onClick={() => onSubmit(honeypot)}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-4 font-semibold text-navy-950 transition-[filter] hover:brightness-110 disabled:opacity-60"
+        className={clsx(
+          "flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 font-semibold text-navy-950 transition-[filter,background-color] disabled:opacity-60",
+          online ? "bg-lime-400 hover:bg-white" : "bg-[#25D366] hover:brightness-110",
+        )}
       >
-        {pending ? <LoaderCircle className="size-5 animate-spin" /> : <WhatsAppIcon className="size-5" />}
-        Enviar pedido por WhatsApp
+        {pending ? <LoaderCircle className="size-5 animate-spin" /> : online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />}
+        {online ? `Pagar ${formatPrice(total)}` : "Enviar pedido por WhatsApp"}
       </button>
-      <p className="text-center text-[11px] leading-snug text-white/45">Se abrirá WhatsApp con tu pedido listo para enviar. Ahí coordinamos el pago y la entrega.</p>
+      <p className="text-center text-[11px] leading-snug text-white/45">
+        {online
+          ? "Te llevamos a la página segura de Wompi (Bancolombia) para completar el pago."
+          : "Se abrirá WhatsApp con tu pedido listo para enviar. Ahí coordinamos el pago y la entrega."}
+      </p>
     </>
   );
 }
 
-/** Shown for a moment while WhatsApp opens (and as a fallback if it does not). */
-function Redirecting({ whatsappUrl }: { whatsappUrl: string }) {
+/** Shown for a moment while WhatsApp / the payment page opens (and as a fallback if it does not). */
+function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
+  const online = kind === "wompi";
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
-      <span className="mx-auto grid size-16 place-items-center rounded-full bg-[#25D366] text-white">
-        <WhatsAppIcon className="size-8" />
+      <span className={clsx("mx-auto grid size-16 place-items-center rounded-full", online ? "bg-lime-400 text-navy-900" : "bg-[#25D366] text-white")}>
+        {online ? <Lock className="size-8" /> : <WhatsAppIcon className="size-8" />}
       </span>
-      <h2 className="mt-6 text-2xl font-bold text-white">Abriendo WhatsApp…</h2>
-      <p className="mt-3 text-pretty text-white/70">Tu pedido ya está escrito. Solo dale enviar en WhatsApp y te confirmamos disponibilidad, pago y entrega.</p>
-      <a
-        href={whatsappUrl}
-        className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-semibold text-navy-950 hover:brightness-110"
-      >
-        <WhatsAppIcon className="size-5" /> Si no se abrió, toca aquí
-      </a>
-      <p className="mt-6">
-        <Link href="/tienda" className="text-sm font-semibold text-white/60 hover:text-white">
-          Seguir comprando
-        </Link>
+      <h2 className="mt-6 text-2xl font-bold text-white">{online ? "Abriendo el pago seguro…" : "Abriendo WhatsApp…"}</h2>
+      <p className="mt-3 text-pretty text-white/70">
+        {online
+          ? "Te estamos llevando a Wompi para que completes el pago. Al terminar volverás a esta tienda."
+          : "Tu pedido ya está escrito. Solo dale enviar en WhatsApp y te confirmamos disponibilidad, pago y entrega."}
       </p>
+      <a
+        href={url}
+        className={clsx(
+          "mt-8 inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-navy-950",
+          online ? "bg-lime-400 hover:bg-white" : "bg-[#25D366] hover:brightness-110",
+        )}
+      >
+        {online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />} Si no se abrió, toca aquí
+      </a>
+      {!online && (
+        <p className="mt-6">
+          <Link href="/tienda" className="text-sm font-semibold text-white/60 hover:text-white">
+            Seguir comprando
+          </Link>
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -448,6 +498,45 @@ function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () =>
       </div>
       {children}
     </section>
+  );
+}
+
+function PaymentOption({
+  selected,
+  disabled,
+  onSelect,
+  icon,
+  iconClass,
+  title,
+  text,
+}: {
+  selected: boolean;
+  disabled?: boolean;
+  onSelect: () => void;
+  icon: React.ReactNode;
+  iconClass: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      disabled={disabled}
+      onClick={onSelect}
+      className={clsx(
+        "flex gap-3 rounded-2xl border p-4 text-left transition-colors",
+        selected ? "border-lime-400 bg-lime-400/10" : "border-white/10 hover:border-white/25",
+        disabled && "cursor-not-allowed opacity-50 hover:border-white/10",
+      )}
+    >
+      <span className={clsx("grid size-10 shrink-0 place-items-center rounded-xl", iconClass)}>{icon}</span>
+      <span>
+        <span className="block font-semibold text-white">{title}</span>
+        <span className="mt-0.5 block text-xs leading-snug text-white/60">{text}</span>
+      </span>
+    </button>
   );
 }
 
