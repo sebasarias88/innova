@@ -5,7 +5,7 @@ import { ChevronRight, MessageCircle, ShieldCheck, Truck, Wrench } from "lucide-
 import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { AddToCart } from "@/components/shop/AddToCartButton";
-import { getProductBySlug, getProducts } from "@/lib/shop/queries";
+import { getProductBySlug, getRelatedProducts } from "@/lib/shop/queries";
 import { formatPrice } from "@/lib/shop/format";
 import { site, waLink } from "@/lib/site";
 import { siteUrl } from "@/lib/site-url";
@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug((await params).slug);
   if (!product) notFound();
 
-  const related = (await getProducts({ categoryIds: [product.categoryId] })).filter((p) => p.id !== product.id).slice(0, 4);
+  const related = await getRelatedProducts(product.categoryId, product.id);
   const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
 
   const base = siteUrl();
