@@ -24,14 +24,14 @@ export function RuleForm() {
   );
 }
 
-function SlotSelect({ defaultValue = 60 }: { defaultValue?: number }) {
+function SlotSelect({ defaultValue = 120 }: { defaultValue?: number }) {
   return (
     <SelectField
       label="Duración de cada cita"
       name="slot_minutes"
       defaultValue={String(defaultValue)}
       hint="Cada cuánto se ofrece una hora para agendar."
-      options={SLOT_OPTIONS.map((m) => ({ value: String(m), label: m < 60 ? `${m} minutos` : `${m / 60} hora${m === 60 ? "" : "s"}` }))}
+      options={SLOT_OPTIONS.map((m) => ({ value: String(m), label: m < 60 ? `${m} minutos` : m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m / 60} hora${m === 60 ? "" : "s"}` }))}
     />
   );
 }
@@ -80,7 +80,7 @@ export function SettingsForm({ settings }: { settings: { is_enabled: boolean; au
       <Toggle label="Agenda en línea activa" description="Si la apagas, la web no mostrará horarios disponibles." name="is_enabled" defaultChecked={settings.is_enabled} />
       <Toggle
         label="Confirmar citas automáticamente"
-        description="La cita queda confirmada apenas el cliente la agenda (el horario se bloquea). Si la apagas, quedan “Por confirmar” hasta que las revises."
+        description="Si la activas, la cita queda confirmada apenas el cliente la agenda. Apagada (recomendado), queda “Por confirmar” y ustedes confirman por WhatsApp. En ambos casos el horario se bloquea."
         name="auto_confirm"
         defaultChecked={settings.auto_confirm}
       />

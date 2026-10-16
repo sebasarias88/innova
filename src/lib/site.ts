@@ -11,7 +11,7 @@ export const site = {
   phone: { label: "321 853 9336", raw: "573218539336" },
   instagram: { handle: "@innova_safesys", url: "https://instagram.com/innova_safesys" },
   tiktok: { handle: "@innova.seguridad2", url: "https://www.tiktok.com/@innova.seguridad2" },
-  hours: "Lun – Sáb · 7:00 a. m. – 6:00 p. m.", // TODO: confirmar horario
+  hours: "Lun – Sáb · 8:00 a. m. – 5:00 p. m.",
   mapsQuery: "Carrera 19A 9-06 Armenia Quindío Colombia",
 };
 
