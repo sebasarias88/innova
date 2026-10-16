@@ -36,7 +36,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   if (q) {
     const num = Number(q.replace(/\D/g, ""));
     const term = `%${q.replace(/[%_,()]/g, " ")}%`;
-    query = query.or([`customer_name.ilike.${term}`, `customer_phone.ilike.${term}`, ...(num ? [`order_number.eq.${num}`] : [])].join(","));
+    query = query.or(
+      [`customer_name.ilike.${term}`, `customer_phone.ilike.${term}`, `reference.ilike.${term}`, ...(num && num < 2_000_000_000 ? [`order_number.eq.${num}`] : [])].join(","),
+    );
   }
   const { data: orders, count } = await query;
 
@@ -61,7 +63,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
         <form className="relative lg:w-80">
           <input type="hidden" name="tab" value={tab.value} />
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/35" />
-          <input name="q" defaultValue={q} placeholder="N.º de pedido, nombre o celular" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
+          <input name="q" defaultValue={q} placeholder="N.º, código INN-…, nombre o celular" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
         </form>
       </div>
 

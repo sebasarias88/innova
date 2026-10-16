@@ -36,7 +36,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     <div className="mx-auto max-w-6xl">
       <PageHeader
         title={`Pedido #${order.order_number}`}
-        description={`${formatDateTime(order.created_at)} · Ref. ${order.reference}`}
+        description={`${formatDateTime(order.created_at)} · Código ${order.reference}`}
         back={{ href: "/admin/orders", label: "Pedidos" }}
         actions={<Badge tone={status?.tone}>{status?.label ?? order.status}</Badge>}
       />
