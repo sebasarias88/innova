@@ -30,7 +30,7 @@ export default function NosotrosPage() {
         image="/img/tecnico-torre.webp"
         title={
           <>
-            Tecnología que protege, <span className="text-lime-400">conecta y transforma.</span>
+            Protege <span className="text-lime-400">lo que más te importa.</span>
           </>
         }
       />

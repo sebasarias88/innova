@@ -1,10 +1,10 @@
 export const site = {
   name: "INNOVA Seguridad y Sistemas",
   shortName: "INNOVA",
-  slogan: "Tecnología que protege, conecta y transforma",
+  slogan: "Protege lo que más te importa.",
   description:
     "Cámaras de seguridad (CCTV), energía solar, automatización de puertas, domótica, UPS y soporte informático en Armenia, Quindío y todo Colombia.",
-  url: "https://innovaseguridad.co", // TODO: confirmar dominio
+  url: "https://www.innovaseguridad.com.co",
   city: "Armenia, Quindío",
   address: "Carrera 19A # 9-06, Armenia, Quindío",
   email: "ventasinnovaseguridad@gmail.com",
