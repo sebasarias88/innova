@@ -5,6 +5,7 @@ import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/BrandIc
 import { nav, site, waLink } from "@/lib/site";
 import { services } from "@/lib/services";
 import { cities } from "@/lib/cities";
+import { legal, legalLinks } from "@/lib/legal";
 
 export function Footer() {
   return (
@@ -108,9 +109,30 @@ export function Footer() {
           <Logo tone="white" className="h-auto w-full opacity-[0.04]" />
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row sm:justify-between">
-          <p>© {new Date().getFullYear()} INNOVA Seguridad y Sistemas. Todos los derechos reservados.</p>
-          <p className="font-mono">Armenia · Quindío · Colombia</p>
+        <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-xs text-white/40 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <p>© {new Date().getFullYear()} INNOVA Seguridad y Sistemas. Todos los derechos reservados.</p>
+            <p>
+              {legal.owner} · {legal.idLabel}
+            </p>
+          </div>
+          <nav aria-label="Información legal" className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href={legalLinks.terms} className="transition-colors hover:text-white">
+              Términos y condiciones
+            </Link>
+            <Link href={legalLinks.privacy} className="transition-colors hover:text-white">
+              Política de datos
+            </Link>
+            <Link href={legalLinks.cookies} className="transition-colors hover:text-white">
+              Cookies
+            </Link>
+            <Link href={`${legalLinks.terms}#retracto`} className="transition-colors hover:text-white">
+              Retracto y reversión
+            </Link>
+            <a href={legal.sic.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-white/60 transition-colors hover:text-white">
+              Superintendencia de Industria y Comercio
+            </a>
+          </nav>
         </div>
       </div>
     </footer>

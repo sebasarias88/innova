@@ -4,7 +4,7 @@ import { CalendarX2, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import clsx from "clsx";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
-import { TIME_ZONE, WEEKDAYS, formatDate, formatTime, whatsappUrl } from "@/lib/admin/format";
+import { TIME_ZONE, WEEKDAYS, formatClock, formatDate, formatMinutes, formatTime, whatsappUrl } from "@/lib/admin/format";
 import { BOOKING_STATUS } from "@/lib/admin/status";
 import { getService } from "@/lib/services";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/admin/ui";
@@ -171,9 +171,9 @@ async function WeeklySchedule() {
                       {dayRules.map((r) => (
                         <li key={r.id} className="flex flex-wrap items-center gap-2 text-sm">
                           <span className={clsx("font-mono", !r.is_active && "text-white/35 line-through")}>
-                            {r.start_time.slice(0, 5)} – {r.end_time.slice(0, 5)}
+                            {formatClock(r.start_time)} – {formatClock(r.end_time)}
                           </span>
-                          <span className="text-xs text-white/40">cada {r.slot_minutes} min</span>
+                          <span className="text-xs text-white/40">citas de {formatMinutes(r.slot_minutes)}</span>
                           <span className="ml-auto flex items-center gap-2">
                             <RuleToggle id={r.id} active={r.is_active} />
                             <ConfirmButton action={deleteRule.bind(null, r.id)} confirmText="¿Eliminar este horario?" className="px-2.5 py-1 text-xs">
@@ -237,7 +237,7 @@ async function SpecialDates() {
                     {new Intl.DateTimeFormat("es-CO", { dateStyle: "full", timeZone: "UTC" }).format(new Date(`${e.date}T00:00:00Z`))}
                   </p>
                   <p className="text-xs text-white/50">
-                    {e.is_closed ? "Cerrado" : `Horario especial ${e.start_time?.slice(0, 5)} – ${e.end_time?.slice(0, 5)} · cada ${e.slot_minutes} min`}
+                    {e.is_closed ? "Cerrado" : `Horario especial ${formatClock(e.start_time)} – ${formatClock(e.end_time)} · citas de ${formatMinutes(e.slot_minutes)}`}
                     {e.note && ` · ${e.note}`}
                   </p>
                 </div>

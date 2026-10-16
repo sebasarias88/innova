@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { HeroCCTV } from "@/components/home/HeroCCTV";
+import { JsonLd, faqJsonLd } from "@/components/seo/JsonLd";
 import { Stats } from "@/components/home/Stats";
 import { Ecosystem } from "@/components/home/Ecosystem";
 import { ServicesBento } from "@/components/home/ServicesBento";
@@ -17,12 +19,15 @@ const faqs = [
   { q: "¿Cómo solicito una cotización?", a: "Escríbenos por WhatsApp, agenda una visita técnica o llena el formulario de contacto. Te respondemos el mismo día." },
 ];
 
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 // Static, refreshed every 5 minutes and right after changes in the admin panel.
 export const revalidate = 300;
 
 export default function Home() {
   return (
     <>
+      <JsonLd data={faqJsonLd(faqs)} />
       <HeroCCTV />
       <Stats />
       <Ecosystem />

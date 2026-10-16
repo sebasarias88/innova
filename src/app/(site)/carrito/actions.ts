@@ -9,6 +9,7 @@ import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
 import { siteUrl } from "@/lib/site-url";
 import { ORDER_COOKIE } from "@/lib/payments/cookie";
+import { legal } from "@/lib/legal";
 
 z.config(z.locales.es());
 
@@ -41,6 +42,8 @@ const orderSchema = z.object({
     .max(30),
   shippingZoneId: z.uuid("Elige cómo quieres recibir tu pedido."),
   paymentMethod: z.enum(["whatsapp", "wompi"]),
+  /** Authorization for personal data (Ley 1581); its version is stored with the order. */
+  acceptPrivacy: z.literal(true, "Para continuar, autoriza el tratamiento de tus datos y acepta los términos."),
   /** Honeypot: humans never fill this hidden field. */
   website: z.string().max(0).optional(),
 });
@@ -81,7 +84,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("create_order", {
-    p_customer: customer,
+    p_customer: { ...customer, privacy_version: legal.version },
     p_items: items.map((i) => ({ product_id: i.productId, quantity: i.qty })),
     p_shipping_zone_id: shippingZoneId,
     p_payment_method: paymentMethod,

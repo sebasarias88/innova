@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Cámaras de seguridad y energía solar en ${c.name}, ${c.dept}`,
     description: `Instalación de cámaras de seguridad (CCTV), paneles solares, automatización de puertas, domótica, redes y UPS en ${c.name}, ${c.dept}. Asesoría gratis.`,
+    alternates: { canonical: `/cobertura/${c.slug}` },
   };
 }
 

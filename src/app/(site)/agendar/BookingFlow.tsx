@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import clsx from "clsx";
 import { Icon } from "@/components/ui/Icon";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 import { createBooking, refreshSlots } from "./actions";
 
 type ServiceOption = { slug: string; name: string; short: string; icon: string };
@@ -19,7 +20,8 @@ const TZ = "America/Bogota";
 
 const dayKey = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date(iso));
 const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("es-CO", { timeZone: TZ, ...opts }).format(new Date(iso));
-const timeLabel = (iso: string) => fmt(iso, { hour: "numeric", minute: "2-digit" });
+// Colombia reads the 12-hour clock (8:00 a. m. / 2:00 p. m.).
+const timeLabel = (iso: string) => fmt(iso, { hour: "numeric", minute: "2-digit", hourCycle: "h12" });
 const longDay = (iso: string) => fmt(iso, { weekday: "long", day: "numeric", month: "long" });
 
 export function BookingFlow({
@@ -40,6 +42,7 @@ export function BookingFlow({
   const [slot, setSlot] = useState<Slot | null>(null);
   const [customer, setCustomer] = useState<Customer>({ name: "", phone: "", email: "", city: "Armenia", address: "", notes: "" });
   const [done, setDone] = useState<{ url: string; confirmed: boolean; reference: string; slot: Slot } | null>(null);
+  const [accepted, setAccepted] = useState(false);
   const [pending, start] = useTransition();
   const [loadingSlots, startSlots] = useTransition();
   const top = useRef<HTMLDivElement>(null);
@@ -85,7 +88,11 @@ export function BookingFlow({
   const submit = (honeypot: string) =>
     start(async () => {
       if (!service || !slot) return;
-      const result = await createBooking({ service, startsAt: slot.start, customer, website: honeypot });
+      if (!accepted) {
+        toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
+        return;
+      }
+      const result = await createBooking({ service, startsAt: slot.start, customer, acceptPrivacy: accepted, website: honeypot });
       if (!result.ok) {
         toast.error(result.error);
         if (result.slotTaken) {
@@ -126,7 +133,9 @@ export function BookingFlow({
             <SummaryRow icon={<CalendarDays className="size-4" />} label="Fecha" value={slot ? capitalize(longDay(slot.start)) : undefined} />
             <SummaryRow icon={<Clock className="size-4" />} label="Hora" value={slot ? `${timeLabel(slot.start)} – ${timeLabel(slot.end)}` : undefined} />
           </dl>
-          <p className="mt-4 text-xs leading-snug text-white/45">La visita es en la dirección que nos indiques. Te confirmamos por WhatsApp.</p>
+          <p className="mt-4 text-xs leading-snug text-white/45">
+            Cada visita dura hasta 2 horas, en la dirección que nos indiques. La cita queda confirmada cuando te respondamos por WhatsApp.
+          </p>
 
           <div className="mt-6 space-y-2">
             {step === 0 && (
@@ -150,7 +159,12 @@ export function BookingFlow({
                 Revisar cita <ArrowRight className="size-4" />
               </PrimaryButton>
             )}
-            {step === 3 && <SubmitBooking pending={pending} onSubmit={submit} />}
+            {step === 3 && (
+              <>
+                <ConsentCheckbox checked={accepted} onChange={setAccepted} />
+                <SubmitBooking pending={pending} onSubmit={submit} />
+              </>
+            )}
             {step > 0 && (
               <button type="button" onClick={() => goTo(step - 1)} className="flex w-full items-center justify-center gap-2 py-2 text-sm font-semibold text-white/60 hover:text-white">
                 <ArrowLeft className="size-4" /> Volver
@@ -413,9 +427,11 @@ function SubmitBooking({ pending, onSubmit }: { pending: boolean; onSubmit: (hon
         className="flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-4 font-semibold text-navy-900 transition-colors hover:bg-white disabled:opacity-60"
       >
         {pending ? <LoaderCircle className="size-5 animate-spin" /> : <CalendarCheck className="size-5" />}
-        Confirmar cita
+        Solicitar cita
       </button>
-      <p className="text-center text-[11px] leading-snug text-white/45">Reservamos el horario y se abre WhatsApp con los datos de tu cita para enviarlos a INNOVA.</p>
+      <p className="text-center text-[11px] leading-snug text-white/45">
+        Apartamos el horario y se abre WhatsApp con los datos de tu cita. Te confirmamos por ese chat.
+      </p>
     </>
   );
 }
@@ -427,14 +443,14 @@ function Booked({ url, confirmed, reference, slot }: { url: string; confirmed: b
       <span className="mx-auto grid size-16 place-items-center rounded-full bg-lime-400 text-navy-900">
         <CalendarCheck className="size-8" />
       </span>
-      <h2 className="mt-6 text-2xl font-bold text-white">{confirmed ? "¡Cita agendada!" : "¡Solicitud recibida!"}</h2>
+      <h2 className="mt-6 text-2xl font-bold text-white">{confirmed ? "¡Cita agendada!" : "¡Solicitud de cita enviada!"}</h2>
       <p className="mt-2 text-lg font-semibold text-lime-300 first-letter:uppercase">
         {longDay(slot.start)} · {timeLabel(slot.start)}
       </p>
       <p className="mt-3 text-pretty text-white/70">
         {confirmed
           ? "Tu horario quedó reservado. Envía el mensaje de WhatsApp para que el técnico tenga todos los datos."
-          : "Te confirmamos la cita por WhatsApp en el horario de atención."}
+          : "Apartamos este horario para ti. Envía el mensaje de WhatsApp y te confirmamos la cita por ese mismo chat apenas lo revisemos."}
       </p>
       <p className="mt-4 font-mono text-sm text-white/50">
         Código: <span className="text-white">{reference}</span>

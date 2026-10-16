@@ -81,6 +81,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               </li>
             </ul>
             {order.notes && <p className="mt-4 rounded-xl bg-white/5 p-3 text-sm text-white/70">“{order.notes}”</p>}
+            <p className="mt-4 text-xs text-white/40">
+              {order.privacy_accepted_at
+                ? `Autorizó el tratamiento de datos el ${formatDateTime(order.privacy_accepted_at)} (política ${order.privacy_version}).`
+                : "Pedido anterior a la casilla de autorización de datos."}
+            </p>
             <a
               href={whatsappUrl(order.customer_phone, message)}
               target="_blank"

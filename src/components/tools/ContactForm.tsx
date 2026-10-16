@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Send } from "lucide-react";
 import { services } from "@/lib/services";
 import { waLink } from "@/lib/site";
 import { Select } from "@/components/ui/Select";
+
 
 /** DEMO: el formulario abre WhatsApp. Al aprobar el proyecto se conecta a Supabase + correo. */
 export function ContactForm() {
@@ -45,6 +47,13 @@ export function ContactForm() {
         <Lbl>¿Cómo te podemos ayudar?</Lbl>
         <textarea value={f.msg} onChange={set("msg")} rows={5} placeholder="Cuéntanos sobre tu proyecto…" className={input + " resize-none"} />
       </label>
+      <p className="text-xs leading-snug text-white/50 sm:col-span-2">
+        Tu mensaje se envía por WhatsApp. Al enviarlo aceptas nuestra{" "}
+        <Link href="/politica-de-privacidad" className="text-lime-400 hover:text-white">
+          política de tratamiento de datos
+        </Link>
+        .
+      </p>
       <button type="submit" className="flex items-center justify-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-navy-900 transition-colors hover:bg-white sm:col-span-2 sm:justify-self-start">
         Enviar solicitud <Send className="size-4" />
       </button>

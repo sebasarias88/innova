@@ -204,6 +204,8 @@ export type Database = {
           id: string
           internal_notes: string | null
           notes: string | null
+          privacy_accepted_at: string | null
+          privacy_version: string | null
           reference: string
           service_slug: string
           starts_at: string
@@ -222,6 +224,8 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           notes?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           reference?: string
           service_slug: string
           starts_at: string
@@ -240,6 +244,8 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           notes?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           reference?: string
           service_slug?: string
           starts_at?: string
@@ -358,6 +364,8 @@ export type Database = {
           notes: string | null
           order_number: number
           paid_at: string | null
+          privacy_accepted_at: string | null
+          privacy_version: string | null
           payment_method: string
           payment_status: string
           reference: string
@@ -384,6 +392,8 @@ export type Database = {
           notes?: string | null
           order_number?: never
           paid_at?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           payment_method: string
           payment_status?: string
           reference: string
@@ -410,6 +420,8 @@ export type Database = {
           notes?: string | null
           order_number?: never
           paid_at?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           payment_method?: string
           payment_status?: string
           reference?: string

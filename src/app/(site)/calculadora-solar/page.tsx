@@ -4,7 +4,8 @@ import { SolarCalculator } from "@/components/tools/SolarCalculator";
 import { CtaBand } from "@/components/layout/CtaBand";
 
 export const metadata: Metadata = {
-  title: "Calculadora solar",
+  title: "Calculadora solar: cuántos paneles necesitas",
+  alternates: { canonical: "/calculadora-solar" },
   description: "Calcula cuántos paneles solares necesitas y cuánto puedes ahorrar en tu factura de energía en Armenia y el Eje Cafetero.",
 };
 

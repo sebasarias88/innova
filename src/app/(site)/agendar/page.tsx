@@ -31,7 +31,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             Agenda tu <span className="text-lime-400">visita técnica</span>
           </>
         }
-        text="Elige el servicio, el día y la hora que mejor te quede. Ves solo los horarios libres y tu cita queda reservada al instante."
+        text="Elige el servicio, el día y la hora que mejor te quede entre los horarios libres. Apartamos tu espacio y te confirmamos la cita por WhatsApp."
       />
       <section className="pb-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">

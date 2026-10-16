@@ -7,7 +7,7 @@ export function formatCop(value: number | null | undefined) {
 }
 
 export function formatDateTime(iso: string) {
-  return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", timeZone: TIME_ZONE }).format(new Date(iso));
+  return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", hourCycle: "h12", timeZone: TIME_ZONE }).format(new Date(iso));
 }
 
 export function formatDate(iso: string) {
@@ -15,7 +15,24 @@ export function formatDate(iso: string) {
 }
 
 export function formatTime(iso: string) {
-  return new Intl.DateTimeFormat("es-CO", { timeStyle: "short", timeZone: TIME_ZONE }).format(new Date(iso));
+  return new Intl.DateTimeFormat("es-CO", { hour: "numeric", minute: "2-digit", hourCycle: "h12", timeZone: TIME_ZONE }).format(new Date(iso));
+}
+
+/** "14:00:00" (a DB time) → "2:00 p. m." — Colombia uses the 12-hour clock. */
+export function formatClock(time: string | null | undefined) {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  const suffix = h < 12 ? "a. m." : "p. m.";
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+/** 120 → "2 horas", 90 → "1 h 30 min". */
+export function formatMinutes(minutes: number) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (!h) return `${m} min`;
+  const hours = `${h} hora${h === 1 ? "" : "s"}`;
+  return m ? `${h} h ${m} min` : hours;
 }
 
 /** "Cámaras IP 4K" → "camaras-ip-4k" (matches the DB slug check). */

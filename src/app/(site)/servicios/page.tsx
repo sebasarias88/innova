@@ -4,7 +4,8 @@ import { ServiceList } from "@/components/services/ServiceList";
 import { CtaBand } from "@/components/layout/CtaBand";
 
 export const metadata: Metadata = {
-  title: "Servicios",
+  title: "Servicios de seguridad electrónica, energía solar y automatización",
+  alternates: { canonical: "/servicios" },
   description: "CCTV, energía solar, automatización de puertas, domótica, UPS y servicios informáticos en Armenia y todo Colombia.",
 };
 
