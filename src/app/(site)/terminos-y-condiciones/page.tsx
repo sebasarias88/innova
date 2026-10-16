@@ -159,17 +159,28 @@ export default function TermsPage() {
           id: "garantia",
           title: "Garantías",
           body: (
-            <Bullets
-              items={[
-                <>
-                  Todos los productos nuevos tienen <Strong>garantía legal</Strong> por el término que indica su ficha o el fabricante. Si no se indica, el término es de{" "}
-                  <Strong>un (1) año</Strong> desde la entrega.
-                </>,
-                "La garantía cubre defectos de fabricación y fallas de funcionamiento. No cubre daños por mal uso, golpes, humedad, descargas eléctricas, instalaciones hechas por terceros o manipulación no autorizada.",
-                "Para hacerla efectiva, escríbenos con tu código de pedido o factura y una descripción de la falla. Revisamos el equipo y, según el caso, lo reparamos, lo cambiamos o te devolvemos el dinero, como indica la ley.",
-                "Nuestras instalaciones y servicios técnicos tienen la garantía indicada en la cotización o el soporte del servicio.",
-              ]}
-            />
+            <>
+              <Bullets
+                items={[
+                  <>
+                    <Strong>Equipos:</Strong> normalmente un (1) año, sujeto al plazo informado por el fabricante o proveedor y a la garantía legal.
+                  </>,
+                  <>
+                    <Strong>Instalaciones:</Strong> tres (3) meses de garantía comercial sobre los trabajos de instalación, conexión, montaje y configuración realizados por nuestro
+                    personal, contados desde la entrega del servicio.
+                  </>,
+                  "Ambas garantías son independientes y no limitan los derechos de garantía legal que te da la Ley 1480 de 2011.",
+                  "No cubren, entre otros, daños por golpes, humedad, descargas o variaciones eléctricas externas, mal uso o intervención de terceros, cuando se demuestre técnicamente su relación con la falla.",
+                ]}
+              />
+              <p>
+                Consulta el detalle completo, las exclusiones y cómo solicitarla en nuestra{" "}
+                <Link href="/politica-de-garantia" className="text-lime-400 hover:text-white">
+                  política de garantía
+                </Link>
+                .
+              </p>
+            </>
           ),
         },
         {

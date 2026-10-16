@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ProductCard } from "@/components/shop/ProductCard";
+import { ProductRail } from "@/components/shop/ProductRail";
 import { getFeaturedProducts } from "@/lib/shop/queries";
 
 /** "Productos destacados" on the home page. Hidden while there are none. */
 export async function FeaturedProducts() {
-  const products = await getFeaturedProducts(8).catch(() => []);
+  const products = await getFeaturedProducts(12).catch(() => []);
   if (!products.length) return null;
 
   return (
@@ -23,10 +24,12 @@ export async function FeaturedProducts() {
             Ver toda la tienda <ArrowUpRight className="size-4 transition-transform group-hover:rotate-45" />
           </Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+        <div className="mt-10">
+          <ProductRail label="Productos destacados">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </ProductRail>
         </div>
       </div>
     </section>

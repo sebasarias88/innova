@@ -120,6 +120,9 @@ export function Footer() {
             <Link href={legalLinks.terms} className="transition-colors hover:text-white">
               Términos y condiciones
             </Link>
+            <Link href={legalLinks.warranty} className="transition-colors hover:text-white">
+              Garantías
+            </Link>
             <Link href={legalLinks.privacy} className="transition-colors hover:text-white">
               Política de datos
             </Link>

@@ -52,10 +52,14 @@ export function LegalPage({
               o revisa también nuestra{" "}
               <Link href="/politica-de-privacidad" className="text-lime-400 hover:text-white">
                 política de datos
-              </Link>{" "}
-              y los{" "}
+              </Link>
+              , los{" "}
               <Link href="/terminos-y-condiciones" className="text-lime-400 hover:text-white">
                 términos y condiciones
+              </Link>{" "}
+              y la{" "}
+              <Link href="/politica-de-garantia" className="text-lime-400 hover:text-white">
+                política de garantía
               </Link>
               .
             </p>

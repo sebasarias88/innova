@@ -129,7 +129,10 @@ export default async function ProductPage({ params }: Props) {
                   <Truck className="mt-0.5 size-4 shrink-0 text-lime-400" /> Envío gratis en Armenia
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-lime-400" /> Garantía y postventa
+                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-lime-400" />
+                  <Link href="/politica-de-garantia" className="underline-offset-2 hover:text-white hover:underline">
+                    Garantía de 1 año y postventa
+                  </Link>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Wrench className="mt-0.5 size-4 shrink-0 text-lime-400" /> Instalación profesional disponible
