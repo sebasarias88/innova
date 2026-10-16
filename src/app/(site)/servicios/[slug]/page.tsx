@@ -34,7 +34,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${s.name} en Armenia y el Eje Cafetero`,
     description: `${s.short} ${s.description}`.slice(0, 160),
     alternates: { canonical: `/servicios/${s.slug}` },
-    openGraph: { images: [s.image] },
   };
 }
 
