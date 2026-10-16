@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PackageSearch, Search, Truck } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck } from "lucide-react";
 import clsx from "clsx";
 import { PageHero } from "@/components/layout/PageHero";
 import { ProductCard } from "@/components/shop/ProductCard";
-import { getProducts, getShopCategories } from "@/lib/shop/queries";
+import { PAGE_SIZE, getProductPage, getShopCategories } from "@/lib/shop/queries";
 import { waLink } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -13,9 +14,10 @@ export const metadata: Metadata = {
   description: "Compra cámaras de seguridad, alarmas, UPS, grabadores, reflectores y motores para puertas. Envío gratis en Armenia y a todo Colombia.",
 };
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ categoria?: string; q?: string }> }) {
-  const { categoria, q: rawQ } = await searchParams;
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ categoria?: string; q?: string; pagina?: string }> }) {
+  const { categoria, q: rawQ, pagina } = await searchParams;
   const q = (rawQ ?? "").trim().slice(0, 60);
+  const requestedPage = Math.min(Math.max(1, Number.parseInt(pagina ?? "1", 10) || 1), 1000);
   const categories = await getShopCategories();
 
   const roots = categories.filter((c) => !c.parentId);
@@ -25,11 +27,15 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   // A main category also shows the products of its subcategories.
   const categoryIds = active ? [active.id, ...categories.filter((c) => c.parentId === active.id).map((c) => c.id)] : undefined;
 
-  const products = await getProducts({ categoryIds, q });
-  const href = (slug?: string) => {
-    const params = new URLSearchParams({ ...(slug && { categoria: slug }), ...(q && { q }) });
+  const { products, total, page, pages } = await getProductPage({ categoryIds, q: q || undefined, page: requestedPage });
+  const href = (slug?: string, toPage = 1) => {
+    const params = new URLSearchParams({ ...(slug && { categoria: slug }), ...(q && { q }), ...(toPage > 1 && { pagina: String(toPage) }) });
     return `/tienda${params.size ? `?${params}` : ""}`;
   };
+  // A page past the end (old link, fewer products now) goes to the last page.
+  if (requestedPage > pages) redirect(href(active?.slug, pages));
+  const first = total ? (page - 1) * PAGE_SIZE + 1 : 0;
+  const last = Math.min(page * PAGE_SIZE, total);
 
   return (
     <>
@@ -86,10 +92,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             </nav>
           )}
 
-          <p className="mt-8 text-sm text-white/50">
-            {products.length} producto{products.length === 1 ? "" : "s"}
+          <p id="productos" className="mt-8 scroll-mt-28 text-sm text-white/50">
+            {total} producto{total === 1 ? "" : "s"}
             {active && ` en ${active.name}`}
             {q && ` para “${q}”`}
+            {pages > 1 && ` · mostrando ${first}–${last}`}
           </p>
 
           {products.length === 0 ? (
@@ -111,10 +118,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           ) : (
             <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {products.map((p, i) => (
-                <ProductCard key={p.id} product={p} priority={i < 4} />
+                <ProductCard key={p.id} product={p} priority={page === 1 && i < 4} />
               ))}
             </div>
           )}
+
+          {pages > 1 && <Pagination page={page} pages={pages} hrefFor={(n) => `${href(active?.slug, n)}#productos`} />}
         </div>
       </section>
     </>
@@ -134,5 +143,57 @@ function Chip({ href, active, children, small }: { href: string; active?: boolea
     >
       {children}
     </Link>
+  );
+}
+
+/** Page numbers to show: always the first, the last and the ones around the current page. */
+function pageList(page: number, pages: number): (number | "…")[] {
+  const wanted = new Set([1, pages, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pages));
+  const sorted = [...wanted].sort((a, b) => a - b);
+  return sorted.flatMap((n, i) => (i > 0 && n - sorted[i - 1] > 1 ? ["…" as const, n] : [n]));
+}
+
+function Pagination({ page, pages, hrefFor }: { page: number; pages: number; hrefFor: (n: number) => string }) {
+  const arrow = "grid size-11 place-items-center rounded-full border transition-colors";
+  return (
+    <nav aria-label="Páginas" className="mt-10 flex items-center justify-center gap-1.5 sm:gap-2">
+      {page > 1 ? (
+        <Link href={hrefFor(page - 1)} aria-label="Página anterior" className={clsx(arrow, "border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
+          <ChevronLeft className="size-5" />
+        </Link>
+      ) : (
+        <span aria-hidden className={clsx(arrow, "border-white/5 text-white/20")}>
+          <ChevronLeft className="size-5" />
+        </span>
+      )}
+      {pageList(page, pages).map((n, i) =>
+        n === "…" ? (
+          <span key={`gap-${i}`} className="px-1 text-white/40">
+            …
+          </span>
+        ) : (
+          <Link
+            key={n}
+            href={hrefFor(n)}
+            aria-current={n === page ? "page" : undefined}
+            className={clsx(
+              "grid h-11 min-w-11 place-items-center rounded-full border px-3 font-mono text-sm font-semibold transition-colors",
+              n === page ? "border-lime-400 bg-lime-400 text-navy-900" : "border-white/15 text-white/75 hover:border-white/40 hover:text-white",
+            )}
+          >
+            {n}
+          </Link>
+        ),
+      )}
+      {page < pages ? (
+        <Link href={hrefFor(page + 1)} aria-label="Página siguiente" className={clsx(arrow, "border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
+          <ChevronRight className="size-5" />
+        </Link>
+      ) : (
+        <span aria-hidden className={clsx(arrow, "border-white/5 text-white/20")}>
+          <ChevronRight className="size-5" />
+        </span>
+      )}
+    </nav>
   );
 }
