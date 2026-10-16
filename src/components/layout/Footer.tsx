@@ -16,7 +16,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <Logo className="h-12 w-auto" />
             <p className="mt-6 max-w-sm text-pretty text-white/60">
-              Soluciones integrales en seguridad electrónica, energía solar, automatización y redes. {site.slogan}.
+              Soluciones integrales en seguridad electrónica, energía solar, automatización y redes. {site.slogan}
             </p>
             <div className="mt-6 flex gap-2">
               <a

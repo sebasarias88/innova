@@ -49,11 +49,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_CO",
     siteName: site.name,
-    title: "INNOVA Seguridad y Sistemas",
+    title: "INNOVA Seguridad y Sistemas · Protege lo que más te importa",
     description: site.description,
     url: "/",
   },
-  twitter: { card: "summary_large_image", title: "INNOVA Seguridad y Sistemas", description: site.description },
+  twitter: { card: "summary_large_image", title: "INNOVA Seguridad y Sistemas · Protege lo que más te importa", description: site.description },
   formatDetection: { telephone: false },
 };
 
@@ -72,7 +72,7 @@ const jsonLd = {
       url: baseUrl,
       logo: `${baseUrl}/brand/icon-512.png`,
       image: [`${baseUrl}/opengraph-image.jpg`, `${baseUrl}/img/cctv-domo.webp`],
-      slogan: "Tu seguridad, nuestra conexión",
+      slogan: site.slogan,
       telephone: "+57 321 853 9336",
       email: site.email,
       priceRange: "$$",
