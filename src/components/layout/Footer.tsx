@@ -19,7 +19,7 @@ export function Footer() {
             </p>
             <div className="mt-6 flex gap-2">
               <a
-                href={waLink("Hola, INNOVA. Quisiera recibir información.")}
+                href={waLink("Hola, INNOVA 👋 Quisiera recibir información.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"

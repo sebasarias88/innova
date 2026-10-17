@@ -25,7 +25,7 @@ export function MobileDock() {
           <Phone className="size-5" />
         </a>
         <a
-          href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
+          href={waLink("Hola, INNOVA 👋 Quisiera recibir una asesoría personalizada.")}
           target="_blank"
           rel="noopener noreferrer"
           className="relative flex h-12 items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[#25D366] font-semibold text-white active:scale-[0.98]"

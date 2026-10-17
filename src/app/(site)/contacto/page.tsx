@@ -28,7 +28,7 @@ export default function ContactoPage() {
         <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_1.3fr]">
           <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <a
-              href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
+              href={waLink("Hola, INNOVA 👋 Quisiera recibir una asesoría personalizada.")}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-5 rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-[#25D366]/60 sm:col-span-2 lg:col-span-1"

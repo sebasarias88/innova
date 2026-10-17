@@ -83,21 +83,21 @@ export async function createBooking(input: unknown): Promise<CreateBookingResult
 
   const message = [
     confirmed
-      ? "Hola, INNOVA. Agendé una visita técnica desde la página web:"
-      : "Hola, INNOVA. Solicité una visita técnica desde la página web. Quedo atento(a) a la confirmación.",
+      ? "Hola, INNOVA 👋 Agendé una visita técnica desde la página web:"
+      : "Hola, INNOVA 👋 Solicité una visita técnica desde la página web. Quedo atento(a) a la confirmación.",
     "",
-    "*Detalles de la visita*",
+    "📅 *Detalles de la visita*",
     `Servicio: ${getService(service)?.name ?? service}`,
     `Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
     `Hora: ${timeLabel(booking.starts_at)} – ${timeLabel(booking.ends_at)}`,
     "",
-    "*Datos de contacto*",
+    "👤 *Datos de contacto*",
     `Nombre: ${customer.name}`,
     `Celular: ${customer.phone}`,
     `Dirección: ${customer.address}, ${customer.city}`,
     ...(customer.notes ? [`Notas: ${customer.notes}`] : []),
     "",
-    `Código de la cita: ${booking.reference}`,
+    `🧾 Código de la cita: ${booking.reference}`,
   ].join("\n");
 
   const whatsapp = (await getSiteSettings())?.whatsapp ?? site.phone.raw;

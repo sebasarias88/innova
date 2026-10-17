@@ -27,7 +27,7 @@ export default function CalculadoraSolarPage() {
           <SolarCalculator />
         </div>
       </section>
-      <CtaBand title="Convierte este cálculo en un proyecto real." text="Agenda un estudio técnico sin costo: analizamos tu consumo, tu techo y te entregamos el diseño exacto." wa="Hola, INNOVA. Quisiera agendar un estudio solar sin costo." />
+      <CtaBand title="Convierte este cálculo en un proyecto real." text="Agenda un estudio técnico sin costo: analizamos tu consumo, tu techo y te entregamos el diseño exacto." wa="Hola, INNOVA 👋 Quisiera agendar un estudio solar sin costo." />
     </>
   );
 }

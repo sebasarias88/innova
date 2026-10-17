@@ -203,14 +203,14 @@ export async function notifyNewBooking(bookingId: string) {
     const day = when(b.starts_at, { weekday: "long", day: "numeric", month: "long" });
     const hours = `${when(b.starts_at, { hour: "numeric", minute: "2-digit" })} – ${when(b.ends_at, { hour: "numeric", minute: "2-digit" })}`;
     const confirm = [
-      `Hola, ${b.customer_name.split(" ")[0]}. Te escribimos de INNOVA Seguridad y Sistemas para confirmar tu visita técnica:`,
+      `Hola, ${b.customer_name.split(" ")[0]} 👋 Te escribimos de INNOVA Seguridad y Sistemas para confirmar tu visita técnica:`,
       "",
-      `Servicio: ${service}`,
-      `Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
-      `Hora: ${hours}`,
-      `Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
+      `🔧 Servicio: ${service}`,
+      `📅 Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
+      `🕑 Hora: ${hours}`,
+      `📍 Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
       "",
-      `Código de la cita: ${b.reference}`,
+      `🧾 Código de la cita: ${b.reference}`,
     ].join("\n");
     const pending = b.status === "pending";
 
@@ -236,7 +236,7 @@ export async function notifyNewBooking(bookingId: string) {
       `${pending ? "Cita por confirmar" : "Cita agendada"}: ${service}`,
       `${day}, ${hours}`,
       `Cliente: ${b.customer_name} · ${b.customer_phone}`,
-      `Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
+      `📍 Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
       ...(b.notes ? [`Notas: ${b.notes}`] : []),
       `Código: ${b.reference}`,
       `Agenda: ${siteUrl()}/admin/bookings`,
