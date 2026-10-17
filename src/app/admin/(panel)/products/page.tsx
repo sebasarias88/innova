@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ImageOff, Plus, Search } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
+import { searchWords } from "@/lib/shop/search";
 import { createClient } from "@/lib/supabase/server";
 import { mediaUrl } from "@/lib/admin/storage";
 import { formatCop } from "@/lib/admin/format";
@@ -29,10 +30,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
-  if (q) {
-    const term = `%${q.replace(/[%_,()]/g, " ")}%`;
-    query = query.or(`name.ilike.${term},sku.ilike.${term},brand.ilike.${term}`);
-  }
+  // Accent-insensitive (name, brand, short description and SKU).
+  for (const word of searchWords(q)) query = query.ilike("search_text", `%${word}%`);
   if (sp.category) query = query.eq("category_id", sp.category);
   if (sp.status === "sold_out") query = query.eq("is_available", false);
   if (sp.status === "draft") query = query.eq("is_published", false);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck } from "lucide-react";
+import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck, X } from "lucide-react";
 import clsx from "clsx";
 import { PageHero } from "@/components/layout/PageHero";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -66,16 +66,35 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Chip>
               ))}
             </nav>
-            <form action="/tienda" className="relative lg:w-80">
+            <form action="/tienda" role="search" className="relative lg:w-96">
               {categoria && <input type="hidden" name="categoria" value={categoria} />}
               <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" />
               <input
+                type="search"
                 name="q"
                 defaultValue={q}
-                placeholder="Buscar productos"
+                maxLength={60}
+                enterKeyHint="search"
+                placeholder="Buscar: cámara, alarma, UPS…"
                 aria-label="Buscar productos"
-                className="w-full rounded-full border border-white/15 bg-white/5 py-3 pl-11 pr-4 text-white placeholder:text-white/40 focus:border-lime-400 focus:outline-none"
+                className="w-full rounded-full border border-white/15 bg-white/5 py-3 pl-11 pr-28 text-white placeholder:text-white/40 focus:border-lime-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
               />
+              {q && (
+                <Link
+                  href={active ? `/tienda?categoria=${active.slug}` : "/tienda"}
+                  scroll={false}
+                  aria-label="Borrar búsqueda"
+                  className="absolute right-[5.5rem] top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-white/50 hover:bg-white/10 hover:text-white"
+                >
+                  <X className="size-4" />
+                </Link>
+              )}
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-lime-400 px-4 py-2 text-sm font-semibold text-navy-900 transition-colors hover:bg-white"
+              >
+                Buscar
+              </button>
             </form>
           </div>
 

@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { nav, site, waLink } from "@/lib/site";
+import { booking, nav, site, waLink } from "@/lib/site";
 import { services } from "@/lib/services";
-import { cities } from "@/lib/cities";
 import { legal, legalLinks } from "@/lib/legal";
 
 export function Footer() {
@@ -12,7 +11,7 @@ export function Footer() {
     <footer className="relative overflow-hidden border-t border-white/10 bg-navy-950">
       <div className="grid-bg absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
       <div className="relative mx-auto max-w-7xl px-4 pt-14 sm:px-6 sm:pt-20">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.2fr_1fr_0.9fr_1.3fr] lg:gap-12">
           <div className="col-span-2 lg:col-span-1">
             <Logo className="h-12 w-auto" />
             <p className="mt-6 max-w-sm text-pretty text-white/60">
@@ -70,6 +69,7 @@ export function Footer() {
                 {n.label}
               </FooterLink>
             ))}
+            <FooterLink href={booking.href}>Agendar visita técnica</FooterLink>
           </FooterCol>
 
           <FooterCol title="Contacto" className="col-span-2 lg:col-span-1">
@@ -84,39 +84,28 @@ export function Footer() {
               </a>
             </li>
             <li>
-              <a href={`mailto:${site.email}`} className="flex gap-3 break-all text-white/70 transition-colors hover:text-white">
+              <a href={`mailto:${site.email}`} className="flex gap-3 text-white/70 transition-colors [overflow-wrap:anywhere] hover:text-white">
                 <Mail className="mt-0.5 size-4 shrink-0 text-lime-400" />
                 {site.email}
               </a>
             </li>
+            <li className="flex gap-3 text-white/70">
+              <Clock className="mt-0.5 size-4 shrink-0 text-lime-400" />
+              {site.hours}
+            </li>
           </FooterCol>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-8 sm:mt-16">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">Cobertura</p>
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/55">
-            {cities.map((c) => (
-              <Link key={c.slug} href={`/cobertura/${c.slug}`} className="transition-colors hover:text-lime-400">
-                <span className="hidden sm:inline">Cámaras de seguridad en </span>
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* Wordmark gigante */}
-        <div className="pointer-events-none mt-10 select-none sm:mt-14" aria-hidden>
+        <div className="pointer-events-none mt-12 select-none sm:mt-16" aria-hidden>
           <Logo tone="white" className="h-auto w-full opacity-[0.04]" />
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-xs text-white/40 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <p>© {new Date().getFullYear()} INNOVA Seguridad y Sistemas. Todos los derechos reservados.</p>
-            <p>
-              {legal.owner} · {legal.idLabel}
-            </p>
-          </div>
-          <nav aria-label="Información legal" className="flex flex-wrap gap-x-5 gap-y-2">
+        <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between md:pr-20">
+          <p>
+            © {new Date().getFullYear()} INNOVA Seguridad y Sistemas <span className="text-white/25">·</span> Armenia, Quindío
+          </p>
+          <nav aria-label="Información legal" className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href={legalLinks.terms} className="transition-colors hover:text-white">
               Términos y condiciones
             </Link>
@@ -124,16 +113,16 @@ export function Footer() {
               Garantías
             </Link>
             <Link href={legalLinks.privacy} className="transition-colors hover:text-white">
-              Política de datos
+              Privacidad y cookies
             </Link>
-            <Link href={legalLinks.cookies} className="transition-colors hover:text-white">
-              Cookies
-            </Link>
-            <Link href={`${legalLinks.terms}#retracto`} className="transition-colors hover:text-white">
-              Retracto y reversión
-            </Link>
-            <a href={legal.sic.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-white/60 transition-colors hover:text-white">
-              Superintendencia de Industria y Comercio
+            <a
+              href={legal.sic.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={legal.sic.name}
+              className="rounded-full border border-white/15 px-3 py-1 font-semibold text-white/60 transition-colors hover:border-white/40 hover:text-white"
+            >
+              SIC · Industria y Comercio
             </a>
           </nav>
         </div>
