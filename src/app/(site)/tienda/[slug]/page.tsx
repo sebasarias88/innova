@@ -116,7 +116,7 @@ export default async function ProductPage({ params }: Props) {
               </div>
 
               <a
-                href={waLink(`Hola INNOVA 👋 Tengo una pregunta sobre: ${product.name}`)}
+                href={waLink(`Hola, INNOVA. Tengo una pregunta sobre el producto: ${product.name}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-lime-400"

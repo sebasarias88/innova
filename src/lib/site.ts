@@ -1,3 +1,5 @@
+import { waUrl } from "@/lib/whatsapp";
+
 export const site = {
   name: "INNOVA Seguridad y Sistemas",
   shortName: "INNOVA",
@@ -17,7 +19,7 @@ export const site = {
 
 /** Construye un link de WhatsApp con mensaje prellenado. */
 export function waLink(message: string, phone = site.phone.raw) {
-  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  return waUrl(phone, message);
 }
 
 /** Destino del botón "Agendar servicio": la agenda en línea. */

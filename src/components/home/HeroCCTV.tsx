@@ -191,7 +191,7 @@ export function HeroCCTV() {
               {booking.label}
             </Button>
             <Button
-              href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
+              href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
               external
               variant="ghost"
               className="px-4 sm:px-6"

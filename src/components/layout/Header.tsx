@@ -90,7 +90,7 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             <a
-              href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
+              href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden items-center gap-2 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-white sm:flex"
@@ -200,7 +200,7 @@ export function Header() {
               ))}
               <div className="mt-auto grid gap-3 pt-8">
                 <a
-                  href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
+                  href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
                   className="flex items-center justify-center gap-2 rounded-full bg-lime-400 py-4 font-semibold text-navy-900"
                 >
                   <WhatsAppIcon className="size-5" /> Escríbenos por WhatsApp

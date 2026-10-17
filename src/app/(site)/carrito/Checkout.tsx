@@ -12,6 +12,8 @@ import { cart, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import type { ShippingOption } from "@/lib/shop/queries";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
+import { waUrl } from "@/lib/whatsapp";
+import { paidOrderMessage } from "@/lib/shop/messages";
 import { placeOrder, refreshCart } from "./actions";
 
 const noopSubscribe = () => () => {};
@@ -26,12 +28,15 @@ export function Checkout({
   shipping,
   onlinePayments,
   paidReference,
+  paidMessage,
   whatsapp,
 }: {
   shipping: ShippingOption[];
   onlinePayments: boolean;
   /** Last online order of this browser, when its payment is already approved. */
   paidReference: string | null;
+  /** Pre-written WhatsApp message for that paid order (products + code). */
+  paidMessage: string | null;
   whatsapp: string;
 }) {
   const items = useCart();
@@ -134,7 +139,7 @@ export function Checkout({
 
   if (redirect) return <Redirecting kind={redirect.kind} url={redirect.url} />;
   if (!hydrated) return <div className="h-96" />;
-  if (justPaid) return <PaidNotice reference={justPaid} whatsapp={whatsapp} />;
+  if (justPaid) return <PaidNotice reference={justPaid} whatsapp={whatsapp} message={paidMessage ?? paidOrderMessage({ reference: justPaid })} />;
   if (!items.length) return <EmptyCart />;
 
   return (
@@ -340,7 +345,7 @@ function DetailsStep({
         </div>
         {zone?.price === null && (
           <p className="mt-3 rounded-2xl border border-royal-400/30 bg-royal-500/10 px-4 py-3 text-sm text-white/80">
-            <b className="text-white">El envío a tu ciudad se cuadra aparte por WhatsApp.</b> Puedes pagar los productos en línea o coordinar todo por WhatsApp.
+            <b className="text-white">El valor del envío a tu ciudad se define aparte.</b> Puedes pagar los productos en línea o gestionar todo el pedido por WhatsApp.
             Después de tu pedido te escribimos para acordar el envío: normalmente <b className="text-white">contra entrega</b> (lo pagas a la transportadora al recibir) u otra forma que prefieras.
           </p>
         )}
@@ -443,7 +448,7 @@ function ReviewStep({
               title="Pagar en línea"
               text={
                 shippingApart
-                  ? "Pagas ahora solo los productos con tarjeta, PSE, Nequi o Bancolombia. El envío se cuadra aparte por WhatsApp."
+                  ? "Pagas ahora solo los productos con tarjeta, PSE, Nequi o Bancolombia. El envío se coordina por WhatsApp."
                   : "Tarjeta, PSE, Nequi o Bancolombia. Pago seguro con Wompi."
               }
             />
@@ -503,9 +508,9 @@ function SubmitOrder({
       <p className="text-center text-[11px] leading-snug text-white/45">
         {online
           ? shippingApart
-            ? "Pagas los productos en la página segura de Wompi. El envío lo cuadramos contigo por WhatsApp (normalmente contra entrega)."
+            ? "Pagas los productos en la página segura de Wompi. El envío lo coordinamos contigo por WhatsApp (normalmente contra entrega)."
             : "Te llevamos a la página segura de Wompi (Bancolombia) para completar el pago."
-          : "Se abrirá WhatsApp con tu pedido listo para enviar. Ahí coordinamos el pago y la entrega."}
+          : "Se abrirá WhatsApp con tu pedido listo para enviar. Por ese medio coordinamos el pago y la entrega."}
       </p>
     </>
   );
@@ -559,7 +564,7 @@ function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
       <p className="mt-3 text-pretty text-white/70">
         {online
           ? "Te estamos llevando a Wompi para que completes el pago. Al terminar volverás a esta tienda."
-          : "Tu pedido ya está escrito. Solo dale enviar en WhatsApp y te confirmamos disponibilidad, pago y entrega."}
+          : "Tu pedido ya está redactado. Solo debes enviarlo en WhatsApp y te confirmaremos disponibilidad, pago y entrega."}
       </p>
       <a
         href={url}
@@ -568,15 +573,14 @@ function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
           online ? "bg-lime-400 hover:bg-white" : "bg-[#25D366] hover:brightness-110",
         )}
       >
-        {online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />} Si no se abrió, toca aquí
+        {online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />} ¿No se abrió? Ábrelo aquí
       </a>
     </motion.div>
   );
 }
 
 /** The customer already paid online (came back to the cart after paying). */
-function PaidNotice({ reference, whatsapp }: { reference: string; whatsapp: string }) {
-  const message = `Hola INNOVA 👋 Acabo de pagar mi pedido en línea.\nCódigo: ${reference}`;
+function PaidNotice({ reference, whatsapp, message }: { reference: string; whatsapp: string; message: string }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
       <span className="mx-auto grid size-16 place-items-center rounded-full bg-lime-400 text-navy-900">
@@ -589,7 +593,7 @@ function PaidNotice({ reference, whatsapp }: { reference: string; whatsapp: stri
       </p>
       <div className="mt-8 flex flex-col items-center gap-3">
         <a
-          href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`}
+          href={waUrl(whatsapp, message)}
           className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 font-semibold text-navy-950 hover:brightness-110"
         >
           <WhatsAppIcon className="size-5" /> Coordinar la entrega

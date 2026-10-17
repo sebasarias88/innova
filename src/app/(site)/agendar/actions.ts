@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/shop/queries";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { site } from "@/lib/site";
 import { legal } from "@/lib/legal";
+import { waUrl } from "@/lib/whatsapp";
 import { after } from "next/server";
 import { notifyNewBooking } from "@/lib/notifications";
 
@@ -82,21 +83,23 @@ export async function createBooking(input: unknown): Promise<CreateBookingResult
 
   const message = [
     confirmed
-      ? "Hola INNOVA 👋 Agendé una visita técnica desde la página web:"
-      : "Hola INNOVA 👋 Quiero agendar esta visita técnica desde la página web. ¿Me la confirman?",
+      ? "Hola, INNOVA. Agendé una visita técnica desde la página web:"
+      : "Hola, INNOVA. Solicité una visita técnica desde la página web. Quedo atento(a) a la confirmación.",
     "",
-    `🛠️ Servicio: ${getService(service)?.name ?? service}`,
-    `📅 Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
-    `🕒 Hora: ${timeLabel(booking.starts_at)} – ${timeLabel(booking.ends_at)}`,
+    "*Detalles de la visita*",
+    `Servicio: ${getService(service)?.name ?? service}`,
+    `Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
+    `Hora: ${timeLabel(booking.starts_at)} – ${timeLabel(booking.ends_at)}`,
     "",
-    `👤 ${customer.name}`,
-    `📞 ${customer.phone}`,
-    `📍 ${customer.address}, ${customer.city}`,
-    ...(customer.notes ? [`📝 ${customer.notes}`] : []),
+    "*Datos de contacto*",
+    `Nombre: ${customer.name}`,
+    `Celular: ${customer.phone}`,
+    `Dirección: ${customer.address}, ${customer.city}`,
+    ...(customer.notes ? [`Notas: ${customer.notes}`] : []),
     "",
-    `Código: ${booking.reference}`,
+    `Código de la cita: ${booking.reference}`,
   ].join("\n");
 
   const whatsapp = (await getSiteSettings())?.whatsapp ?? site.phone.raw;
-  return { ok: true, confirmed, reference: booking.reference, whatsappUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
+  return { ok: true, confirmed, reference: booking.reference, whatsappUrl: waUrl(whatsapp, message) };
 }

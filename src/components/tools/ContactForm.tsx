@@ -14,7 +14,7 @@ export function ContactForm() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hola INNOVA 👋\n\n👤 ${f.name}\n📞 ${f.phone}\n📍 ${f.city}\n🔧 Servicio: ${f.service}\n\n${f.msg}`;
+    const text = `Hola, INNOVA. Quisiera recibir una asesoría.\n\n*Nombre:* ${f.name}\n*Teléfono:* ${f.phone}\n*Ciudad:* ${f.city}\n*Servicio de interés:* ${f.service}${f.msg ? `\n\n${f.msg}` : ""}`;
     window.open(waLink(text), "_blank");
   };
 

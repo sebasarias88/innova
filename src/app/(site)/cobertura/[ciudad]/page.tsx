@@ -34,7 +34,7 @@ export default async function CityPage({ params }: Props) {
   const { ciudad } = await params;
   const c = getCity(ciudad);
   if (!c) notFound();
-  const wa = `Hola INNOVA 👋 Estoy en ${c.name} y quiero una asesoría.`;
+  const wa = `Hola, INNOVA. Estoy en ${c.name} y quisiera recibir una asesoría.`;
 
   return (
     <>

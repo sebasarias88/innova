@@ -9,6 +9,7 @@ import { ORDER_STATUS, PAYMENT_METHOD, PAYMENT_STATUS } from "@/lib/admin/status
 import { Badge, Card, PageHeader } from "@/components/admin/ui";
 import { OrderStatusForm } from "../OrderStatusForm";
 import { updateOrder } from "../actions";
+import { storeToCustomerOrderMessage } from "@/lib/shop/messages";
 
 export const metadata: Metadata = { title: "Pedido" };
 
@@ -30,7 +31,14 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const statuses = Object.entries(ORDER_STATUS)
     .filter(([value]) => order.payment_method === "wompi" || !["awaiting_payment", "paid"].includes(value) || value === order.status)
     .map(([value, s]) => ({ value, label: s.label }));
-  const message = `Hola ${order.customer_name.split(" ")[0]}, te escribimos de INNOVA Seguridad y Sistemas sobre tu pedido #${order.order_number}.`;
+  const message = storeToCustomerOrderMessage({
+    firstName: order.customer_name.split(" ")[0],
+    reference: order.reference,
+    items: (items ?? []).map((i) => ({ name: i.product_name, quantity: i.quantity })),
+    total: order.total,
+    paid: order.payment_status === "approved",
+    shippingPending: order.shipping_cost === null,
+  });
 
   return (
     <div className="mx-auto max-w-6xl">

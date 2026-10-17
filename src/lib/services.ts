@@ -52,7 +52,7 @@ export const services: Service[] = [
       { q: "¿Qué pasa si se va la luz?", a: "Podemos integrar una UPS para que el sistema siga grabando durante los cortes de energía." },
       { q: "¿Hacen mantenimiento a sistemas que instaló otra empresa?", a: "Sí. Hacemos diagnóstico, mantenimiento y actualización de sistemas existentes." },
     ],
-    wa: "Hola INNOVA 👋 Quiero cotizar un sistema de cámaras de seguridad (CCTV).",
+    wa: "Hola, INNOVA. Quisiera cotizar un sistema de cámaras de seguridad (CCTV).",
   },
   {
     slug: "energia-solar",
@@ -82,7 +82,7 @@ export const services: Service[] = [
       { q: "¿Cuánto puedo ahorrar?", a: "Depende de tu consumo y tu techo. Usa nuestra calculadora solar para una estimación y luego hacemos un estudio preciso sin costo." },
       { q: "¿Qué mantenimiento necesita?", a: "Muy poco: limpieza de paneles y revisión preventiva periódica. Nosotros lo hacemos por ti." },
     ],
-    wa: "Hola INNOVA ☀️ Quiero información sobre un sistema de energía solar.",
+    wa: "Hola, INNOVA. Quisiera información sobre un sistema de energía solar.",
   },
   {
     slug: "automatizacion-de-puertas",
@@ -111,7 +111,7 @@ export const services: Service[] = [
       { q: "¿Pueden automatizar la puerta que ya tengo?", a: "En la mayoría de casos sí. Evaluamos el peso, tipo y estado de la puerta y te recomendamos el motor adecuado." },
       { q: "¿Qué pasa si se va la luz?", a: "Los motores tienen desbloqueo manual y podemos instalar baterías de respaldo." },
     ],
-    wa: "Hola INNOVA 🚪 Quiero automatizar una puerta.",
+    wa: "Hola, INNOVA. Quisiera cotizar la automatización de una puerta.",
   },
   {
     slug: "domotica",
@@ -135,7 +135,7 @@ export const services: Service[] = [
       { q: "¿Necesito remodelar para tener domótica?", a: "No necesariamente. Muchas soluciones son inalámbricas y se instalan sin romper paredes." },
       { q: "¿Funciona con Alexa o Google?", a: "Sí, integramos asistentes de voz y apps compatibles." },
     ],
-    wa: "Hola INNOVA 🏠 Quiero hacer mi hogar/oficina inteligente (domótica).",
+    wa: "Hola, INNOVA. Quisiera información sobre domótica para mi hogar u oficina.",
   },
   {
     slug: "ups",
@@ -164,7 +164,7 @@ export const services: Service[] = [
       { q: "¿Qué diferencia hay entre una UPS online e interactiva?", a: "La online entrega energía totalmente regulada todo el tiempo (ideal para equipos críticos). La interactiva es más económica y adecuada para oficinas y equipos generales." },
       { q: "¿Cuánto tiempo de respaldo tendré?", a: "Depende de la carga conectada y las baterías. Dimensionamos el sistema según el tiempo que necesites." },
     ],
-    wa: "Hola INNOVA 🔋 Necesito un sistema de respaldo UPS.",
+    wa: "Hola, INNOVA. Necesito un sistema de respaldo de energía (UPS).",
   },
   {
     slug: "servicios-informaticos",
@@ -193,7 +193,7 @@ export const services: Service[] = [
       { q: "¿Atienden empresas con planes de mantenimiento?", a: "Sí, ofrecemos planes periódicos de mantenimiento preventivo para empresas." },
       { q: "¿Van a domicilio?", a: "Sí, atendemos en sitio o recogemos el equipo según el caso." },
     ],
-    wa: "Hola INNOVA 💻 Necesito soporte técnico / servicios informáticos.",
+    wa: "Hola, INNOVA. Necesito soporte técnico o servicios informáticos.",
   },
 ];
 

@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getService } from "@/lib/services";
 import { site } from "@/lib/site";
 import { siteUrl } from "@/lib/site-url";
+import { waUrl } from "@/lib/whatsapp";
+import { storeToCustomerOrderMessage } from "@/lib/shop/messages";
 
 /**
  * E-mail alerts to the owners (new orders, approved payments, booking requests)
@@ -29,11 +31,6 @@ const esc = (v: unknown) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-/** Colombian mobile numbers are stored as typed (e.g. 3001234567): wa.me needs the country code. */
-function waNumber(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  return digits.length === 10 && digits.startsWith("3") ? `57${digits}` : digits;
-}
 
 type Kind = "orders" | "bookings";
 
@@ -125,7 +122,14 @@ function orderMail(order: NonNullable<Awaited<ReturnType<typeof loadOrder>>>, pa
     </table>
     ${order.notes ? `<p style="background:#f1f5f9;border-radius:10px;padding:10px 12px;color:#334155;font-size:13px">“${esc(order.notes)}”</p>` : ""}
   </div>`;
-  const greeting = `Hola ${order.customer_name.split(" ")[0]}, te escribimos de INNOVA Seguridad y Sistemas sobre tu pedido ${order.reference}.`;
+  const greeting = storeToCustomerOrderMessage({
+    firstName: order.customer_name.split(" ")[0],
+    reference: order.reference,
+    items: items.map((i) => ({ name: i.product_name, quantity: i.quantity })),
+    total: order.total,
+    paid,
+    shippingPending: order.shipping_cost === null,
+  });
   const html = layout({
     eyebrow: paid ? "Pago aprobado" : "Pedido nuevo",
     title: paid ? `Pedido #${order.order_number} pagado` : `Pedido #${order.order_number} por WhatsApp`,
@@ -137,13 +141,13 @@ function orderMail(order: NonNullable<Awaited<ReturnType<typeof loadOrder>>>, pa
       ["Pago", paid ? "En línea (Wompi) · <span style='color:#16a34a'>Aprobado</span>" : "Por coordinar en WhatsApp"],
       ["Código", esc(order.reference)],
       ...(paid && order.shipping_cost === null
-        ? ([["Envío", "<span style='color:#d97706'>Por cuadrar con el cliente (no incluido en el pago)</span>"]] as [string, string][])
+        ? ([["Envío", "<span style='color:#d97706'>Pendiente por coordinar con el cliente (no incluido en el pago)</span>"]] as [string, string][])
         : []),
     ],
     body,
     buttons: [
       { label: "Ver en el panel", href: `${siteUrl()}/admin/orders/${order.id}`, color: "#e9f205" },
-      { label: "Escribir al cliente", href: `https://wa.me/${waNumber(order.customer_phone)}?text=${encodeURIComponent(greeting)}`, color: "#25D366" },
+      { label: "Escribir al cliente", href: waUrl(order.customer_phone, greeting), color: "#25D366" },
     ],
   });
   const text = [
@@ -198,7 +202,16 @@ export async function notifyNewBooking(bookingId: string) {
     const service = getService(b.service_slug)?.name ?? b.service_slug;
     const day = when(b.starts_at, { weekday: "long", day: "numeric", month: "long" });
     const hours = `${when(b.starts_at, { hour: "numeric", minute: "2-digit" })} – ${when(b.ends_at, { hour: "numeric", minute: "2-digit" })}`;
-    const confirm = `Hola ${b.customer_name.split(" ")[0]} 👋 Te escribimos de INNOVA Seguridad y Sistemas: confirmamos tu visita técnica de ${service} el ${day} entre las ${hours}, en ${[b.address, b.city].filter(Boolean).join(", ")}. Código: ${b.reference}.`;
+    const confirm = [
+      `Hola, ${b.customer_name.split(" ")[0]}. Te escribimos de INNOVA Seguridad y Sistemas para confirmar tu visita técnica:`,
+      "",
+      `Servicio: ${service}`,
+      `Fecha: ${day.charAt(0).toUpperCase()}${day.slice(1)}`,
+      `Hora: ${hours}`,
+      `Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
+      "",
+      `Código de la cita: ${b.reference}`,
+    ].join("\n");
     const pending = b.status === "pending";
 
     const html = layout({
@@ -215,7 +228,7 @@ export async function notifyNewBooking(bookingId: string) {
       ],
       body: b.notes ? `<p style="background:#f1f5f9;border-radius:10px;padding:10px 12px;color:#334155;font-size:13px;margin-top:14px">“${esc(b.notes)}”</p>` : undefined,
       buttons: [
-        { label: pending ? "Confirmar por WhatsApp" : "Escribir al cliente", href: `https://wa.me/${waNumber(b.customer_phone)}?text=${encodeURIComponent(confirm)}`, color: "#25D366" },
+        { label: pending ? "Confirmar por WhatsApp" : "Escribir al cliente", href: waUrl(b.customer_phone, confirm), color: "#25D366" },
         { label: "Ver la agenda", href: `${siteUrl()}/admin/bookings`, color: "#e9f205" },
       ],
     });

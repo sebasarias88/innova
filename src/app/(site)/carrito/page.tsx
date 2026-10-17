@@ -4,6 +4,7 @@ import { getShippingOptions, getSiteSettings } from "@/lib/shop/queries";
 import { ORDER_COOKIE } from "@/lib/payments/cookie";
 import { getOrderByReference } from "@/lib/payments/orders";
 import { site } from "@/lib/site";
+import { paidOrderMessage } from "@/lib/shop/messages";
 import { wompiConfig } from "@/lib/payments/wompi";
 import { Checkout } from "./Checkout";
 
@@ -24,6 +25,10 @@ export default async function CartPage() {
   ]);
   // The customer paid online and came back to the cart (e.g. with the back button).
   const paidReference = lastOrder?.payment_status === "approved" ? lastOrder.reference : null;
+  const paidMessage =
+    lastOrder && paidReference
+      ? paidOrderMessage({ reference: lastOrder.reference, items: lastOrder.items, total: lastOrder.total, shippingPending: lastOrder.shipping_cost === null })
+      : null;
   return (
     <section className="pb-20 pt-28 sm:pb-28 sm:pt-36">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -33,6 +38,7 @@ export default async function CartPage() {
             shipping={shipping}
             onlinePayments={wompiConfig() !== null}
             paidReference={paidReference}
+            paidMessage={paidMessage}
             whatsapp={settings?.whatsapp ?? site.phone.raw}
           />
         </div>
