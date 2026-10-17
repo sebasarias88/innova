@@ -136,6 +136,9 @@ function orderMail(order: NonNullable<Awaited<ReturnType<typeof loadOrder>>>, pa
       ["Entrega", esc([order.address, order.city].filter(Boolean).join(", "))],
       ["Pago", paid ? "En línea (Wompi) · <span style='color:#16a34a'>Aprobado</span>" : "Por coordinar en WhatsApp"],
       ["Código", esc(order.reference)],
+      ...(paid && order.shipping_cost === null
+        ? ([["Envío", "<span style='color:#d97706'>Por cuadrar con el cliente (no incluido en el pago)</span>"]] as [string, string][])
+        : []),
     ],
     body,
     buttons: [

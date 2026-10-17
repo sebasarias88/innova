@@ -60,6 +60,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <dl className="mt-4 space-y-2 border-t border-white/10 pt-4 text-sm">
               <Row label="Subtotal" value={formatCop(order.subtotal)} />
               <Row label={`Envío · ${order.shipping_zone_name}`} value={order.shipping_cost === 0 ? "Gratis" : formatCop(order.shipping_cost)} />
+              {order.payment_method === "wompi" && order.shipping_cost === null && (
+                <p className="rounded-xl bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
+                  El pago en línea cubre solo los productos. Coordina el envío con el cliente por WhatsApp (contra entrega u otra forma).
+                </p>
+              )}
               <Row label="Total" value={formatCop(order.total)} strong />
             </dl>
           </Card>

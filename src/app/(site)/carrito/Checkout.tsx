@@ -67,8 +67,10 @@ export function Checkout({
   const zone = shipping.find((z) => z.id === zoneId);
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const total = subtotal + (zone?.price ?? 0);
-  // Online payment needs a fixed amount ("a convenir" shipping is arranged by WhatsApp).
-  const canPayOnline = onlinePayments && zone?.price !== null && zone !== undefined;
+  // With "a convenir" shipping the customer pays the products online and the
+  // shipping is arranged by WhatsApp (usually cash on delivery to the carrier).
+  const canPayOnline = onlinePayments && zone !== undefined;
+  const shippingApart = zone?.price === null;
   const payment: PaymentMethod = method === "wompi" && canPayOnline ? "wompi" : "whatsapp";
   const units = items.reduce((n, i) => n + i.qty, 0);
 
@@ -146,7 +148,17 @@ export function Checkout({
               {step === 0 && <CartStep items={items} />}
               {step === 1 && <DetailsStep shipping={shipping} zoneId={zoneId} setZoneId={setZoneId} customer={customer} setCustomer={setCustomer} />}
               {step === 2 && zone && (
-                <ReviewStep items={items} customer={customer} zone={zone} onEdit={goTo} onlinePayments={onlinePayments} canPayOnline={canPayOnline} payment={payment} setMethod={setMethod} />
+                <ReviewStep
+                  items={items}
+                  customer={customer}
+                  zone={zone}
+                  onEdit={goTo}
+                  onlinePayments={onlinePayments}
+                  canPayOnline={canPayOnline}
+                  payment={payment}
+                  setMethod={setMethod}
+                  shippingApart={shippingApart}
+                />
               )}
             </motion.div>
           </AnimatePresence>
@@ -169,7 +181,7 @@ export function Checkout({
               <dt>Total</dt>
               <dd className="font-mono">
                 {formatPrice(step > 0 ? total : subtotal)}
-                {step > 0 && zone?.price === null && <span className="block text-right text-[11px] font-normal text-white/50">+ envío a convenir</span>}
+                {step > 0 && zone?.price === null && <span className="block text-right text-[11px] font-normal text-white/50">+ envío aparte (por WhatsApp)</span>}
               </dd>
             </div>
           </dl>
@@ -195,7 +207,7 @@ export function Checkout({
             {step === 2 && (
               <>
                 <ConsentCheckbox checked={accepted} onChange={setAccepted} />
-                <SubmitOrder pending={pending} onSubmit={submit} payment={payment} total={total} />
+                <SubmitOrder pending={pending} onSubmit={submit} payment={payment} total={total} shippingApart={shippingApart} />
               </>
             )}
             {step > 0 && (
@@ -328,7 +340,8 @@ function DetailsStep({
         </div>
         {zone?.price === null && (
           <p className="mt-3 rounded-2xl border border-royal-400/30 bg-royal-500/10 px-4 py-3 text-sm text-white/80">
-            El valor del envío a tu ciudad lo acordamos contigo por WhatsApp antes de despachar. No pagas nada hasta confirmarlo.
+            <b className="text-white">El envío a tu ciudad se cuadra aparte por WhatsApp.</b> Puedes pagar los productos en línea o coordinar todo por WhatsApp.
+            Después de tu pedido te escribimos para acordar el envío: normalmente <b className="text-white">contra entrega</b> (lo pagas a la transportadora al recibir) u otra forma que prefieras.
           </p>
         )}
       </section>
@@ -376,6 +389,7 @@ function ReviewStep({
   canPayOnline,
   payment,
   setMethod,
+  shippingApart,
 }: {
   items: CartItem[];
   customer: Customer;
@@ -385,6 +399,7 @@ function ReviewStep({
   canPayOnline: boolean;
   payment: PaymentMethod;
   setMethod: (m: PaymentMethod) => void;
+  shippingApart: boolean;
 }) {
   return (
     <div className="space-y-4">
@@ -426,7 +441,11 @@ function ReviewStep({
               icon={<CreditCard className="size-5" />}
               iconClass="bg-lime-400 text-navy-900"
               title="Pagar en línea"
-              text={canPayOnline ? "Tarjeta, PSE, Nequi o Bancolombia. Pago seguro con Wompi." : "No disponible con envío a convenir: primero acordamos el valor del envío."}
+              text={
+                shippingApart
+                  ? "Pagas ahora solo los productos con tarjeta, PSE, Nequi o Bancolombia. El envío se cuadra aparte por WhatsApp."
+                  : "Tarjeta, PSE, Nequi o Bancolombia. Pago seguro con Wompi."
+              }
             />
           )}
           <PaymentOption
@@ -438,12 +457,31 @@ function ReviewStep({
             text="Te confirmamos disponibilidad y pagas por transferencia, Nequi o en tienda."
           />
         </div>
+        {shippingApart && payment === "wompi" && (
+          <p className="mt-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm leading-relaxed text-white/85">
+            <b className="text-white">Importante:</b> el pago en línea es solo por los productos. El envío a tu ciudad no está
+            incluido: apenas confirmemos tu pago te escribimos por WhatsApp para coordinarlo, normalmente <b className="text-white">contra entrega</b> (lo pagas a la
+            transportadora al recibir) u otra forma que acordemos.
+          </p>
+        )}
       </section>
     </div>
   );
 }
 
-function SubmitOrder({ pending, onSubmit, payment, total }: { pending: boolean; onSubmit: (honeypot: string) => void; payment: PaymentMethod; total: number }) {
+function SubmitOrder({
+  pending,
+  onSubmit,
+  payment,
+  total,
+  shippingApart,
+}: {
+  pending: boolean;
+  onSubmit: (honeypot: string) => void;
+  payment: PaymentMethod;
+  total: number;
+  shippingApart: boolean;
+}) {
   const [honeypot, setHoneypot] = useState("");
   const online = payment === "wompi";
   return (
@@ -460,11 +498,13 @@ function SubmitOrder({ pending, onSubmit, payment, total }: { pending: boolean; 
         )}
       >
         {pending ? <LoaderCircle className="size-5 animate-spin" /> : online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />}
-        {online ? `Pagar ${formatPrice(total)}` : "Enviar pedido por WhatsApp"}
+        {online ? (shippingApart ? `Pagar productos · ${formatPrice(total)}` : `Pagar ${formatPrice(total)}`) : "Enviar pedido por WhatsApp"}
       </button>
       <p className="text-center text-[11px] leading-snug text-white/45">
         {online
-          ? "Te llevamos a la página segura de Wompi (Bancolombia) para completar el pago."
+          ? shippingApart
+            ? "Pagas los productos en la página segura de Wompi. El envío lo cuadramos contigo por WhatsApp (normalmente contra entrega)."
+            : "Te llevamos a la página segura de Wompi (Bancolombia) para completar el pago."
           : "Se abrirá WhatsApp con tu pedido listo para enviar. Ahí coordinamos el pago y la entrega."}
       </p>
     </>

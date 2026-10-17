@@ -65,6 +65,11 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
           <StatusIcon view={view} />
           <h1 className="mt-6 text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl">{TITLES[view]}</h1>
           <p className="mx-auto mt-3 max-w-md text-pretty text-white/70">{TEXTS[view]}</p>
+          {view === "approved" && order?.shipping_cost === null && (
+            <p className="mx-auto mt-4 max-w-md rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-white/85">
+              Tu pago cubre los productos. <b className="text-white">Te escribimos por WhatsApp para coordinar el envío</b> a tu ciudad, normalmente contra entrega.
+            </p>
+          )}
           {reference && view !== "not_found" && (
             <p className="mt-5 font-mono text-sm text-white/50">
               Código del pedido: <span className="text-white">{reference}</span>
