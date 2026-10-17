@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { after } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getProductsByIds, getShippingOptions, getSiteSettings } from "@/lib/shop/queries";
@@ -10,6 +11,7 @@ import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
 import { siteUrl } from "@/lib/site-url";
 import { ORDER_COOKIE } from "@/lib/payments/cookie";
 import { legal } from "@/lib/legal";
+import { notifyNewOrder } from "@/lib/notifications";
 
 z.config(z.locales.es());
 
@@ -112,6 +114,9 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
     getSiteSettings(),
   ]);
   const { data: zone } = await supabase.from("orders").select("shipping_zone_name").eq("id", order.id).single();
+
+  // Online orders are announced when the payment is approved (see applyTransaction).
+  after(() => notifyNewOrder(order.id));
 
   const message = [
     "Hola INNOVA 👋 Quiero hacer este pedido de la tienda:",

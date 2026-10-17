@@ -8,6 +8,8 @@ import { getSiteSettings } from "@/lib/shop/queries";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { site } from "@/lib/site";
 import { legal } from "@/lib/legal";
+import { after } from "next/server";
+import { notifyNewBooking } from "@/lib/notifications";
 
 z.config(z.locales.es());
 
@@ -73,7 +75,8 @@ export async function createBooking(input: unknown): Promise<CreateBookingResult
     return { ok: false, error: "No pudimos agendar la cita. Inténtalo de nuevo." };
   }
 
-  const booking = data as { reference: string; status: string; starts_at: string; ends_at: string };
+  const booking = data as { id: string; reference: string; status: string; starts_at: string; ends_at: string };
+  after(() => notifyNewBooking(booking.id));
   const confirmed = booking.status === "confirmed";
   const day = dayLabel(booking.starts_at);
 
