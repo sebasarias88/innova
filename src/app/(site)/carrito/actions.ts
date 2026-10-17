@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { after } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getProductsByIds, getShippingOptions, getSiteSettings } from "@/lib/shop/queries";
+import { getProductsByIds, getSiteSettings } from "@/lib/shop/queries";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
@@ -75,14 +75,10 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   ]);
   if (!ipOk || !phoneOk) return { ok: false, error: "Recibimos varios pedidos seguidos. Espera un momento o escríbenos por WhatsApp." };
 
-  // Online payment needs a fixed amount: "a convenir" shipping is arranged by WhatsApp.
+  // With "a convenir" shipping the online payment covers only the products; the
+  // order keeps shipping_cost = null and the shipping is arranged by WhatsApp.
   const wompi = paymentMethod === "wompi" ? wompiConfig() : null;
-  if (paymentMethod === "wompi") {
-    if (!wompi) return { ok: false, error: "El pago en línea no está disponible ahora. Envía tu pedido por WhatsApp." };
-    const zone = (await getShippingOptions()).find((z) => z.id === shippingZoneId);
-    if (!zone) return { ok: false, error: DB_ERRORS.invalid_shipping_zone };
-    if (zone.price === null) return { ok: false, error: "Para pagar en línea elige un envío con valor fijo, o envía el pedido por WhatsApp." };
-  }
+  if (paymentMethod === "wompi" && !wompi) return { ok: false, error: "El pago en línea no está disponible ahora. Envía tu pedido por WhatsApp." };
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("create_order", {

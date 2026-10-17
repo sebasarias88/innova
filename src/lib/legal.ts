@@ -6,8 +6,8 @@ import { site } from "@/lib/site";
  * or the terms change: each order and booking stores the version accepted.
  */
 export const legal = {
-  version: "2026-10-16.2",
-  updatedAt: "16 de octubre de 2026",
+  version: "2026-10-17",
+  updatedAt: "17 de octubre de 2026",
   owner: "Jhon Albert Arias Castro",
   idLabel: "C.C. / NIT 1.094.971.378-7",
   tradeName: "INNOVA Seguridad y Sistemas",
