@@ -12,7 +12,8 @@ import { cart, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import type { ShippingOption } from "@/lib/shop/queries";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
-import { waUrl } from "@/lib/whatsapp";
+import { newTab, waUrl } from "@/lib/whatsapp";
+import { prepareWhatsAppTab } from "@/lib/whatsapp-tab";
 import { paidOrderMessage } from "@/lib/shop/messages";
 import { placeOrder, refreshCart } from "./actions";
 
@@ -106,12 +107,14 @@ export function Checkout({
     return null;
   };
 
-  const submit = (honeypot: string) =>
+  const submit = (honeypot: string) => {
+    if (!accepted) {
+      toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
+      return;
+    }
+    // WhatsApp opens in a new tab on computers (prepared now, during the click).
+    const tab = payment === "whatsapp" ? prepareWhatsAppTab() : null;
     start(async () => {
-      if (!accepted) {
-        toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
-        return;
-      }
       const result = await placeOrder({
         customer: { ...customer, address: zone?.isPickup ? "" : customer.address },
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
@@ -121,6 +124,7 @@ export function Checkout({
         website: honeypot,
       });
       if (!result.ok) {
+        tab?.cancel();
         toast.error(result.error);
         if (result.refresh) {
           const fresh = await refreshCart(cart.ids());
@@ -134,8 +138,13 @@ export function Checkout({
       if (result.kind === "whatsapp") cart.clear();
       setRedirect({ kind: result.kind, url: result.redirectUrl });
       // Straight to WhatsApp / the payment page; the fallback below covers blocked redirects.
-      window.location.assign(result.redirectUrl);
+      if (result.kind === "whatsapp" && tab) tab.go(result.redirectUrl);
+      else {
+        tab?.cancel();
+        window.location.assign(result.redirectUrl);
+      }
     });
+  };
 
   if (redirect) return <Redirecting kind={redirect.kind} url={redirect.url} />;
   if (!hydrated) return <div className="h-96" />;
@@ -547,7 +556,7 @@ function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
           Seguir comprando
         </Link>
         <p className="mt-5">
-          <a href={url} className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 hover:text-white">
+          <a href={url} {...newTab} className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 hover:text-white">
             <WhatsAppIcon className="size-4" /> ¿No se envió? Abrir WhatsApp otra vez
           </a>
         </p>
@@ -568,6 +577,7 @@ function Redirecting({ kind, url }: { kind: PaymentMethod; url: string }) {
       </p>
       <a
         href={url}
+        {...(online ? {} : newTab)}
         className={clsx(
           "mt-8 inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-navy-950",
           online ? "bg-lime-400 hover:bg-white" : "bg-[#25D366] hover:brightness-110",
@@ -594,6 +604,7 @@ function PaidNotice({ reference, whatsapp, message }: { reference: string; whats
       <div className="mt-8 flex flex-col items-center gap-3">
         <a
           href={waUrl(whatsapp, message)}
+          {...newTab}
           className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 font-semibold text-navy-950 hover:brightness-110"
         >
           <WhatsAppIcon className="size-5" /> Coordinar la entrega

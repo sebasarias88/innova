@@ -88,12 +88,12 @@ async function Appointments({ view }: { view?: string }) {
                   const status = BOOKING_STATUS[b.status];
                   const service = getService(b.service_slug)?.name ?? b.service_slug;
                   const message = [
-                    `Hola, ${b.customer_name.split(" ")[0]}. Te escribimos de INNOVA Seguridad y Sistemas sobre tu visita técnica:`,
+                    `Hola, ${b.customer_name.split(" ")[0]} 👋 Te escribimos de INNOVA Seguridad y Sistemas sobre tu visita técnica:`,
                     "",
-                    `Servicio: ${service}`,
-                    `Fecha: ${formatDate(b.starts_at)}, ${formatTime(b.starts_at)} – ${formatTime(b.ends_at)}`,
-                    `Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
-                    `Código de la cita: ${b.reference}`,
+                    `🔧 Servicio: ${service}`,
+                    `📅 Fecha: ${formatDate(b.starts_at)}, ${formatTime(b.starts_at)} – ${formatTime(b.ends_at)}`,
+                    `📍 Dirección: ${[b.address, b.city].filter(Boolean).join(", ")}`,
+                    `🧾 Código de la cita: ${b.reference}`,
                   ].join("\n");
                   return (
                     <li key={b.id}>

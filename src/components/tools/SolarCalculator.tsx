@@ -27,7 +27,7 @@ export function SolarCalculator() {
   const maxBar = Math.max(r.kwhMonth, r.genMonth * 1.1);
 
   const msg = [
-    "Hola, INNOVA. Hice el cálculo solar en la página web:",
+    "Hola, INNOVA 👋 Hice el cálculo solar en la página web:",
     `• Factura: ${cop(bill)}/mes (${Math.round(r.kwhMonth)} kWh)`,
     `• Sistema ${type}: ${r.kwp.toFixed(1)} kWp · ${r.panels} paneles`,
     `• Ahorro estimado: ${cop(r.savingMonth)}/mes`,

@@ -11,7 +11,7 @@ import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { getSiteSettings } from "@/lib/shop/queries";
 import { site } from "@/lib/site";
 import { ClearCart, RefreshWhilePending } from "./PaymentClient";
-import { waUrl } from "@/lib/whatsapp";
+import { newTab, waUrl } from "@/lib/whatsapp";
 import { paidOrderMessage } from "@/lib/shop/messages";
 
 export const metadata: Metadata = {
@@ -110,6 +110,7 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
                     shippingPending: order?.shipping_cost === null,
                   }),
                 )}
+                {...newTab}
                 className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 font-semibold text-navy-950 hover:brightness-110"
               >
                 <WhatsAppIcon className="size-5" /> Coordinar la entrega
@@ -122,7 +123,8 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
             )}
             {(view === "failed" || view === "pending" || view === "not_found") && (
               <a
-                href={wa(reference ? `Hola, INNOVA. Tengo una inquietud sobre el pago de mi pedido.\nCódigo del pedido: ${reference}` : "Hola, INNOVA. Tengo una inquietud sobre un pago en la tienda en línea.")}
+                href={wa(reference ? `Hola, INNOVA 👋 Tengo una inquietud sobre el pago de mi pedido.\n🧾 Código del pedido: ${reference}` : "Hola, INNOVA 👋 Tengo una inquietud sobre un pago en la tienda en línea.")}
+                {...newTab}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white"
               >
                 <WhatsAppIcon className="size-4" /> Escríbenos por WhatsApp

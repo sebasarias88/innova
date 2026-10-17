@@ -9,7 +9,8 @@ import clsx from "clsx";
 import { Icon } from "@/components/ui/Icon";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
-import { waUrl } from "@/lib/whatsapp";
+import { newTab, waUrl } from "@/lib/whatsapp";
+import { prepareWhatsAppTab } from "@/lib/whatsapp-tab";
 import { createBooking, refreshSlots } from "./actions";
 
 type ServiceOption = { slug: string; name: string; short: string; icon: string };
@@ -86,15 +87,18 @@ export function BookingFlow({
     return null;
   };
 
-  const submit = (honeypot: string) =>
+  const submit = (honeypot: string) => {
+    if (!service || !slot) return;
+    if (!accepted) {
+      toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
+      return;
+    }
+    // WhatsApp opens in a new tab on computers (prepared now, during the click).
+    const tab = prepareWhatsAppTab();
     start(async () => {
-      if (!service || !slot) return;
-      if (!accepted) {
-        toast.error("Para continuar, autoriza el tratamiento de tus datos y acepta los términos.");
-        return;
-      }
       const result = await createBooking({ service, startsAt: slot.start, customer, acceptPrivacy: accepted, website: honeypot });
       if (!result.ok) {
+        tab.cancel();
         toast.error(result.error);
         if (result.slotTaken) {
           loadSlots(false);
@@ -104,8 +108,9 @@ export function BookingFlow({
       }
       setDone({ url: result.whatsappUrl, confirmed: result.confirmed, reference: result.reference, slot });
       // Booking is already saved: WhatsApp only carries the details to the store.
-      window.location.assign(result.whatsappUrl);
+      tab.go(result.whatsappUrl);
     });
+  };
 
   if (done) return <Booked {...done} />;
 
@@ -275,7 +280,8 @@ function DateStep({
             <h2 className="mt-4 text-xl font-bold text-white">No hay horarios disponibles por ahora</h2>
             <p className="mx-auto mt-2 max-w-sm text-white/60">Escríbenos y buscamos un espacio para tu visita.</p>
             <a
-              href={waUrl(whatsapp, "Hola, INNOVA. Quisiera agendar una visita técnica. ¿Qué disponibilidad tienen?")}
+              href={waUrl(whatsapp, "Hola, INNOVA 👋 Quisiera agendar una visita técnica. ¿Qué disponibilidad tienen?")}
+              {...newTab}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-semibold text-navy-950 hover:brightness-110"
             >
               <WhatsAppIcon className="size-5" /> Escribir por WhatsApp
@@ -456,7 +462,7 @@ function Booked({ url, confirmed, reference, slot }: { url: string; confirmed: b
       <p className="mt-4 font-mono text-sm text-white/50">
         Código: <span className="text-white">{reference}</span>
       </p>
-      <a href={url} className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-semibold text-navy-950 hover:brightness-110">
+      <a href={url} {...newTab} className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-semibold text-navy-950 hover:brightness-110">
         <WhatsAppIcon className="size-5" /> Abrir WhatsApp
       </a>
       <p className="mt-5">

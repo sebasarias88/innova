@@ -116,23 +116,23 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   after(() => notifyNewOrder(order.id));
 
   const message = [
-    "Hola, INNOVA. Quisiera realizar el siguiente pedido desde la tienda en línea:",
+    "Hola, INNOVA 👋 Quisiera realizar el siguiente pedido desde la tienda en línea:",
     "",
-    "*Productos*",
+    "🛒 *Productos*",
     ...(lines ?? []).map((l) => `- ${l.quantity} x ${l.product_name}: ${formatPrice(l.line_total)}`),
     "",
     `Subtotal: ${formatPrice(order.subtotal)}`,
     `Envío (${zone?.shipping_zone_name ?? "por definir"}): ${order.shipping_cost === null ? "por definir" : shippingLabel(order.shipping_cost)}`,
-    `*Total: ${formatPrice(order.total)}${order.shipping_cost === null ? " + envío" : ""}*`,
+    `💰 *Total: ${formatPrice(order.total)}${order.shipping_cost === null ? " + envío" : ""}*`,
     "",
-    "*Datos de entrega*",
+    "🚚 *Datos de entrega*",
     `Nombre: ${customer.name}`,
     `Celular: ${customer.phone}`,
     customer.address ? `Dirección: ${customer.address}, ${customer.city}` : `Ciudad: ${customer.city}`,
     ...(customer.notes ? [`Notas: ${customer.notes}`] : []),
     "",
     // Code (not the sequential number) so the store can find the order in the panel.
-    `Código del pedido: ${order.reference}`,
+    `🧾 Código del pedido: ${order.reference}`,
   ].join("\n");
 
   const whatsapp = settings?.whatsapp ?? "573218539336";
