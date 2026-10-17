@@ -3,6 +3,7 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import { mediaUrl } from "@/lib/admin/storage";
+import { searchWords } from "@/lib/shop/search";
 
 export type ShopCategory = { id: string; name: string; slug: string; parentId: string | null; description: string | null };
 
@@ -90,8 +91,6 @@ export const getShopCategories = cache(
 
 export type ProductPage = { products: ShopProduct[]; total: number; page: number; pages: number };
 
-const cleanTerm = (q: string) => `%${q.replace(/[%_,()]/g, " ").slice(0, 60)}%`;
-
 /**
  * One page of published products (optionally by category, including its
  * subcategories, and by text). Only PAGE_SIZE rows and one image per product
@@ -111,10 +110,8 @@ export const getProductPage = unstable_cache(
       .order("sort_order", { referencedTable: "product_images" })
       .limit(1, { referencedTable: "product_images" });
     if (categoryIds?.length) query = query.in("category_id", categoryIds);
-    if (q) {
-      const term = cleanTerm(q);
-      query = query.or(`name.ilike.${term},brand.ilike.${term},short_description.ilike.${term}`);
-    }
+    // Accent-insensitive: every typed word must appear in name, brand, description or SKU.
+    for (const word of searchWords(q)) query = query.ilike("search_text", `%${word}%`);
     const { data, count, error } = await query.range(from, from + PAGE_SIZE - 1);
     // Asking for a page past the end is not an error: it is just empty.
     if (error && error.code !== "PGRST103") console.error("[shop] catalog query failed:", error.message);

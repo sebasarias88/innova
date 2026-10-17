@@ -528,6 +528,7 @@ export type Database = {
           is_published: boolean
           name: string
           price: number
+          search_text: string | null
           short_description: string | null
           sku: string | null
           slug: string
@@ -547,6 +548,7 @@ export type Database = {
           is_published?: boolean
           name: string
           price: number
+          search_text?: never
           short_description?: string | null
           sku?: string | null
           slug: string
@@ -566,6 +568,7 @@ export type Database = {
           is_published?: boolean
           name?: string
           price?: number
+          search_text?: never
           short_description?: string | null
           sku?: string | null
           slug?: string
