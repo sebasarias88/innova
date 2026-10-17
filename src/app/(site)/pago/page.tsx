@@ -11,6 +11,8 @@ import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { getSiteSettings } from "@/lib/shop/queries";
 import { site } from "@/lib/site";
 import { ClearCart, RefreshWhilePending } from "./PaymentClient";
+import { waUrl } from "@/lib/whatsapp";
+import { paidOrderMessage } from "@/lib/shop/messages";
 
 export const metadata: Metadata = {
   title: "Estado del pago",
@@ -53,7 +55,7 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
   const owner = reference !== null && (await cookies()).get(ORDER_COOKIE)?.value === reference;
   const settings = await getSiteSettings();
   const whatsapp = settings?.whatsapp ?? site.phone.raw;
-  const wa = (text: string) => `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
+  const wa = (text: string) => waUrl(whatsapp, text);
 
   return (
     <section className="pb-20 pt-28 sm:pb-28 sm:pt-36">
@@ -100,7 +102,14 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
           <div className="mt-9 flex flex-col items-center gap-3">
             {view === "approved" && reference && (
               <a
-                href={wa(`Hola INNOVA 👋 Acabo de pagar mi pedido en línea.\nCódigo: ${reference}`)}
+                href={wa(
+                  paidOrderMessage({
+                    reference,
+                    items: owner && order ? order.items : undefined,
+                    total: owner && order ? order.total : undefined,
+                    shippingPending: order?.shipping_cost === null,
+                  }),
+                )}
                 className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 font-semibold text-navy-950 hover:brightness-110"
               >
                 <WhatsAppIcon className="size-5" /> Coordinar la entrega
@@ -113,7 +122,7 @@ export default async function PaymentPage({ searchParams }: { searchParams: Prom
             )}
             {(view === "failed" || view === "pending" || view === "not_found") && (
               <a
-                href={wa(reference ? `Hola INNOVA 👋 Tengo una duda con el pago de mi pedido.\nCódigo: ${reference}` : "Hola INNOVA 👋 Tengo una duda con un pago en la tienda.")}
+                href={wa(reference ? `Hola, INNOVA. Tengo una inquietud sobre el pago de mi pedido.\nCódigo del pedido: ${reference}` : "Hola, INNOVA. Tengo una inquietud sobre un pago en la tienda en línea.")}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white"
               >
                 <WhatsAppIcon className="size-4" /> Escríbenos por WhatsApp

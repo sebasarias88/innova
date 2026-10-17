@@ -102,7 +102,7 @@ export default function TermsPage() {
                   <Strong>Recoger en tienda:</Strong> sin costo, en {legal.storeAddress}, en horario de atención, presentando tu código de pedido.
                 </>,
                 <>
-                  <Strong>Resto del país:</Strong> el envío se hace con una transportadora y se cuadra contigo por WhatsApp, normalmente <Strong>contra entrega</Strong> (pagas el flete a la transportadora al recibir) u otra forma que acordemos. Si pagas en línea, ese pago cubre solo los productos. Te compartimos la guía de seguimiento.
+                  <Strong>Resto del país:</Strong> el envío se realiza con una transportadora y se coordina contigo por WhatsApp, normalmente <Strong>contra entrega</Strong> (pagas el flete a la transportadora al recibir) u otra forma que acordemos. Si pagas en línea, ese pago cubre solo los productos. Te compartimos la guía de seguimiento.
                 </>,
                 "El plazo de entrega se te informa al confirmar el pedido. Si no se acordó un plazo, la entrega se hará en máximo 30 días calendario, como establece la ley. Si no cumplimos el plazo, puedes cancelar el pedido y te devolvemos el dinero.",
                 "Al recibir, revisa el paquete. Si llega abierto o dañado, déjalo anotado en la guía y escríbenos de inmediato.",

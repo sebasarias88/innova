@@ -1,3 +1,5 @@
+import { waUrl } from "@/lib/whatsapp";
+
 export const TIME_ZONE = "America/Bogota";
 
 const copFormatter = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
@@ -52,9 +54,7 @@ export function digitsOnly(value: string) {
 }
 
 export function whatsappUrl(phone: string, text?: string) {
-  let digits = digitsOnly(phone);
-  if (digits.length === 10) digits = `57${digits}`;
-  return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+  return waUrl(digitsOnly(phone), text);
 }
 
 export const WEEKDAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];

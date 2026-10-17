@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/Reveal";
 export function CtaBand({
   title = "¿Listo para proteger lo que más te importa?",
   text = "Recibe una asesoría personalizada sin costo. Un técnico de INNOVA te visita, evalúa tu espacio y te entrega una propuesta a tu medida.",
-  wa = "Hola INNOVA 👋 Quiero una asesoría personalizada.",
+  wa = "Hola, INNOVA. Quisiera recibir una asesoría personalizada.",
 }: {
   title?: string;
   text?: string;

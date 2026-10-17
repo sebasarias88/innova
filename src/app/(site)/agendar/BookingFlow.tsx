@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { Icon } from "@/components/ui/Icon";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
+import { waUrl } from "@/lib/whatsapp";
 import { createBooking, refreshSlots } from "./actions";
 
 type ServiceOption = { slug: string; name: string; short: string; icon: string };
@@ -274,7 +275,7 @@ function DateStep({
             <h2 className="mt-4 text-xl font-bold text-white">No hay horarios disponibles por ahora</h2>
             <p className="mx-auto mt-2 max-w-sm text-white/60">Escríbenos y buscamos un espacio para tu visita.</p>
             <a
-              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Hola INNOVA 👋 Quiero agendar una visita técnica. ¿Qué disponibilidad tienen?")}`}
+              href={waUrl(whatsapp, "Hola, INNOVA. Quisiera agendar una visita técnica. ¿Qué disponibilidad tienen?")}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-semibold text-navy-950 hover:brightness-110"
             >
               <WhatsAppIcon className="size-5" /> Escribir por WhatsApp

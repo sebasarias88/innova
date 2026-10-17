@@ -31,7 +31,7 @@ export function WhatsAppFab() {
         )}
       </AnimatePresence>
       <a
-        href={waLink("Hola INNOVA 👋 Quiero una asesoría personalizada.")}
+        href={waLink("Hola, INNOVA. Quisiera recibir una asesoría personalizada.")}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Escríbenos por WhatsApp"

@@ -11,6 +11,7 @@ import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
 import { siteUrl } from "@/lib/site-url";
 import { ORDER_COOKIE } from "@/lib/payments/cookie";
 import { legal } from "@/lib/legal";
+import { waUrl } from "@/lib/whatsapp";
 import { notifyNewOrder } from "@/lib/notifications";
 
 z.config(z.locales.es());
@@ -115,23 +116,25 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   after(() => notifyNewOrder(order.id));
 
   const message = [
-    "Hola INNOVA 👋 Quiero hacer este pedido de la tienda:",
+    "Hola, INNOVA. Quisiera realizar el siguiente pedido desde la tienda en línea:",
     "",
-    ...(lines ?? []).map((l) => `• ${l.quantity} × ${l.product_name} — ${formatPrice(l.line_total)}`),
+    "*Productos*",
+    ...(lines ?? []).map((l) => `- ${l.quantity} x ${l.product_name}: ${formatPrice(l.line_total)}`),
     "",
     `Subtotal: ${formatPrice(order.subtotal)}`,
-    `Envío (${zone?.shipping_zone_name ?? "—"}): ${shippingLabel(order.shipping_cost)}`,
+    `Envío (${zone?.shipping_zone_name ?? "por definir"}): ${order.shipping_cost === null ? "por definir" : shippingLabel(order.shipping_cost)}`,
     `*Total: ${formatPrice(order.total)}${order.shipping_cost === null ? " + envío" : ""}*`,
     "",
-    `👤 ${customer.name}`,
-    `📞 ${customer.phone}`,
-    customer.address ? `📍 ${customer.address}, ${customer.city}` : `📍 ${customer.city}`,
-    ...(customer.notes ? [`📝 ${customer.notes}`] : []),
+    "*Datos de entrega*",
+    `Nombre: ${customer.name}`,
+    `Celular: ${customer.phone}`,
+    customer.address ? `Dirección: ${customer.address}, ${customer.city}` : `Ciudad: ${customer.city}`,
+    ...(customer.notes ? [`Notas: ${customer.notes}`] : []),
     "",
     // Code (not the sequential number) so the store can find the order in the panel.
-    `Código: ${order.reference}`,
+    `Código del pedido: ${order.reference}`,
   ].join("\n");
 
   const whatsapp = settings?.whatsapp ?? "573218539336";
-  return { ok: true, kind: "whatsapp", redirectUrl: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` };
+  return { ok: true, kind: "whatsapp", redirectUrl: waUrl(whatsapp, message) };
 }
