@@ -9,6 +9,7 @@ import { MEDIA_BUCKET } from "@/lib/admin/storage";
 import { services } from "@/lib/services";
 import { checkbox, repeated, dbError, fail, firstIssue, formToObject, intField, ok, optionalText, requiredText, slugField, uuid, type ActionResult } from "@/lib/admin/actions";
 import { slugify } from "@/lib/admin/format";
+import { revalidateProjects } from "@/lib/admin/revalidate";
 
 const serviceSlugs = services.map((s) => s.slug) as [string, ...string[]];
 
@@ -58,7 +59,7 @@ export async function saveProject(id: string | null, _prev: ActionResult, formDa
   if (error || !saved) return fail(dbError(error));
 
   revalidatePath("/admin/projects");
-  revalidatePath("/proyectos");
+  revalidateProjects();
   if (!id) redirect(`/admin/projects/${saved.id}?created=1`);
   revalidatePath(`/admin/projects/${id}`);
   return ok("Proyecto guardado.");
@@ -75,6 +76,6 @@ export async function deleteProject(id: string): Promise<ActionResult> {
   if (images?.length) await supabase.storage.from(MEDIA_BUCKET).remove(images.map((i) => i.path));
 
   revalidatePath("/admin/projects");
-  revalidatePath("/proyectos");
+  revalidateProjects();
   redirect("/admin/projects");
 }

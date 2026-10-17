@@ -1,6 +1,6 @@
 /**
- * DEMO: proyectos de ejemplo para mostrar el formato.
- * Reemplazar por proyectos reales de INNOVA (fotos + datos) antes de publicar.
+ * Sample projects shown on /proyectos only while no project has been
+ * published from the admin panel (see lib/public-projects.ts).
  */
 export type Project = {
   slug: string;
