@@ -42,8 +42,21 @@ export function NotificationsForm({ settings }: { settings: { notification_email
   return (
     <ActionForm action={saveNotifications} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField label="Correo para avisos" name="notification_email" type="email" maxLength={160} defaultValue={settings.notification_email ?? ""} />
-        <TextField label="WhatsApp para avisos" name="notification_whatsapp" inputMode="tel" defaultValue={settings.notification_whatsapp ?? ""} />
+        <TextField
+          label="Correo para avisos"
+          name="notification_email"
+          type="email"
+          maxLength={160}
+          defaultValue={settings.notification_email ?? ""}
+          hint="Aquí llega un correo con cada pedido, pago aprobado y cita. Si lo dejas vacío, llega al correo de la empresa."
+        />
+        <TextField
+          label="WhatsApp para avisos"
+          name="notification_whatsapp"
+          inputMode="tel"
+          defaultValue={settings.notification_whatsapp ?? ""}
+          hint="Reservado para avisos por WhatsApp (próximamente). Por ahora los avisos llegan por correo."
+        />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Toggle label="Avisar pedidos nuevos" name="notify_new_orders" defaultChecked={settings.notify_new_orders} />

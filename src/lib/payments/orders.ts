@@ -1,6 +1,8 @@
 import "server-only";
 import type { Json } from "@/lib/supabase/database.types";
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notifyPaidOrder } from "@/lib/notifications";
 import type { WompiTransaction } from "./wompi";
 
 export type ApplyResult = "ok" | "duplicate" | "order_not_found" | "amount_mismatch" | "already_paid" | "invalid_currency" | "db_error";
@@ -23,7 +25,11 @@ export async function applyTransaction(tx: WompiTransaction, event: string, payl
     console.error("[payments] apply_payment_event failed:", error.code, error.message);
     return "db_error";
   }
-  return data as ApplyResult;
+  const result = data as ApplyResult;
+  // "ok" happens once per transaction + status (repeats come back as "duplicate"),
+  // so the owners get a single e-mail even if the webhook and the return page both report it.
+  if (result === "ok" && tx.status.toUpperCase() === "APPROVED") after(() => notifyPaidOrder(tx.reference));
+  return result;
 }
 
 export type PublicOrder = {
