@@ -261,11 +261,11 @@ export async function getCartLines(lines: { productId: string; variantId: string
     const { product, variants } = found;
     if (!product.hasVariants) {
       if (line.variantId) return [];
-      return [{ ...line, name: product.name, variantName: null, slug: product.slug, price: product.price, image: product.image, isAvailable: product.isAvailable }];
+      return [{ ...line, name: product.name, variantName: null, slug: product.slug, price: product.price, image: product.image, isAvailable: product.isAvailable && product.price > 0 }];
     }
     const variant = variants.find((v) => v.id === line.variantId);
     if (!variant) return [];
-    return [{ ...line, name: product.name, variantName: variant.name, slug: product.slug, price: variant.price, image: product.image, isAvailable: variant.isAvailable }];
+    return [{ ...line, name: product.name, variantName: variant.name, slug: product.slug, price: variant.price, image: product.image, isAvailable: variant.isAvailable && variant.price > 0 }];
   });
 }
 

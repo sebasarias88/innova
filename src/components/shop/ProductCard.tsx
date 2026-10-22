@@ -10,6 +10,8 @@ export function ProductCard({ product, priority }: { product: ShopProduct; prior
   const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
   // Variants with different prices: the card shows the lowest one as "Desde".
   const fromPrice = product.hasVariants && (product.priceMax ?? product.price) > product.price;
+  // Price still being defined by the store: show "Consultar precio" and no cart button.
+  const noPrice = product.price <= 0 && !product.hasVariants;
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] transition-colors hover:border-white/25">
@@ -40,7 +42,7 @@ export function ProductCard({ product, priority }: { product: ShopProduct; prior
         {/* Phones: the add button sits on the photo so a long price never squeezes it. */}
         <div className="absolute bottom-2.5 right-2.5 z-10 sm:hidden">
           <QuickAdd
-            available={product.isAvailable}
+            available={product.isAvailable && !noPrice}
             hasVariants={product.hasVariants}
             product={{ productId: product.id, variantId: null, variantName: null, slug: product.slug, name: product.name, price: product.price, image: product.image }}
           />
@@ -55,13 +57,19 @@ export function ProductCard({ product, priority }: { product: ShopProduct; prior
         </h3>
         <div className="mt-auto flex items-end justify-between gap-3 pt-3 sm:pt-4">
           <div className="min-w-0">
-            {product.compareAtPrice && <p className="truncate text-xs text-white/40 line-through">{formatPrice(product.compareAtPrice)}</p>}
-            {fromPrice && <p className="text-[11px] font-medium uppercase tracking-wide text-white/50">Desde</p>}
-            <p className="whitespace-nowrap text-[15px] font-bold tracking-tight text-white min-[380px]:text-base sm:text-lg">{formatPrice(product.price)}</p>
+            {noPrice ? (
+              <p className="text-sm font-semibold text-lime-300">Consultar precio</p>
+            ) : (
+              <>
+                {product.compareAtPrice && <p className="truncate text-xs text-white/40 line-through">{formatPrice(product.compareAtPrice)}</p>}
+                {fromPrice && <p className="text-[11px] font-medium uppercase tracking-wide text-white/50">Desde</p>}
+                <p className="whitespace-nowrap text-[15px] font-bold tracking-tight text-white min-[380px]:text-base sm:text-lg">{formatPrice(product.price)}</p>
+              </>
+            )}
           </div>
           <div className="relative z-10 hidden shrink-0 sm:block">
             <QuickAdd
-              available={product.isAvailable}
+              available={product.isAvailable && !noPrice}
               hasVariants={product.hasVariants}
             product={{ productId: product.id, variantId: null, variantName: null, slug: product.slug, name: product.name, price: product.price, image: product.image }}
             />
