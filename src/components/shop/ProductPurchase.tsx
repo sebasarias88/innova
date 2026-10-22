@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import clsx from "clsx";
 import { AddToCart } from "@/components/shop/AddToCartButton";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { newTab } from "@/lib/whatsapp";
+import { waLink } from "@/lib/site";
 import { formatPrice } from "@/lib/shop/format";
 import type { ShopVariant } from "@/lib/shop/queries";
 
@@ -26,14 +29,17 @@ export function ProductPurchase({ product, variants }: Props) {
   const available = variant ? variant.isAvailable : product.isAvailable;
   const sku = variant?.sku ?? product.sku;
   const discount = compareAt ? Math.round((1 - price / compareAt) * 100) : 0;
+  // $0 = the store has not published the price yet: quote by WhatsApp, never sell at $0.
+  const noPrice = price <= 0;
+  const itemName = variant ? `${product.name} (${variant.name})` : product.name;
 
   return (
     <>
       <div className="mt-6 flex flex-wrap items-end gap-3">
-        <p className="text-4xl font-bold text-white" aria-live="polite">
-          {formatPrice(price)}
+        <p className={clsx("font-bold", noPrice ? "text-3xl text-lime-300" : "text-4xl text-white")} aria-live="polite">
+          {noPrice ? "Precio a consultar" : formatPrice(price)}
         </p>
-        {compareAt && (
+        {compareAt && !noPrice && (
           <>
             <p className="pb-1 text-lg text-white/40 line-through">{formatPrice(compareAt)}</p>
             <span className="mb-1.5 rounded-full bg-lime-400 px-2.5 py-1 text-xs font-bold text-navy-900">-{discount}%</span>
@@ -41,7 +47,8 @@ export function ProductPurchase({ product, variants }: Props) {
         )}
       </div>
       <p className="mt-1 text-sm text-white/50">
-        Precio final.{sku && <span className="text-white/40"> · Ref. {sku}</span>}
+        {noPrice ? "Escríbenos y te cotizamos al instante." : "Precio final."}
+        {sku && <span className="text-white/40"> · Ref. {sku}</span>}
       </p>
 
       {variants.length > 0 && (
@@ -72,7 +79,7 @@ export function ProductPurchase({ product, variants }: Props) {
                   </span>
                   {v.highlight && <span className="mt-1 text-sm leading-snug text-white/60">{v.highlight}</span>}
                   <span className="mt-auto flex items-baseline gap-2 pt-3">
-                    <span className="font-mono text-sm font-semibold text-white">{formatPrice(v.price)}</span>
+                    <span className="font-mono text-sm font-semibold text-white">{v.price > 0 ? formatPrice(v.price) : "Consultar"}</span>
                     {v.compareAtPrice && <span className="text-xs text-white/40 line-through">{formatPrice(v.compareAtPrice)}</span>}
                     {!v.isAvailable && <span className="ml-auto text-xs font-semibold text-red-300">Agotado</span>}
                   </span>
@@ -84,6 +91,15 @@ export function ProductPurchase({ product, variants }: Props) {
       )}
 
       <div className="mt-8">
+        {noPrice ? (
+          <a
+            href={waLink(`Hola, INNOVA 👋 Quisiera saber el precio de: ${itemName}`)}
+            {...newTab}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-semibold text-navy-950 hover:brightness-110"
+          >
+            <WhatsAppIcon className="size-5" /> Consultar precio por WhatsApp
+          </a>
+        ) : (
         <AddToCart
           available={available}
           soldOutText={variant ? `La opción ${variant.name} está agotada por ahora. Elige otra o escríbenos por WhatsApp y te avisamos cuando llegue.` : undefined}
@@ -97,6 +113,7 @@ export function ProductPurchase({ product, variants }: Props) {
             image: product.image,
           }}
         />
+        )}
       </div>
     </>
   );

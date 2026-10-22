@@ -20,7 +20,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = product.shortDescription ?? `${product.name} en INNOVA Seguridad y Sistemas, Armenia, Quindío.`;
   return {
     title: product.brand ? `${product.name} · ${product.brand}` : product.name,
-    description: `${description} ${product.variants.length > 1 ? "Desde " : ""}${formatPrice(product.price)} en Armenia, Quindío.`.slice(0, 160),
+    description: (product.price > 0
+      ? `${description} ${product.variants.length > 1 ? "Desde " : ""}${formatPrice(product.price)} en Armenia, Quindío.`
+      : `${description} Cotiza por WhatsApp en Armenia, Quindío.`
+    ).slice(0, 160),
     alternates: { canonical: `/tienda/${product.slug}` },
     openGraph: { title: product.name, description, images: product.images[0] ? [product.images[0].url] : undefined },
   };
@@ -42,7 +45,10 @@ export default async function ProductPage({ params }: Props) {
     brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     sku: product.sku ?? undefined,
     // With variants: one offer per option (Google shows the price range).
-    offers: product.variants.length
+    // No price yet ($0): no offer, so Google never shows the product as free.
+    offers: product.price <= 0
+      ? undefined
+      : product.variants.length
       ? {
           "@type": "AggregateOffer",
           priceCurrency: "COP",

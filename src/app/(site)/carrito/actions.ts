@@ -91,6 +91,12 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const wompi = paymentMethod === "wompi" ? wompiConfig() : null;
   if (paymentMethod === "wompi" && !wompi) return { ok: false, error: "El pago en línea no está disponible ahora. Envía tu pedido por WhatsApp." };
 
+  // Products without a published price ($0) are quoted by WhatsApp, never sold.
+  const current = await getCartLines(items.map((i) => ({ productId: i.productId, variantId: i.variantId ?? null })));
+  if (current.length !== items.length || current.some((l) => !l.isAvailable)) {
+    return { ok: false, error: DB_ERRORS.product_unavailable, refresh: true };
+  }
+
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("create_order", {
     p_customer: { ...customer, privacy_version: legal.version },
