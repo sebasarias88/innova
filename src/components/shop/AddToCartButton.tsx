@@ -1,23 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import clsx from "clsx";
-import { cart } from "@/lib/shop/cart";
+import { cart, cartItemName, type CartProduct } from "@/lib/shop/cart";
+import { track } from "@/lib/analytics/client";
 
-type Product = { productId: string; slug: string; name: string; price: number; image: string | null };
+type Product = CartProduct;
 
 /** Full control on the product page: quantity + add. */
-export function AddToCart({ product, available }: { product: Product; available: boolean }) {
+export function AddToCart({ product, available, soldOutText }: { product: Product; available: boolean; soldOutText?: string }) {
   const [qty, setQty] = useState(1);
   const router = useRouter();
 
   if (!available) {
     return (
       <p className="rounded-2xl border border-red-400/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
-        Este producto está <b>agotado</b> por ahora. Escríbenos por WhatsApp y te avisamos cuando llegue.
+        {soldOutText ?? (
+          <>
+            Este producto está <b>agotado</b> por ahora. Escríbenos por WhatsApp y te avisamos cuando llegue.
+          </>
+        )}
       </p>
     );
   }
@@ -39,8 +45,9 @@ export function AddToCart({ product, available }: { product: Product; available:
         type="button"
         onClick={() => {
           cart.add(product, qty);
+          track("add_to_cart", cartItemName(product));
           toast.success("Agregado al carrito", {
-            description: `${qty} × ${product.name}`,
+            description: `${qty} × ${cartItemName(product)}`,
             action: { label: "Ver carrito", onClick: () => router.push("/carrito") },
           });
         }}
@@ -53,9 +60,23 @@ export function AddToCart({ product, available }: { product: Product; available:
 }
 
 /** Compact round button used on product cards. */
-export function QuickAdd({ product, available, className }: { product: Product; available: boolean; className?: string }) {
+export function QuickAdd({ product, available, hasVariants, className }: { product: Product; available: boolean; hasVariants?: boolean; className?: string }) {
   const router = useRouter();
   if (!available) return null;
+  // Products with variants are chosen on their page (3 MP, 5 MP…).
+  if (hasVariants)
+    return (
+      <Link
+        href={`/tienda/${product.slug}`}
+        aria-label={`Ver opciones de ${product.name}`}
+        className={clsx(
+          "grid size-11 place-items-center rounded-full border border-lime-400/60 bg-navy-950/80 text-lime-400 shadow-lg shadow-black/30 transition-transform hover:scale-105 active:scale-95",
+          className,
+        )}
+      >
+        <ChevronRight className="size-5" />
+      </Link>
+    );
   return (
     <button
       type="button"
@@ -63,6 +84,7 @@ export function QuickAdd({ product, available, className }: { product: Product; 
       onClick={(e) => {
         e.preventDefault();
         cart.add(product, 1);
+        track("add_to_cart", cartItemName(product));
         toast.success("Agregado al carrito", {
           description: product.name,
           action: { label: "Ver carrito", onClick: () => router.push("/carrito") },

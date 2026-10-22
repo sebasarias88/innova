@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ChevronRight, MessageCircle, ShieldCheck, Truck, Wrench } from "lucide-react";
 import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ProductCard } from "@/components/shop/ProductCard";
-import { AddToCart } from "@/components/shop/AddToCartButton";
+import { ProductPurchase } from "@/components/shop/ProductPurchase";
 import { getProductBySlug, getRelatedProducts } from "@/lib/shop/queries";
 import { formatPrice } from "@/lib/shop/format";
 import { site, waLink } from "@/lib/site";
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = product.shortDescription ?? `${product.name} en INNOVA Seguridad y Sistemas, Armenia, Quindío.`;
   return {
     title: product.brand ? `${product.name} · ${product.brand}` : product.name,
-    description: `${description} ${formatPrice(product.price)} en Armenia, Quindío.`.slice(0, 160),
+    description: `${description} ${product.variants.length > 1 ? "Desde " : ""}${formatPrice(product.price)} en Armenia, Quindío.`.slice(0, 160),
     alternates: { canonical: `/tienda/${product.slug}` },
     openGraph: { title: product.name, description, images: product.images[0] ? [product.images[0].url] : undefined },
   };
@@ -31,7 +31,6 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const related = await getRelatedProducts(product.categoryId, product.id);
-  const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
 
   const base = siteUrl();
   const jsonLd = {
@@ -42,15 +41,35 @@ export default async function ProductPage({ params }: Props) {
     image: product.images.map((i) => i.url),
     brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     sku: product.sku ?? undefined,
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "COP",
-      price: product.price,
-      availability: product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url: `${base}/tienda/${product.slug}`,
-      itemCondition: "https://schema.org/NewCondition",
-      seller: { "@type": "Organization", name: site.name },
-    },
+    // With variants: one offer per option (Google shows the price range).
+    offers: product.variants.length
+      ? {
+          "@type": "AggregateOffer",
+          priceCurrency: "COP",
+          lowPrice: Math.min(...product.variants.map((v) => v.price)),
+          highPrice: Math.max(...product.variants.map((v) => v.price)),
+          offerCount: product.variants.length,
+          offers: product.variants.map((v) => ({
+            "@type": "Offer",
+            name: v.name,
+            sku: v.sku ?? undefined,
+            priceCurrency: "COP",
+            price: v.price,
+            availability: v.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            url: `${base}/tienda/${product.slug}`,
+            itemCondition: "https://schema.org/NewCondition",
+            seller: { "@type": "Organization", name: site.name },
+          })),
+        }
+      : {
+          "@type": "Offer",
+          priceCurrency: "COP",
+          price: product.price,
+          availability: product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          url: `${base}/tienda/${product.slug}`,
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "Organization", name: site.name },
+        },
   };
 
   return (
@@ -93,27 +112,21 @@ export default async function ProductPage({ params }: Props) {
             <div>
               {product.brand && <p className="font-mono text-xs uppercase tracking-[0.2em] text-royal-300">{product.brand}</p>}
               <h1 className="mt-2 text-balance text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">{product.name}</h1>
-              {product.sku && <p className="mt-2 text-sm text-white/40">Ref. {product.sku}</p>}
+              {product.shortDescription && <p className="mt-4 text-pretty text-lg leading-relaxed text-white/75">{product.shortDescription}</p>}
 
-              <div className="mt-6 flex flex-wrap items-end gap-3">
-                <p className="text-4xl font-bold text-white">{formatPrice(product.price)}</p>
-                {product.compareAtPrice && (
-                  <>
-                    <p className="pb-1 text-lg text-white/40 line-through">{formatPrice(product.compareAtPrice)}</p>
-                    <span className="mb-1.5 rounded-full bg-lime-400 px-2.5 py-1 text-xs font-bold text-navy-900">-{discount}%</span>
-                  </>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-white/50">Precio final.</p>
-
-              {product.shortDescription && <p className="mt-6 text-pretty text-lg leading-relaxed text-white/75">{product.shortDescription}</p>}
-
-              <div className="mt-8">
-                <AddToCart
-                  available={product.isAvailable}
-                  product={{ productId: product.id, slug: product.slug, name: product.name, price: product.price, image: product.images[0]?.url ?? null }}
-                />
-              </div>
+              <ProductPurchase
+                variants={product.variants}
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  sku: product.sku,
+                  price: product.price,
+                  compareAtPrice: product.compareAtPrice,
+                  isAvailable: product.isAvailable,
+                  image: product.images[0]?.url ?? null,
+                }}
+              />
 
               <a
                 href={waLink(`Hola, INNOVA 👋 Tengo una pregunta sobre el producto: ${product.name}`)}

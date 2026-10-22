@@ -6,6 +6,7 @@ import { MobileDock } from "@/components/layout/MobileDock";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { AnimationGate } from "@/components/layout/AnimationGate";
 import { Toaster } from "@/components/admin/Toaster";
+import { Tracker } from "@/components/analytics/Tracker";
 
 /** Public website shell: header, footer, floating actions and smooth scroll. */
 export function SiteChrome({ children }: { children: ReactNode }) {
@@ -19,6 +20,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
         <MobileDock />
         <AnimationGate />
         <Toaster />
+        <Tracker />
       </SmoothScroll>
     </div>
   );

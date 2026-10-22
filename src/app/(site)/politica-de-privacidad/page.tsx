@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bullets, LegalPage, Strong } from "@/components/legal/LegalPage";
 import { legal } from "@/lib/legal";
+import { OptOutButton } from "@/components/analytics/OptOutButton";
 
 export const metadata: Metadata = {
   title: "Política de tratamiento de datos personales",
@@ -187,8 +188,8 @@ export default function PrivacyPage() {
           body: (
             <>
               <p>
-                Esta página usa <Strong>solo cookies y almacenamiento técnico</Strong>, necesarios para que funcione. No usamos cookies de publicidad ni de analítica, y no rastreamos
-                tu navegación en otros sitios.
+                Esta página usa <Strong>cookies y almacenamiento técnico</Strong>, necesarios para que funcione, y una <Strong>estadística de visitas propia y anónima</Strong>. No
+                usamos cookies de publicidad ni herramientas de terceros, y no rastreamos tu navegación en otros sitios.
               </p>
               <Bullets
                 items={[
@@ -202,9 +203,17 @@ export default function PrivacyPage() {
                   <>
                     <Strong>Sesión del panel administrativo</Strong>: solo para el personal de INNOVA que inicia sesión.
                   </>,
+                  <>
+                    <Strong>Estadística de visitas</Strong> (almacenamiento local, sin cookies): un código aleatorio que no te identifica nos permite contar cuántas personas
+                    visitan la página, qué páginas ven, desde qué tipo de dispositivo y ciudad aproximada, de dónde llegan (por ejemplo, un anuncio o una red social) y qué
+                    botones usan (por ejemplo, WhatsApp). No guardamos tu nombre, teléfono, correo ni dirección IP, no compartimos estos datos y el detalle se borra a los 30
+                    días; solo conservamos totales por día.
+                  </>,
                 ]}
               />
-              <p>Si en el futuro usamos herramientas de analítica o publicidad, te pediremos tu consentimiento antes de activarlas.</p>
+              <p>Si prefieres no ser contado en la estadística, puedes desactivarla en este navegador:</p>
+              <OptOutButton />
+              <p>Si en el futuro usamos herramientas de publicidad o de terceros, te pediremos tu consentimiento antes de activarlas.</p>
             </>
           ),
         },

@@ -1,5 +1,5 @@
 import {
-  CalendarDays, FolderTree, Images, LayoutDashboard, Package, Settings, ShoppingBag, Truck, type LucideIcon,
+  BarChart3, CalendarDays, Database, FolderTree, Images, LayoutDashboard, LineChart, Package, Settings, ShoppingBag, Truck, type LucideIcon,
 } from "lucide-react";
 
 export type AdminNavItem = { href: string; label: string; icon: LucideIcon; soon?: boolean };
@@ -9,10 +9,13 @@ export const adminNav: AdminNavItem[] = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/bookings", label: "Agenda", icon: CalendarDays },
+  { href: "/admin/reports", label: "Reportes", icon: BarChart3 },
+  { href: "/admin/analytics", label: "Visitas", icon: LineChart },
   { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/categories", label: "Categorías", icon: FolderTree },
   { href: "/admin/projects", label: "Proyectos", icon: Images },
   { href: "/admin/shipping", label: "Envíos", icon: Truck },
+  { href: "/admin/storage", label: "Almacenamiento", icon: Database },
   { href: "/admin/settings", label: "Configuración", icon: Settings },
 ];
 

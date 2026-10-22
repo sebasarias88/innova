@@ -35,6 +35,7 @@ export function WhatsAppFab() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Escríbenos por WhatsApp"
+        data-track-label="Botón flotante"
         className="relative grid size-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/30 transition-transform hover:scale-105"
       >
         <span className="absolute inset-0 animate-pulse-ring rounded-full bg-[#25D366]" />

@@ -3,6 +3,7 @@ import { ExternalLink, LogOut } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
 import { Logo } from "@/components/brand/Logo";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { ExcludeThisDevice } from "@/components/analytics/ExcludeThisDevice";
 import { signOut } from "../actions";
 
 export default async function PanelLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -38,6 +39,7 @@ export default async function PanelLayout({ children }: Readonly<{ children: Rea
         </div>
       </aside>
       <div className="min-w-0 px-4 py-6 sm:px-8 lg:py-10">{children}</div>
+      <ExcludeThisDevice />
     </div>
   );
 }

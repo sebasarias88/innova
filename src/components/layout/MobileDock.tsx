@@ -15,6 +15,7 @@ export function MobileDock() {
       className="fixed inset-x-3 bottom-3 z-40 sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Acciones rápidas"
+      data-track-label="Barra inferior (celular)"
     >
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-[1.4rem] border border-white/10 bg-navy-900/90 p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.7)] backdrop-blur-xl">
         <a

@@ -11,6 +11,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 import { newTab, waUrl } from "@/lib/whatsapp";
 import { prepareWhatsAppTab } from "@/lib/whatsapp-tab";
+import { track } from "@/lib/analytics/client";
 import { createBooking, refreshSlots } from "./actions";
 
 type ServiceOption = { slug: string; name: string; short: string; icon: string };
@@ -106,6 +107,7 @@ export function BookingFlow({
         }
         return;
       }
+      track("booking", service);
       setDone({ url: result.whatsappUrl, confirmed: result.confirmed, reference: result.reference, slot });
       // Booking is already saved: WhatsApp only carries the details to the store.
       tab.go(result.whatsappUrl);
