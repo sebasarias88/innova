@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, LoaderCircle, Lock,
 import { toast } from "sonner";
 import clsx from "clsx";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { cart, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
+import { cart, cartItemName, paidOrder, useCart, type CartItem } from "@/lib/shop/cart";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import type { ShippingOption } from "@/lib/shop/queries";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
@@ -82,13 +82,13 @@ export function Checkout({
 
   // Refresh names, prices and availability from the server when the cart opens.
   useEffect(() => {
-    const ids = cart.ids();
+    const ids = cart.lines();
     if (!ids.length) return;
     refreshCart(ids).then((fresh) => {
-      const before = cart.ids().length;
+      const before = cart.lines().length;
       const sellable = fresh.filter((p) => p.isAvailable);
       cart.sync(sellable);
-      if (cart.ids().length < before) toast.warning("Quitamos del carrito productos que ya no están disponibles.");
+      if (cart.lines().length < before) toast.warning("Quitamos del carrito productos que ya no están disponibles.");
     });
   }, []);
 
@@ -117,7 +117,7 @@ export function Checkout({
     start(async () => {
       const result = await placeOrder({
         customer: { ...customer, address: zone?.isPickup ? "" : customer.address },
-        items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
+        items: items.map((i) => ({ productId: i.productId, variantId: i.variantId, qty: i.qty })),
         shippingZoneId: zoneId,
         paymentMethod: payment,
         acceptPrivacy: accepted,
@@ -127,7 +127,7 @@ export function Checkout({
         tab?.cancel();
         toast.error(result.error);
         if (result.refresh) {
-          const fresh = await refreshCart(cart.ids());
+          const fresh = await refreshCart(cart.lines());
           cart.sync(fresh.filter((p) => p.isAvailable));
           goTo(0);
         }
@@ -273,27 +273,32 @@ function CartStep({ items }: { items: CartItem[] }) {
   return (
     <ul className="divide-y divide-white/10 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
       {items.map((item) => (
-        <li key={item.productId} className="flex gap-4 p-4 sm:p-5">
+        <li key={item.key} className="flex gap-4 p-4 sm:p-5">
           <Link href={`/tienda/${item.slug}`} className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white sm:size-24">
             {item.image ? <img src={item.image} alt="" className="size-full object-contain p-2" /> : <ImageOff className="size-6 text-navy-900/30" />}
           </Link>
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex items-start justify-between gap-3">
-              <Link href={`/tienda/${item.slug}`} className="line-clamp-2 font-semibold leading-snug text-white hover:text-lime-300">
-                {item.name}
-              </Link>
-              <button type="button" aria-label={`Quitar ${item.name}`} onClick={() => cart.remove(item.productId)} className="shrink-0 text-white/40 hover:text-red-300">
+              <div className="min-w-0">
+                <Link href={`/tienda/${item.slug}`} className="line-clamp-2 font-semibold leading-snug text-white hover:text-lime-300">
+                  {item.name}
+                </Link>
+                {item.variantName && (
+                  <span className="mt-1 inline-block rounded-full border border-lime-400/30 bg-lime-400/10 px-2 py-0.5 text-xs font-semibold text-lime-300">{item.variantName}</span>
+                )}
+              </div>
+              <button type="button" aria-label={`Quitar ${cartItemName(item)}`} onClick={() => cart.remove(item.key)} className="shrink-0 text-white/40 hover:text-red-300">
                 <Trash2 className="size-4" />
               </button>
             </div>
             <p className="mt-1 text-sm text-white/50">{formatPrice(item.price)} c/u</p>
             <div className="mt-auto flex items-center justify-between gap-3 pt-3">
               <div className="flex items-center rounded-full border border-white/15">
-                <button type="button" aria-label="Quitar uno" onClick={() => cart.setQty(item.productId, item.qty - 1)} className="grid size-9 place-items-center text-white/70 hover:text-white">
+                <button type="button" aria-label="Quitar uno" onClick={() => cart.setQty(item.key, item.qty - 1)} className="grid size-9 place-items-center text-white/70 hover:text-white">
                   <Minus className="size-3.5" />
                 </button>
                 <span className="w-7 text-center font-mono text-sm">{item.qty}</span>
-                <button type="button" aria-label="Agregar uno" onClick={() => cart.setQty(item.productId, item.qty + 1)} className="grid size-9 place-items-center text-white/70 hover:text-white">
+                <button type="button" aria-label="Agregar uno" onClick={() => cart.setQty(item.key, item.qty + 1)} className="grid size-9 place-items-center text-white/70 hover:text-white">
                   <Plus className="size-3.5" />
                 </button>
               </div>
@@ -420,9 +425,9 @@ function ReviewStep({
       <ReviewBlock title="Productos" onEdit={() => onEdit(0)}>
         <ul className="space-y-1.5 text-sm text-white/75">
           {items.map((i) => (
-            <li key={i.productId} className="flex justify-between gap-4">
+            <li key={i.key} className="flex justify-between gap-4">
               <span>
-                {i.qty} × {i.name}
+                {i.qty} × {cartItemName(i)}
               </span>
               <span className="shrink-0 font-mono">{formatPrice(i.price * i.qty)}</span>
             </li>

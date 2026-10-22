@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { after } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getProductsByIds, getSiteSettings } from "@/lib/shop/queries";
+import { getCartLines, getSiteSettings } from "@/lib/shop/queries";
 import { formatPrice, shippingLabel } from "@/lib/shop/format";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
 import { checkoutUrl, wompiConfig } from "@/lib/payments/wompi";
@@ -16,12 +16,22 @@ import { notifyNewOrder } from "@/lib/notifications";
 
 z.config(z.locales.es());
 
-/** Current data for the products in the visitor's cart (published ones only). */
-export async function refreshCart(ids: unknown) {
-  const parsed = z.array(z.uuid()).max(50).safeParse(ids);
+const line = z.object({ productId: z.uuid(), variantId: z.uuid().nullable() });
+
+/** Current data for the lines in the visitor's cart (published products only). */
+export async function refreshCart(lines: unknown) {
+  const parsed = z.array(line).max(50).safeParse(lines);
   if (!parsed.success) return [];
-  const products = await getProductsByIds(parsed.data);
-  return products.map((p) => ({ id: p.id, name: p.name, slug: p.slug, price: p.price, image: p.image, isAvailable: p.isAvailable }));
+  const fresh = await getCartLines(parsed.data);
+  return fresh.map((l) => ({
+    key: l.variantId ? `${l.productId}:${l.variantId}` : l.productId,
+    name: l.name,
+    variantName: l.variantName,
+    slug: l.slug,
+    price: l.price,
+    image: l.image,
+    isAvailable: l.isAvailable,
+  }));
 }
 
 const phone = z
@@ -40,7 +50,7 @@ const orderSchema = z.object({
     notes: z.string().trim().max(500).optional(),
   }),
   items: z
-    .array(z.object({ productId: z.uuid(), qty: z.number().int().min(1).max(99) }))
+    .array(z.object({ productId: z.uuid(), variantId: z.uuid().nullable().optional(), qty: z.number().int().min(1).max(99) }))
     .min(1, "Tu carrito está vacío.")
     .max(30),
   shippingZoneId: z.uuid("Elige cómo quieres recibir tu pedido."),
@@ -84,7 +94,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("create_order", {
     p_customer: { ...customer, privacy_version: legal.version },
-    p_items: items.map((i) => ({ product_id: i.productId, quantity: i.qty })),
+    p_items: items.map((i) => ({ product_id: i.productId, variant_id: i.variantId ?? null, quantity: i.qty })),
     p_shipping_zone_id: shippingZoneId,
     p_payment_method: paymentMethod,
   });

@@ -7,7 +7,24 @@ import { useSyncExternalStore } from "react";
  * Prices stored here are only for display: the server recalculates every
  * order from the database, so tampering with this data changes nothing.
  */
-export type CartItem = { productId: string; slug: string; name: string; price: number; image: string | null; qty: number };
+export type CartItem = {
+  /** productId, or productId:variantId when a variant was chosen. */
+  key: string;
+  productId: string;
+  variantId: string | null;
+  variantName: string | null;
+  slug: string;
+  name: string;
+  price: number;
+  image: string | null;
+  qty: number;
+};
+export type CartProduct = Omit<CartItem, "qty" | "key">;
+export type CartLine = { productId: string; variantId: string | null };
+
+export const cartKey = (productId: string, variantId: string | null) => (variantId ? `${productId}:${variantId}` : productId);
+/** "Cámara Ranger (5 MP)" */
+export const cartItemName = (i: Pick<CartItem, "name" | "variantName">) => (i.variantName ? `${i.name} (${i.variantName})` : i.name);
 
 const KEY = "innova-cart-v1";
 const MAX_QTY = 99;
@@ -18,9 +35,17 @@ let items: CartItem[] = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
 
-function isItem(x: unknown): x is CartItem {
-  const i = x as CartItem;
-  return !!i && typeof i.productId === "string" && typeof i.name === "string" && Number.isInteger(i.qty) && typeof i.price === "number";
+function toItem(x: unknown): CartItem | null {
+  const i = x as Partial<CartItem>;
+  if (!i || typeof i.productId !== "string" || typeof i.name !== "string" || !Number.isInteger(i.qty) || typeof i.price !== "number") return null;
+  // Carts saved before variants existed have no variant fields.
+  const variantId = typeof i.variantId === "string" ? i.variantId : null;
+  return {
+    ...(i as CartItem),
+    variantId,
+    variantName: variantId && typeof i.variantName === "string" ? i.variantName : null,
+    key: cartKey(i.productId, variantId),
+  };
 }
 
 function load() {
@@ -28,7 +53,7 @@ function load() {
   loaded = true;
   try {
     const parsed = JSON.parse(window.localStorage.getItem(KEY) ?? "[]");
-    items = Array.isArray(parsed) ? parsed.filter(isItem).slice(0, MAX_ITEMS) : EMPTY;
+    items = Array.isArray(parsed) ? parsed.map(toItem).filter((i): i is CartItem => i !== null).slice(0, MAX_ITEMS) : EMPTY;
   } catch {
     items = EMPTY;
   }
@@ -66,38 +91,39 @@ const getSnapshot = () => {
 };
 
 export const cart = {
-  ids() {
+  lines(): CartLine[] {
     load();
-    return items.map((i) => i.productId);
+    return items.map((i) => ({ productId: i.productId, variantId: i.variantId }));
   },
-  add(product: Omit<CartItem, "qty">, qty = 1) {
+  add(product: CartProduct, qty = 1) {
     load();
-    const existing = items.find((i) => i.productId === product.productId);
+    const key = cartKey(product.productId, product.variantId);
+    const existing = items.find((i) => i.key === key);
     if (existing) {
-      commit(items.map((i) => (i.productId === product.productId ? { ...i, ...product, qty: Math.min(MAX_QTY, i.qty + qty) } : i)));
+      commit(items.map((i) => (i.key === key ? { ...i, ...product, key, qty: Math.min(MAX_QTY, i.qty + qty) } : i)));
     } else if (items.length < MAX_ITEMS) {
-      commit([...items, { ...product, qty: Math.min(MAX_QTY, Math.max(1, qty)) }]);
+      commit([...items, { ...product, key, qty: Math.min(MAX_QTY, Math.max(1, qty)) }]);
     }
   },
-  setQty(productId: string, qty: number) {
+  setQty(key: string, qty: number) {
     load();
-    if (qty <= 0) return cart.remove(productId);
-    commit(items.map((i) => (i.productId === productId ? { ...i, qty: Math.min(MAX_QTY, Math.floor(qty)) } : i)));
+    if (qty <= 0) return cart.remove(key);
+    commit(items.map((i) => (i.key === key ? { ...i, qty: Math.min(MAX_QTY, Math.floor(qty)) } : i)));
   },
-  remove(productId: string) {
+  remove(key: string) {
     load();
-    commit(items.filter((i) => i.productId !== productId));
+    commit(items.filter((i) => i.key !== key));
   },
-  /** Applies current names/prices from the server; drops products no longer sold. */
-  sync(fresh: { id: string; name: string; slug: string; price: number; image: string | null }[]) {
+  /** Applies current names/prices from the server; drops lines no longer sold. */
+  sync(fresh: { key: string; name: string; variantName: string | null; slug: string; price: number; image: string | null }[]) {
     load();
-    const byId = new Map(fresh.map((p) => [p.id, p]));
+    const byKey = new Map(fresh.map((p) => [p.key, p]));
     commit(
       items
-        .filter((i) => byId.has(i.productId))
+        .filter((i) => byKey.has(i.key))
         .map((i) => {
-          const p = byId.get(i.productId)!;
-          return { ...i, name: p.name, slug: p.slug, price: p.price, image: p.image };
+          const p = byKey.get(i.key)!;
+          return { ...i, name: p.name, variantName: p.variantName, slug: p.slug, price: p.price, image: p.image };
         }),
     );
   },

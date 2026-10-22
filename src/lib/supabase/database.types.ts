@@ -311,6 +311,8 @@ export type Database = {
           product_slug: string | null
           quantity: number
           unit_price: number
+          variant_id: string | null
+          variant_name: string | null
         }
         Insert: {
           id?: string
@@ -321,6 +323,8 @@ export type Database = {
           product_slug?: string | null
           quantity: number
           unit_price: number
+          variant_id?: string | null
+          variant_name?: string | null
         }
         Update: {
           id?: string
@@ -331,8 +335,17 @@ export type Database = {
           product_slug?: string | null
           quantity?: number
           unit_price?: number
+          variant_id?: string | null
+          variant_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
@@ -515,6 +528,56 @@ export type Database = {
           },
         ]
       }
+      product_variants: {
+        Row: {
+          compare_at_price: number | null
+          created_at: string
+          highlight: string | null
+          id: string
+          is_available: boolean
+          name: string
+          price: number
+          product_id: string
+          sku: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          compare_at_price?: number | null
+          created_at?: string
+          highlight?: string | null
+          id?: string
+          is_available?: boolean
+          name: string
+          price: number
+          product_id: string
+          sku?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          compare_at_price?: number | null
+          created_at?: string
+          highlight?: string | null
+          id?: string
+          is_available?: boolean
+          name?: string
+          price?: number
+          product_id?: string
+          sku?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           brand: string | null
@@ -528,6 +591,7 @@ export type Database = {
           is_published: boolean
           name: string
           price: number
+          price_max: number | null
           search_text: string | null
           short_description: string | null
           sku: string | null
@@ -535,6 +599,7 @@ export type Database = {
           sort_order: number
           specs: Json
           updated_at: string
+          variant_count: number
         }
         Insert: {
           brand?: string | null
@@ -548,6 +613,7 @@ export type Database = {
           is_published?: boolean
           name: string
           price: number
+          price_max?: number | null
           search_text?: never
           short_description?: string | null
           sku?: string | null
@@ -555,6 +621,7 @@ export type Database = {
           sort_order?: number
           specs?: Json
           updated_at?: string
+          variant_count?: number
         }
         Update: {
           brand?: string | null
@@ -568,6 +635,7 @@ export type Database = {
           is_published?: boolean
           name?: string
           price?: number
+          price_max?: number | null
           search_text?: never
           short_description?: string | null
           sku?: string | null
@@ -575,6 +643,7 @@ export type Database = {
           sort_order?: number
           specs?: Json
           updated_at?: string
+          variant_count?: number
         }
         Relationships: [
           {
@@ -801,6 +870,10 @@ export type Database = {
         }[]
       }
       get_order_by_reference: { Args: { p_reference: string }; Returns: Json }
+      save_product_variants: {
+        Args: { p_product_id: string; p_variants: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

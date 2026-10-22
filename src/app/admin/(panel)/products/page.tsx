@@ -25,7 +25,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const supabase = await createClient();
   let query = supabase
     .from("products")
-    .select("id, name, slug, sku, brand, price, is_available, is_published, is_featured, category:categories(name), product_images(path, sort_order)", { count: "exact" })
+    .select("id, name, slug, sku, brand, price, price_max, variant_count, is_available, is_published, is_featured, category:categories(name), product_images(path, sort_order)", { count: "exact" })
     .order("sort_order")
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
@@ -107,9 +107,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-white/70">{p.category?.name ?? "—"}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{formatCop(p.price)}</td>
+                  <td className="px-4 py-3 font-mono text-xs">
+                    {p.variant_count > 0 && p.price_max !== null && p.price_max > p.price ? `${formatCop(p.price)} – ${formatCop(p.price_max)}` : formatCop(p.price)}
+                    {p.variant_count > 0 && <span className="block font-sans text-[11px] text-white/40">{p.variant_count} {p.variant_count === 1 ? "variante" : "variantes"}</span>}
+                  </td>
                   <td className="px-4 py-3">
-                    <QuickToggle id={p.id} flag="is_available" value={p.is_available} on="Disponible" off="Agotado" />
+                    {p.variant_count > 0 ? (
+                      // Availability of a product with variants is set per variant (in its form).
+                      <Badge tone={p.is_available ? "lime" : "red"}>{p.is_available ? "Disponible" : "Agotado"}</Badge>
+                    ) : (
+                      <QuickToggle id={p.id} flag="is_available" value={p.is_available} on="Disponible" off="Agotado" />
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1.5">

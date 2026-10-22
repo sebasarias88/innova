@@ -19,9 +19,24 @@ export type ShopProduct = {
   isFeatured: boolean;
   categoryId: string;
   image: string | null;
+  /** True when the product is sold through variants (3 MP / 5 MP…). */
+  hasVariants: boolean;
+  /** Highest variant price; with `price` it gives the "Desde" range. */
+  priceMax: number | null;
+};
+
+export type ShopVariant = {
+  id: string;
+  name: string;
+  highlight: string | null;
+  sku: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  isAvailable: boolean;
 };
 
 export type ShopProductDetail = ShopProduct & {
+  variants: ShopVariant[];
   sku: string | null;
   description: string | null;
   specs: { label: string; value: string }[];
@@ -40,7 +55,7 @@ const CACHE = { revalidate: 300, tags: [SHOP_TAG] };
 
 // Only the cover image of each product travels in listings (see withCoverOnly).
 const PRODUCT_FIELDS =
-  "id, name, slug, brand, short_description, price, compare_at_price, is_available, is_featured, category_id, product_images(path, sort_order)";
+  "id, name, slug, brand, short_description, price, compare_at_price, price_max, variant_count, is_available, is_featured, category_id, product_images(path, sort_order)";
 
 type ProductRow = {
   id: string;
@@ -50,6 +65,8 @@ type ProductRow = {
   short_description: string | null;
   price: number;
   compare_at_price: number | null;
+  price_max: number | null;
+  variant_count: number;
   is_available: boolean;
   is_featured: boolean;
   category_id: string;
@@ -70,6 +87,8 @@ function toProduct(p: ProductRow): ShopProduct {
     isFeatured: p.is_featured,
     categoryId: p.category_id,
     image: mediaUrl(cover?.path),
+    hasVariants: p.variant_count > 0,
+    priceMax: p.variant_count > 0 ? p.price_max : null,
   };
 }
 
@@ -170,7 +189,7 @@ export const getProductBySlug = cache(async (slug: string): Promise<ShopProductD
     .from("products")
     // product_images is embedded only once (PostgREST rejects the same relation twice).
     .select(
-      "id, name, slug, brand, short_description, price, compare_at_price, is_available, is_featured, category_id, sku, description, specs, product_images(path, alt, sort_order), category:categories(name, slug)",
+      "id, name, slug, brand, short_description, price, compare_at_price, price_max, variant_count, is_available, is_featured, category_id, sku, description, specs, product_images(path, alt, sort_order), category:categories(name, slug), product_variants(id, name, highlight, sku, price, compare_at_price, is_available, sort_order)",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -182,6 +201,7 @@ export const getProductBySlug = cache(async (slug: string): Promise<ShopProductD
     specs: unknown;
     product_images: { path: string; alt: string | null; sort_order: number }[];
     category: { name: string; slug: string } | null;
+    product_variants: (VariantRow & { sort_order: number })[] | null;
   };
   return {
     ...toProduct(row),
@@ -190,19 +210,63 @@ export const getProductBySlug = cache(async (slug: string): Promise<ShopProductD
     specs: Array.isArray(row.specs) ? (row.specs as { label: string; value: string }[]) : [],
     images: [...row.product_images].sort((a, b) => a.sort_order - b.sort_order).map((i) => ({ url: mediaUrl(i.path)!, alt: i.alt })),
     category: row.category,
+    variants: [...(row.product_variants ?? [])].sort((a, b) => a.sort_order - b.sort_order).map(toVariant),
   };
 });
 
-/** Current price/availability for products in a cart (published only). */
-export async function getProductsByIds(ids: string[]): Promise<ShopProduct[]> {
-  if (!ids.length) return [];
+type VariantRow = { id: string; name: string; highlight: string | null; sku: string | null; price: number; compare_at_price: number | null; is_available: boolean };
+const toVariant = (v: VariantRow): ShopVariant => ({
+  id: v.id,
+  name: v.name,
+  highlight: v.highlight,
+  sku: v.sku,
+  price: v.price,
+  compareAtPrice: v.compare_at_price,
+  isAvailable: v.is_available,
+});
+
+/**
+ * Current name, price and availability of each cart line (published products
+ * only). A product sold through variants needs a valid variant.
+ */
+export type CartLineData = {
+  productId: string;
+  variantId: string | null;
+  name: string;
+  variantName: string | null;
+  slug: string;
+  price: number;
+  image: string | null;
+  isAvailable: boolean;
+};
+
+export async function getCartLines(lines: { productId: string; variantId: string | null }[]): Promise<CartLineData[]> {
+  if (!lines.length) return [];
+  const ids = [...new Set(lines.map((l) => l.productId))].slice(0, 50);
   const { data } = await createPublicClient()
     .from("products")
-    .select(PRODUCT_FIELDS)
-    .in("id", ids.slice(0, 50))
+    .select(`${PRODUCT_FIELDS}, product_variants(id, name, highlight, sku, price, compare_at_price, is_available)`)
+    .in("id", ids)
     .order("sort_order", { referencedTable: "product_images" })
     .limit(1, { referencedTable: "product_images" });
-  return ((data ?? []) as unknown as ProductRow[]).map(toProduct);
+  const products = new Map(
+    ((data ?? []) as unknown as (ProductRow & { product_variants: VariantRow[] | null })[]).map((row) => [
+      row.id,
+      { product: toProduct(row), variants: (row.product_variants ?? []).map(toVariant) },
+    ]),
+  );
+  return lines.flatMap((line): CartLineData[] => {
+    const found = products.get(line.productId);
+    if (!found) return [];
+    const { product, variants } = found;
+    if (!product.hasVariants) {
+      if (line.variantId) return [];
+      return [{ ...line, name: product.name, variantName: null, slug: product.slug, price: product.price, image: product.image, isAvailable: product.isAvailable }];
+    }
+    const variant = variants.find((v) => v.id === line.variantId);
+    if (!variant) return [];
+    return [{ ...line, name: product.name, variantName: variant.name, slug: product.slug, price: variant.price, image: product.image, isAvailable: variant.isAvailable }];
+  });
 }
 
 export async function getShippingOptions(): Promise<ShippingOption[]> {

@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react";
 import { ActionForm, FormFeedback, MoneyField, SaveButton, SelectField, TextArea, TextField, Toggle } from "@/components/admin/fields";
 import { Card } from "@/components/admin/ui";
 import type { ActionResult } from "@/lib/admin/actions";
+import { VariantsEditor, type VariantDraft } from "./VariantsEditor";
 
 export type ProductFormValues = {
   name: string;
@@ -21,6 +22,7 @@ export type ProductFormValues = {
   is_published: boolean;
   is_featured: boolean;
   specs: { label: string; value: string }[];
+  variants: { id: string; name: string; highlight: string | null; sku: string | null; price: number; compare_at_price: number | null; is_available: boolean }[];
 };
 
 type CategoryOption = { id: string; name: string; parent: string | null };
@@ -36,6 +38,19 @@ export function ProductForm({
 }) {
   const [specs, setSpecs] = useState(() => (product?.specs.length ? product.specs : [{ label: "", value: "" }]).map((s, i) => ({ ...s, key: i })));
   const [nextKey, setNextKey] = useState(specs.length);
+  const [variants, setVariants] = useState<VariantDraft[]>(() =>
+    (product?.variants ?? []).map((v, i) => ({
+      key: i,
+      id: v.id,
+      name: v.name,
+      highlight: v.highlight ?? "",
+      sku: v.sku ?? "",
+      price: String(v.price),
+      compare_at_price: v.compare_at_price ? String(v.compare_at_price) : "",
+      is_available: v.is_available,
+    })),
+  );
+  const hasVariants = variants.length > 0;
 
   return (
     <ActionForm action={action} inlineFeedback className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
@@ -47,9 +62,22 @@ export function ProductForm({
             <TextArea label="Descripción completa" name="description" rows={7} maxLength={5000} defaultValue={product?.description ?? ""} />
             <div className="grid gap-4 sm:grid-cols-2">
               <TextField label="Marca" name="brand" maxLength={60} defaultValue={product?.brand ?? ""} placeholder="Hikvision, Dahua…" />
-              <TextField label="Referencia / SKU" name="sku" maxLength={60} defaultValue={product?.sku ?? ""} hint="Opcional, debe ser única." />
+              <TextField
+                label="Referencia / SKU"
+                name="sku"
+                maxLength={60}
+                defaultValue={product?.sku ?? ""}
+                hint={hasVariants ? "Opcional; cada opción puede tener la suya." : "Opcional, debe ser única."}
+              />
             </div>
           </div>
+        </Card>
+
+        <Card
+          title="Opciones del producto"
+          description="Úsalas cuando el mismo producto viene en varias versiones (ej. 3 MP y 5 MP): comparten fotos y descripción, y cada opción tiene su precio, referencia y disponibilidad."
+        >
+          <VariantsEditor variants={variants} onChange={setVariants} />
         </Card>
 
         <Card title="Especificaciones" description="Ficha técnica que se muestra en el detalle del producto.">
@@ -85,9 +113,18 @@ export function ProductForm({
       <div className="space-y-6 lg:sticky lg:top-6">
         <Card title="Precio y estado">
           <div className="space-y-4">
-            <MoneyField label="Precio (COP)" name="price" required defaultValue={product?.price} placeholder="0" />
-            <MoneyField label="Precio anterior" name="compare_at_price" defaultValue={product?.compare_at_price} hint="Opcional: se muestra tachado como oferta." />
-            <Toggle label="Disponible" description="Apágalo para mostrarlo como agotado." name="is_available" defaultChecked={product?.is_available ?? true} />
+            {hasVariants ? (
+              <p className="rounded-xl border border-lime-400/20 bg-lime-400/[0.06] px-4 py-3 text-xs leading-relaxed text-white/70">
+                Este producto tiene <b className="text-white">{variants.length} {variants.length === 1 ? "opción" : "opciones"}</b>. El precio, el precio anterior y la
+                disponibilidad se manejan en cada opción; la tienda muestra &quot;Desde&quot; con el precio más bajo.
+              </p>
+            ) : (
+              <>
+                <MoneyField label="Precio (COP)" name="price" required defaultValue={product?.price} placeholder="0" />
+                <MoneyField label="Precio anterior" name="compare_at_price" defaultValue={product?.compare_at_price} hint="Opcional: se muestra tachado como oferta." />
+                <Toggle label="Disponible" description="Apágalo para mostrarlo como agotado." name="is_available" defaultChecked={product?.is_available ?? true} />
+              </>
+            )}
             <Toggle label="Publicado" description="Visible en la tienda." name="is_published" defaultChecked={product?.is_published ?? false} />
             <Toggle label="Destacado" description="Aparece en el inicio." name="is_featured" defaultChecked={product?.is_featured ?? false} />
           </div>

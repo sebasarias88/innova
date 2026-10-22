@@ -21,9 +21,10 @@ export default async function EditProductPage({ params, searchParams }: { params
   if (!uuid.safeParse(id).success) notFound();
 
   const supabase = await createClient();
-  const [{ data: product }, { data: images }, categories] = await Promise.all([
+  const [{ data: product }, { data: images }, { data: variants }, categories] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
     supabase.from("product_images").select("id, path, alt").eq("product_id", id).order("sort_order").order("created_at"),
+    supabase.from("product_variants").select("id, name, highlight, sku, price, compare_at_price, is_available").eq("product_id", id).order("sort_order"),
     getCategoryOptions(),
   ]);
   if (!product) notFound();
@@ -49,7 +50,7 @@ export default async function EditProductPage({ params, searchParams }: { params
           apiKey={supabasePublishableKey()}
         />
       </Card>
-      <ProductForm action={saveProduct.bind(null, id)} product={product as unknown as ProductFormValues} categories={categories} />
+      <ProductForm action={saveProduct.bind(null, id)} product={{ ...(product as unknown as ProductFormValues), variants: variants ?? [] }} categories={categories} />
     </div>
   );
 }
