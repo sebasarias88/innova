@@ -1,10 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { ImageOff } from "lucide-react";
 import clsx from "clsx";
 import type { ShopProduct } from "@/lib/shop/queries";
 import { formatPrice } from "@/lib/shop/format";
 import { QuickAdd } from "@/components/shop/AddToCartButton";
+import { ThumbImg } from "@/components/ui/ThumbImg";
 
 export function ProductCard({ product, priority }: { product: ShopProduct; priority?: boolean }) {
   const discount = product.compareAtPrice ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
@@ -16,7 +16,7 @@ export function ProductCard({ product, priority }: { product: ShopProduct; prior
       <div className="relative">
         <Link href={`/tienda/${product.slug}`} className="relative block aspect-square overflow-hidden bg-white">
           {product.image ? (
-            <img
+            <ThumbImg
               src={product.image}
               alt={product.name}
               loading={priority ? "eager" : "lazy"}

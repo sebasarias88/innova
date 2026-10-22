@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ImageOff, Plus, Search } from "lucide-react";
@@ -9,6 +8,7 @@ import { mediaUrl } from "@/lib/admin/storage";
 import { formatCop } from "@/lib/admin/format";
 import { Badge, EmptyState, LinkButton, PageHeader, Pagination, Table } from "@/components/admin/ui";
 import { QuickToggle } from "./QuickToggle";
+import { ThumbImg } from "@/components/ui/ThumbImg";
 import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = { title: "Productos" };
@@ -98,7 +98,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   <td className="px-4 py-3">
                     <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
                       <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-white/5">
-                        {url ? <img src={url} alt="" className="size-full object-cover" loading="lazy" /> : <ImageOff className="size-4 text-white/30" />}
+                        {url ? <ThumbImg src={url} alt="" className="size-full object-cover" loading="lazy" /> : <ImageOff className="size-4 text-white/30" />}
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate font-semibold hover:text-lime-300">{p.name}</span>
