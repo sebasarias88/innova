@@ -7,6 +7,7 @@ import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { cart, cartItemName, type CartProduct } from "@/lib/shop/cart";
+import { track } from "@/lib/analytics/client";
 
 type Product = CartProduct;
 
@@ -44,6 +45,7 @@ export function AddToCart({ product, available, soldOutText }: { product: Produc
         type="button"
         onClick={() => {
           cart.add(product, qty);
+          track("add_to_cart", cartItemName(product));
           toast.success("Agregado al carrito", {
             description: `${qty} × ${cartItemName(product)}`,
             action: { label: "Ver carrito", onClick: () => router.push("/carrito") },
@@ -82,6 +84,7 @@ export function QuickAdd({ product, available, hasVariants, className }: { produ
       onClick={(e) => {
         e.preventDefault();
         cart.add(product, 1);
+        track("add_to_cart", cartItemName(product));
         toast.success("Agregado al carrito", {
           description: product.name,
           action: { label: "Ver carrito", onClick: () => router.push("/carrito") },

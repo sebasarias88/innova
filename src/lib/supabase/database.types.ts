@@ -62,6 +62,126 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          campaign: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string
+          id: number
+          kind: string
+          label: string | null
+          medium: string | null
+          path: string
+          referrer_host: string | null
+          region: string | null
+          session_id: string
+          source: string
+          target: string | null
+          visitor_id: string
+        }
+        Insert: {
+          campaign?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string
+          id?: number
+          kind: string
+          label?: string | null
+          medium?: string | null
+          path: string
+          referrer_host?: string | null
+          region?: string | null
+          session_id: string
+          source?: string
+          target?: string | null
+          visitor_id: string
+        }
+        Update: {
+          campaign?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string
+          id?: number
+          kind?: string
+          label?: string | null
+          medium?: string | null
+          path?: string
+          referrer_host?: string | null
+          region?: string | null
+          session_id?: string
+          source?: string
+          target?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      analytics_daily: {
+        Row: {
+          city: string
+          day: string
+          device: string
+          events: number
+          kind: string
+          label: string
+          path: string
+          source: string
+          target: string
+          visitors: number
+        }
+        Insert: {
+          city?: string
+          day: string
+          device?: string
+          events?: number
+          kind: string
+          label?: string
+          path?: string
+          source?: string
+          target?: string
+          visitors?: number
+        }
+        Update: {
+          city?: string
+          day?: string
+          device?: string
+          events?: number
+          kind?: string
+          label?: string
+          path?: string
+          source?: string
+          target?: string
+          visitors?: number
+        }
+        Relationships: []
+      }
+      analytics_days: {
+        Row: {
+          clicks: number
+          day: string
+          pageviews: number
+          sessions: number
+          visitors: number
+        }
+        Insert: {
+          clicks?: number
+          day: string
+          pageviews?: number
+          sessions?: number
+          visitors?: number
+        }
+        Update: {
+          clicks?: number
+          day?: string
+          pageviews?: number
+          sessions?: number
+          visitors?: number
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -833,7 +953,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_analytics: { Args: { p_from: string; p_to: string }; Returns: Json }
       admin_dashboard_stats: { Args: never; Returns: Json }
+      admin_purge_before: { Args: { p_confirm: string; p_cutoff: string }; Returns: Json }
+      admin_record_export: { Args: { p_cutoff: string }; Returns: undefined }
+      admin_sales_report: { Args: { p_from: string; p_group?: string; p_to: string }; Returns: Json }
+      admin_storage_usage: { Args: never; Returns: Json }
       apply_payment_event: {
         Args: {
           p_amount_in_cents: number

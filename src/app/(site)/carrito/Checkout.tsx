@@ -14,6 +14,7 @@ import type { ShippingOption } from "@/lib/shop/queries";
 import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 import { newTab, waUrl } from "@/lib/whatsapp";
 import { prepareWhatsAppTab } from "@/lib/whatsapp-tab";
+import { track } from "@/lib/analytics/client";
 import { paidOrderMessage } from "@/lib/shop/messages";
 import { placeOrder, refreshCart } from "./actions";
 
@@ -135,6 +136,7 @@ export function Checkout({
       }
       // WhatsApp: the order is already written in the message. Wompi: the cart is kept
       // until the payment is approved, so a declined card can try again.
+      track(result.kind === "whatsapp" ? "order_whatsapp" : "checkout_online", `${items.length} ${items.length === 1 ? "producto" : "productos"}`);
       if (result.kind === "whatsapp") cart.clear();
       setRedirect({ kind: result.kind, url: result.redirectUrl });
       // Straight to WhatsApp / the payment page; the fallback below covers blocked redirects.
