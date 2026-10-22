@@ -8,24 +8,12 @@ import clsx from "clsx";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { attachImage, deleteImage, moveImage, requestImageUpload, setProjectCover } from "@/app/admin/(panel)/media-actions";
+import { optimizeImage } from "@/lib/media/optimize";
 
 export type ManagedImage = { id: string; path: string; url: string; alt: string | null };
 
-const MAX_SIDE = 1600;
-const MAX_BYTES = 5 * 1024 * 1024;
-
-/** Resizes to max 1600px and converts to WebP in the browser (saves storage and bandwidth). */
-async function compress(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
-  return blob && blob.type === "image/webp" ? blob : file;
-}
+/** Originals larger than this are rejected before optimizing (very large files can freeze phones). */
+const MAX_INPUT_BYTES = 40 * 1024 * 1024;
 
 export function ImageManager({
   kind,
@@ -59,30 +47,36 @@ export function ImageManager({
         continue;
       }
       try {
-        const body = await compress(file);
-        if (body.size > MAX_BYTES) {
-          setError(`"${file.name}" pesa más de 5 MB.`);
+        if (file.size > MAX_INPUT_BYTES) {
+          setError(`"${file.name}" es demasiado grande (máx. 40 MB).`);
           continue;
         }
-        const signed = await requestImageUpload({ kind, ownerId, contentType: body.type });
+        setUploading(`Optimizando ${i + 1} de ${list.length}…`);
+        const { full, thumb } = await optimizeImage(file);
+        setUploading(`Subiendo ${i + 1} de ${list.length}…`);
+        const signed = await requestImageUpload({ kind, ownerId, contentType: full.type });
         if (!signed.ok) {
           setError(signed.error);
           break;
         }
-        const res = await fetch(`${uploadBase}/${signed.path}?token=${encodeURIComponent(signed.token)}`, {
-          method: "PUT",
-          headers: { "content-type": body.type, "cache-control": "max-age=31536000", "x-upsert": "false", apikey: apiKey },
-          body,
-        });
+        const put = (path: string, token: string, body: Blob) =>
+          fetch(`${uploadBase}/${path}?token=${encodeURIComponent(token)}`, {
+            method: "PUT",
+            // Unique file names never change, so browsers and the CDN can keep them for a year.
+            headers: { "content-type": body.type, "cache-control": "max-age=31536000", "x-upsert": "false", apikey: apiKey },
+            body,
+          });
+        const [res, thumbRes] = await Promise.all([put(signed.path, signed.token, full), put(signed.thumbPath, signed.thumbToken, thumb)]);
         if (!res.ok) {
           setError(`No se pudo subir "${file.name}".`);
           continue;
         }
+        if (!thumbRes.ok) console.warn("[images] thumbnail upload failed; the card will use the full image");
         const attached = await attachImage({ kind, ownerId, path: signed.path, alt: file.name.replace(/\.[^.]+$/, "").slice(0, 160) });
         if (!attached.ok) setError(attached.error);
         else uploaded++;
       } catch {
-        setError(`No se pudo procesar "${file.name}".`);
+        setError(`No se pudo procesar "${file.name}". Si es HEIC (iPhone), expórtala como JPG o PNG.`);
       }
     }
     setUploading(undefined);
@@ -142,7 +136,7 @@ export function ImageManager({
         </ul>
       )}
 
-      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple hidden onChange={(e) => e.target.files?.length && upload(e.target.files)} />
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple hidden onChange={(e) => e.target.files?.length && upload(e.target.files)} />
       <button
         type="button"
         disabled={!!uploading}
@@ -154,7 +148,7 @@ export function ImageManager({
       >
         {uploading ? <LoaderCircle className="size-6 animate-spin" /> : <ImagePlus className="size-6" />}
         {uploading ?? "Agregar imágenes (JPG, PNG o WebP)"}
-        {!uploading && <span className="text-xs text-white/40">Se optimizan automáticamente antes de subir.</span>}
+        {!uploading && <span className="text-xs text-white/40">Se convierten a WebP liviano (máx. ~150 KB) con miniatura automática.</span>}
       </button>
     </div>
   );

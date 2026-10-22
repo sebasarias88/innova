@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
@@ -15,6 +14,7 @@ import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 import { newTab, waUrl } from "@/lib/whatsapp";
 import { prepareWhatsAppTab } from "@/lib/whatsapp-tab";
 import { track } from "@/lib/analytics/client";
+import { ThumbImg } from "@/components/ui/ThumbImg";
 import { paidOrderMessage } from "@/lib/shop/messages";
 import { placeOrder, refreshCart } from "./actions";
 
@@ -277,7 +277,7 @@ function CartStep({ items }: { items: CartItem[] }) {
       {items.map((item) => (
         <li key={item.key} className="flex gap-4 p-4 sm:p-5">
           <Link href={`/tienda/${item.slug}`} className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white sm:size-24">
-            {item.image ? <img src={item.image} alt="" className="size-full object-contain p-2" /> : <ImageOff className="size-6 text-navy-900/30" />}
+            {item.image ? <ThumbImg src={item.image} alt="" className="size-full object-contain p-2" /> : <ImageOff className="size-6 text-navy-900/30" />}
           </Link>
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex items-start justify-between gap-3">

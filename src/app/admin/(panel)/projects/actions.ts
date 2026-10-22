@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { MEDIA_BUCKET } from "@/lib/admin/storage";
+import { withThumbs } from "@/lib/media/paths";
 import { services } from "@/lib/services";
 import { checkbox, repeated, dbError, fail, firstIssue, formToObject, intField, ok, optionalText, requiredText, slugField, uuid, type ActionResult } from "@/lib/admin/actions";
 import { slugify } from "@/lib/admin/format";
@@ -73,7 +74,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
 
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) return fail(dbError(error, "No se pudo eliminar."));
-  if (images?.length) await supabase.storage.from(MEDIA_BUCKET).remove(images.map((i) => i.path));
+  if (images?.length) await supabase.storage.from(MEDIA_BUCKET).remove(withThumbs(images.map((i) => i.path)));
 
   revalidatePath("/admin/projects");
   revalidateProjects();

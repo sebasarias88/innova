@@ -7,11 +7,13 @@ import { requireAdmin } from "@/lib/auth/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient as createTypedClient } from "@/lib/supabase/server";
 import { MEDIA_BUCKET } from "@/lib/admin/storage";
+import { thumbPath, withThumbs } from "@/lib/media/paths";
 
 /**
  * Image handling for products and projects.
  * 1. `requestImageUpload` signs a one-time upload URL (RLS checks the admin).
- * 2. The browser uploads the (compressed) file straight to Supabase Storage.
+ * 2. The browser optimizes the image (WebP within a weight budget + a 640 px
+ *    thumbnail) and uploads both straight to Supabase Storage.
  * 3. `attachImage` stores the row, verifying the file really exists.
  */
 
@@ -22,7 +24,8 @@ const owners = {
 
 const ownerSchema = z.object({ kind: z.enum(["product", "project"]), ownerId: z.uuid() });
 const MAX_IMAGES = 12;
-const ALLOWED = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png", "image/avif": "avif" } as const;
+// Only optimized WebP is accepted: the browser converts every photo before uploading.
+const ALLOWED = { "image/webp": "webp" } as const;
 
 // Generic over two tables (product_images / project_images), so this file uses the untyped client.
 const createClient = async () => (await createTypedClient()) as unknown as SupabaseClient;
@@ -30,12 +33,12 @@ const createClient = async () => (await createTypedClient()) as unknown as Supab
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
 export async function requestImageUpload(input: { kind: string; ownerId: string; contentType: string }): Promise<
-  Result<{ path: string; token: string }>
+  Result<{ path: string; token: string; thumbPath: string; thumbToken: string }>
 > {
   await requireAdmin();
   const parsed = ownerSchema.safeParse(input);
   const ext = ALLOWED[input.contentType as keyof typeof ALLOWED];
-  if (!parsed.success || !ext) return { ok: false, error: "Formato no permitido. Usa JPG, PNG o WebP." };
+  if (!parsed.success || !ext) return { ok: false, error: "No se pudo optimizar la imagen. Actualiza el navegador e inténtalo de nuevo." };
   const owner = owners[parsed.data.kind];
 
   const supabase = await createClient();
@@ -43,9 +46,10 @@ export async function requestImageUpload(input: { kind: string; ownerId: string;
   if ((count ?? 0) >= MAX_IMAGES) return { ok: false, error: `Máximo ${MAX_IMAGES} imágenes.` };
 
   const path = `${owner.folder}/${parsed.data.ownerId}/${crypto.randomUUID()}.${ext}`;
-  const { data, error } = await supabase.storage.from(MEDIA_BUCKET).createSignedUploadUrl(path);
-  if (error || !data) return { ok: false, error: "No se pudo preparar la subida. Inténtalo de nuevo." };
-  return { ok: true, path: data.path, token: data.token };
+  const bucket = supabase.storage.from(MEDIA_BUCKET);
+  const [main, thumb] = await Promise.all([bucket.createSignedUploadUrl(path), bucket.createSignedUploadUrl(thumbPath(path))]);
+  if (main.error || !main.data || thumb.error || !thumb.data) return { ok: false, error: "No se pudo preparar la subida. Inténtalo de nuevo." };
+  return { ok: true, path: main.data.path, token: main.data.token, thumbPath: thumb.data.path, thumbToken: thumb.data.token };
 }
 
 export async function attachImage(input: { kind: string; ownerId: string; path: string; alt?: string }): Promise<Result> {
@@ -60,8 +64,9 @@ export async function attachImage(input: { kind: string; ownerId: string; path: 
 
   const supabase = await createClient();
   // The file must exist in storage (prevents attaching arbitrary paths).
-  const { data: files } = await supabase.storage.from(MEDIA_BUCKET).list(prefix.slice(0, -1), { search: input.path.slice(prefix.length) });
-  if (!files?.length) return { ok: false, error: "La imagen no terminó de subir." };
+  const name = input.path.slice(prefix.length);
+  const { data: files } = await supabase.storage.from(MEDIA_BUCKET).list(prefix.slice(0, -1), { search: name.replace(/\.[a-z0-9]+$/i, "") });
+  if (!files?.some((f) => f.name === name)) return { ok: false, error: "La imagen no terminó de subir." };
 
   const { data: last } = await supabase
     .from(owner.table)
@@ -79,7 +84,7 @@ export async function attachImage(input: { kind: string; ownerId: string; path: 
   };
   const { error } = await supabase.from(owner.table).insert(row);
   if (error) {
-    await supabase.storage.from(MEDIA_BUCKET).remove([input.path]);
+    await supabase.storage.from(MEDIA_BUCKET).remove(withThumbs([input.path]));
     return { ok: false, error: "No se pudo guardar la imagen." };
   }
 
@@ -108,7 +113,7 @@ export async function deleteImage(input: { kind: string; imageId: string }): Pro
 
   const { error } = await supabase.from(owner.table).delete().eq("id", parsed.data.imageId);
   if (error) return { ok: false, error: "No se pudo eliminar." };
-  await supabase.storage.from(MEDIA_BUCKET).remove([img.path]);
+  await supabase.storage.from(MEDIA_BUCKET).remove(withThumbs([img.path]));
 
   if (parsed.data.kind === "project") {
     // If it was the cover, use the next image (or none).
