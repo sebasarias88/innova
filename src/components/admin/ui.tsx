@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import clsx from "clsx";
 import { ArrowLeft } from "lucide-react";
+import { LinkPending } from "@/components/ui/LinkPending";
 
 export function PageHeader({
   title,
@@ -60,12 +61,14 @@ export function LinkButton({ href, children, variant = "primary", icon }: { href
     <Link
       href={href}
       className={clsx(
-        "inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
+        "relative inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
         variant === "primary" ? "bg-lime-400 text-navy-900 hover:bg-white" : "border border-white/15 text-white/80 hover:border-white/40 hover:text-white",
       )}
     >
-      {icon}
-      {children}
+      <LinkPending className="inline-flex items-center gap-2">
+        {icon}
+        {children}
+      </LinkPending>
     </Link>
   );
 }
@@ -110,8 +113,20 @@ export function Pagination({ page, pageSize, total, hrefFor }: { page: number; p
         Página {page} de {pages} · {total} resultados
       </span>
       <div className="flex gap-2">
-        {page > 1 ? <Link className={clsx(btn, "hover:border-white/40 hover:text-white")} href={hrefFor(page - 1)}>Anterior</Link> : <span className={clsx(btn, "opacity-40")}>Anterior</span>}
-        {page < pages ? <Link className={clsx(btn, "hover:border-white/40 hover:text-white")} href={hrefFor(page + 1)}>Siguiente</Link> : <span className={clsx(btn, "opacity-40")}>Siguiente</span>}
+        {page > 1 ? (
+          <Link className={clsx(btn, "relative hover:border-white/40 hover:text-white")} href={hrefFor(page - 1)}>
+            <LinkPending>Anterior</LinkPending>
+          </Link>
+        ) : (
+          <span className={clsx(btn, "opacity-40")}>Anterior</span>
+        )}
+        {page < pages ? (
+          <Link className={clsx(btn, "relative hover:border-white/40 hover:text-white")} href={hrefFor(page + 1)}>
+            <LinkPending>Siguiente</LinkPending>
+          </Link>
+        ) : (
+          <span className={clsx(btn, "opacity-40")}>Siguiente</span>
+        )}
       </div>
     </nav>
   );

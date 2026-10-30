@@ -1,9 +1,11 @@
 "use client";
 
+import { BusyContent } from "@/components/ui/Busy";
+import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
 import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, LoaderCircle, Lock, MapPin, Minus, Plus, ShoppingBag, Store, Trash2, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CreditCard, ImageOff, Lock, MapPin, Minus, Plus, ShoppingBag, Store, Trash2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
@@ -149,7 +151,8 @@ export function Checkout({
   };
 
   if (redirect) return <Redirecting kind={redirect.kind} url={redirect.url} />;
-  if (!hydrated) return <div className="h-96" />;
+  // The cart lives in this browser: until it is read, show its shape (never "carrito vacío").
+  if (!hydrated) return <CartSkeleton />;
   if (justPaid) return <PaidNotice reference={justPaid} whatsapp={whatsapp} message={paidMessage ?? paidOrderMessage({ reference: justPaid })} />;
   if (!items.length) return <EmptyCart />;
 
@@ -512,14 +515,17 @@ function SubmitOrder({
       <button
         type="button"
         disabled={pending}
+        aria-busy={pending}
         onClick={() => onSubmit(honeypot)}
         className={clsx(
-          "flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 font-semibold text-navy-950 transition-[filter,background-color] disabled:opacity-60",
+          "relative flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 font-semibold text-navy-950 transition-[filter,background-color] disabled:cursor-wait",
           online ? "bg-lime-400 hover:bg-white" : "bg-[#25D366] hover:brightness-110",
         )}
       >
-        {pending ? <LoaderCircle className="size-5 animate-spin" /> : online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />}
-        {online ? (shippingApart ? `Pagar productos · ${formatPrice(total)}` : `Pagar ${formatPrice(total)}`) : "Enviar pedido por WhatsApp"}
+        <BusyContent busy={pending} spinnerClassName="size-5">
+          {online ? <Lock className="size-5" /> : <WhatsAppIcon className="size-5" />}
+          {online ? (shippingApart ? `Pagar productos · ${formatPrice(total)}` : `Pagar ${formatPrice(total)}`) : "Enviar pedido por WhatsApp"}
+        </BusyContent>
       </button>
       <p className="text-center text-[11px] leading-snug text-white/45">
         {online
@@ -621,6 +627,41 @@ function PaidNotice({ reference, whatsapp, message }: { reference: string; whats
         </Link>
       </div>
     </motion.div>
+  );
+}
+
+function CartSkeleton() {
+  return (
+    <SkeletonRegion label="Cargando tu carrito…">
+      <div className="flex justify-center gap-3">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} className="h-9 w-28 rounded-full" />
+        ))}
+      </div>
+      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="divide-y divide-white/5 rounded-3xl border border-white/10">
+          {[0, 1].map((i) => (
+            <div key={i} className="flex gap-4 p-4 sm:p-5">
+              <Skeleton className="size-20 shrink-0 rounded-2xl sm:size-24" />
+              <div className="flex-1 space-y-2.5">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3.5 w-28" />
+                <div className="flex justify-between pt-3">
+                  <Skeleton className="h-9 w-28 rounded-full" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-3 rounded-3xl border border-white/10 p-5">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="mt-4 h-12 w-full rounded-full" />
+        </div>
+      </div>
+    </SkeletonRegion>
   );
 }
 

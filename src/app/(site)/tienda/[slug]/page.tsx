@@ -33,7 +33,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug((await params).slug);
   if (!product) notFound();
 
-  const related = await getRelatedProducts(product.categoryId, product.id);
+  const related = await getRelatedProducts(product.categoryId, product.id).catch(() => []);
 
   const base = siteUrl();
   const jsonLd = {

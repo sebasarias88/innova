@@ -5,6 +5,7 @@ import { Download, FileSpreadsheet, FileText, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { ActionForm, FormFeedback, SaveButton } from "@/components/admin/fields";
 import { purgeHistory } from "./actions";
+import { DownloadButton } from "@/components/admin/DownloadButton";
 
 /**
  * Step 1: download the backup (Excel/PDF) of everything before a date.
@@ -40,12 +41,20 @@ export function CleanupPanel({ maxCutoff, defaultCutoff }: { maxCutoff: string; 
           seguro: contiene datos personales de los clientes.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <a href={href("xlsx")} onClick={() => setDownloaded(cutoff)} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
+          <DownloadButton
+            href={href("xlsx")}
+            onDownloaded={() => setDownloaded(cutoff)}
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300"
+          >
             <FileSpreadsheet className="size-4" /> Descargar Excel
-          </a>
-          <a href={href("pdf")} onClick={() => setDownloaded(cutoff)} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
+          </DownloadButton>
+          <DownloadButton
+            href={href("pdf")}
+            onDownloaded={() => setDownloaded(cutoff)}
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300"
+          >
             <FileText className="size-4" /> Descargar PDF
-          </a>
+          </DownloadButton>
         </div>
       </div>
 

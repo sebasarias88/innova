@@ -2,12 +2,13 @@
 
 import { createContext, startTransition, useActionState, useContext, useEffect, useRef, useState, useTransition, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { useFormStatus } from "react-dom";
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Select, type SelectOption } from "@/components/ui/Select";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import clsx from "clsx";
 import type { ActionResult } from "@/lib/admin/actions";
+import { BusyContent } from "@/components/ui/Busy";
 
 const inputCls =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-navy-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-lime-400/70 disabled:opacity-50";
@@ -107,13 +108,14 @@ export function SaveButton({ children = "Guardar cambios", className }: { childr
     <button
       type="submit"
       disabled={pending}
+      aria-busy={pending}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-60",
+        "relative inline-flex items-center justify-center gap-2 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:bg-white",
+        pending ? "cursor-wait" : "disabled:cursor-not-allowed disabled:opacity-60",
         className,
       )}
     >
-      {pending && <LoaderCircle className="size-4 animate-spin" />}
-      {children}
+      <BusyContent busy={pending}>{children}</BusyContent>
     </button>
   );
 }
@@ -206,6 +208,7 @@ export function ConfirmButton({
     <button
       type="button"
       disabled={pending}
+      aria-busy={pending}
       onClick={async () => {
         const accepted = await confirm({ title: confirmText, description, confirmLabel, tone: variant === "danger" ? "danger" : "default" });
         if (!accepted) return;
@@ -216,13 +219,16 @@ export function ConfirmButton({
         });
       }}
       className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-50",
+        "relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors",
+        pending ? "cursor-wait" : "disabled:opacity-50",
         variant === "danger" ? "border border-red-400/30 text-red-300 hover:bg-red-500/10" : "border border-white/15 text-white/75 hover:border-white/40",
         className,
       )}
     >
-      {pending ? <LoaderCircle className="size-4 animate-spin" /> : variant === "danger" && <Trash2 className="size-4" />}
-      {children ?? "Eliminar"}
+      <BusyContent busy={pending}>
+        {variant === "danger" && <Trash2 className="size-4" />}
+        {children ?? "Eliminar"}
+      </BusyContent>
     </button>
   );
 }

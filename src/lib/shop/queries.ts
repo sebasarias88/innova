@@ -96,11 +96,13 @@ function toProduct(p: ProductRow): ShopProduct {
 export const getShopCategories = cache(
   unstable_cache(
     async (): Promise<ShopCategory[]> => {
-      const { data } = await createPublicClient()
+      const { data, error } = await createPublicClient()
         .from("categories")
         .select("id, name, slug, parent_id, description")
         .order("sort_order")
         .order("name");
+      // Throw on database errors: an error is never cached, and the last good page keeps being served.
+      if (error) throw new Error(`[shop] categories query failed: ${error.message}`);
       return (data ?? []).map((c) => ({ id: c.id, name: c.name, slug: c.slug, parentId: c.parent_id, description: c.description }));
     },
     ["shop-categories"],
@@ -133,7 +135,8 @@ export const getProductPage = unstable_cache(
     for (const word of searchWords(q)) query = query.ilike("search_text", `%${word}%`);
     const { data, count, error } = await query.range(from, from + PAGE_SIZE - 1);
     // Asking for a page past the end is not an error: it is just empty.
-    if (error && error.code !== "PGRST103") console.error("[shop] catalog query failed:", error.message);
+    // A database failure throws (never cache an empty catalog); a page past the end is just empty.
+    if (error && error.code !== "PGRST103") throw new Error(`[shop] catalog query failed: ${error.message}`);
     const total = count ?? 0;
     return {
       products: ((data ?? []) as unknown as ProductRow[]).map(toProduct),
@@ -193,7 +196,8 @@ export const getProductBySlug = cache(async (slug: string): Promise<ShopProductD
     )
     .eq("slug", slug)
     .maybeSingle();
-  if (error) console.error("[shop] product query failed:", error.message);
+  // Database failure ≠ "not found": throw so the page shows the retry/WhatsApp screen, not a false 404.
+  if (error) throw new Error(`[shop] product query failed: ${error.message}`);
   if (!data) return null;
   const row = data as unknown as ProductRow & {
     sku: string | null;

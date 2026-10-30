@@ -1,9 +1,11 @@
 "use client";
 
+import { BusyContent, Spinner } from "@/components/ui/Busy";
+import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
 import { useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, CalendarCheck, CalendarDays, Check, Clock, LoaderCircle, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, CalendarDays, Check, Clock, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { Icon } from "@/components/ui/Icon";
@@ -271,13 +273,12 @@ function DateStep({
   loading: boolean;
   whatsapp: string;
 }) {
+  // First load: the shape of the calendar, never "no hay horarios" before the data arrives.
+  if (!days.length && loading) return <SlotsSkeleton />;
   if (!days.length) {
     return (
       <div className="rounded-3xl border border-dashed border-white/15 px-6 py-14 text-center">
-        {loading ? (
-          <LoaderCircle className="mx-auto size-8 animate-spin text-white/40" />
-        ) : (
-          <>
+        <>
             <CalendarDays className="mx-auto size-10 text-white/25" />
             <h2 className="mt-4 text-xl font-bold text-white">No hay horarios disponibles por ahora</h2>
             <p className="mx-auto mt-2 max-w-sm text-white/60">Escríbenos y buscamos un espacio para tu visita.</p>
@@ -288,8 +289,7 @@ function DateStep({
             >
               <WhatsAppIcon className="size-5" /> Escribir por WhatsApp
             </a>
-          </>
-        )}
+        </>
       </div>
     );
   }
@@ -299,7 +299,7 @@ function DateStep({
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Elige el día</h2>
-          {loading && <LoaderCircle className="size-4 animate-spin text-white/40" aria-label="Actualizando horarios" />}
+          {loading && <Spinner className="text-white/40" label="Actualizando horarios…" />}
         </div>
         <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:thin] sm:mx-0 sm:px-0">
           {days.map(([key, list]) => {
@@ -349,6 +349,29 @@ function DateStep({
         </div>
       </section>
     </div>
+  );
+}
+
+function SlotsSkeleton() {
+  return (
+    <SkeletonRegion label="Cargando horarios disponibles…" className="space-y-6">
+      <section>
+        <Skeleton className="h-6 w-32" />
+        <div className="mt-3 flex gap-2 overflow-hidden">
+          {Array.from({ length: 7 }, (_, i) => (
+            <Skeleton key={i} className="h-[5.4rem] w-[4.6rem] shrink-0 rounded-2xl" />
+          ))}
+        </div>
+      </section>
+      <section>
+        <Skeleton className="h-6 w-36" />
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {Array.from({ length: 8 }, (_, i) => (
+            <Skeleton key={i} className="h-11" />
+          ))}
+        </div>
+      </section>
+    </SkeletonRegion>
   );
 }
 
@@ -432,11 +455,13 @@ function SubmitBooking({ pending, onSubmit }: { pending: boolean; onSubmit: (hon
       <button
         type="button"
         disabled={pending}
+        aria-busy={pending}
         onClick={() => onSubmit(honeypot)}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-4 font-semibold text-navy-900 transition-colors hover:bg-white disabled:opacity-60"
+        className="relative flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-4 font-semibold text-navy-900 transition-colors hover:bg-white disabled:cursor-wait"
       >
-        {pending ? <LoaderCircle className="size-5 animate-spin" /> : <CalendarCheck className="size-5" />}
-        Solicitar cita
+        <BusyContent busy={pending} spinnerClassName="size-5">
+          <CalendarCheck className="size-5" /> Solicitar cita
+        </BusyContent>
       </button>
       <p className="text-center text-[11px] leading-snug text-white/45">
         Apartamos el horario y se abre WhatsApp con los datos de tu cita. Te confirmamos por ese chat.

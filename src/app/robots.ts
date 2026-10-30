@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
   const preview = { userAgent: previewBots, allow: "/", disallow: ["/admin", "/api/"] };
   if (!isIndexable()) return { rules: [preview, { userAgent: "*", disallow: "/" }] };
   return {
-    rules: [preview, { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/carrito", "/pago"] }],
+    rules: [preview, { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/carrito", "/pago", "/offline", "/mantenimiento"] }],
     sitemap: `${siteUrl()}/sitemap.xml`,
     host: siteUrl(),
   };

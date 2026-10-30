@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ChipRail } from "./ChipRail";
 import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck, X } from "lucide-react";
 import clsx from "clsx";
 import { PageHero } from "@/components/layout/PageHero";
 import { ProductCard } from "@/components/shop/ProductCard";
+import { ProductGridSkeleton } from "@/components/ui/Skeleton";
+import { LinkPending } from "@/components/ui/LinkPending";
+import Form from "next/form";
+import { SearchButton } from "./SearchButton";
 import { PAGE_SIZE, getProductPage, getShopCategories } from "@/lib/shop/queries";
 import { waLink } from "@/lib/site";
 
@@ -28,15 +33,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   // A main category also shows the products of its subcategories.
   const categoryIds = active ? [active.id, ...categories.filter((c) => c.parentId === active.id).map((c) => c.id)] : undefined;
 
-  const { products, total, page, pages } = await getProductPage({ categoryIds, q: q || undefined, page: requestedPage });
-  const href = (slug?: string, toPage = 1) => {
-    const params = new URLSearchParams({ ...(slug && { categoria: slug }), ...(q && { q }), ...(toPage > 1 && { pagina: String(toPage) }) });
-    return `/tienda${params.size ? `?${params}` : ""}`;
-  };
-  // A page past the end (old link, fewer products now) goes to the last page.
-  if (requestedPage > pages) redirect(href(active?.slug, pages));
-  const first = total ? (page - 1) * PAGE_SIZE + 1 : 0;
-  const last = Math.min(page * PAGE_SIZE, total);
+  const href = (slug?: string, toPage = 1) => shopHref(slug, q, toPage);
 
   return (
     <>
@@ -67,7 +64,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Chip>
               ))}
             </ChipRail>
-            <form action="/tienda" role="search" className="relative lg:w-96 lg:shrink-0">
+            <Form action="/tienda" scroll={false} role="search" className="relative lg:w-96 lg:shrink-0">
               {categoria && <input type="hidden" name="categoria" value={categoria} />}
               <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" />
               <input
@@ -90,13 +87,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   <X className="size-4" />
                 </Link>
               )}
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-lime-400 px-4 py-2 text-sm font-semibold text-navy-900 transition-colors hover:bg-white"
-              >
-                Buscar
-              </button>
-            </form>
+              <SearchButton />
+            </Form>
           </div>
 
           {subcategories.length > 0 && (
@@ -112,40 +104,77 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             </ChipRail>
           )}
 
-          <p id="productos" className="mt-8 scroll-mt-28 text-sm text-white/50">
-            {total} producto{total === 1 ? "" : "s"}
-            {active && ` en ${active.name}`}
-            {q && ` para “${q}”`}
-            {pages > 1 && ` · mostrando ${first}–${last}`}
-          </p>
-
-          {products.length === 0 ? (
-            <div className="mt-6 rounded-3xl border border-dashed border-white/15 px-6 py-16 text-center">
-              <PackageSearch className="mx-auto size-10 text-white/30" />
-              <p className="mt-4 text-lg font-semibold text-white">No encontramos productos aquí</p>
-              <p className="mx-auto mt-2 max-w-md text-white/60">
-                Pronto agregaremos más referencias. Si buscas algo en particular, escríbenos y te cotizamos.
-              </p>
-              <a
-                href={waLink(`Hola, INNOVA 👋 Estoy buscando ${q ? `"${q}"` : "un producto"} en la tienda en línea. ¿Lo tienen disponible?`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-white"
-              >
-                Preguntar por WhatsApp
-              </a>
-            </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((p, i) => (
-                <ProductCard key={p.id} product={p} priority={page === 1 && i < 4} />
-              ))}
-            </div>
-          )}
-
-          {pages > 1 && <Pagination page={page} pages={pages} hrefFor={(n) => `${href(active?.slug, n)}#productos`} />}
+          {/* Keyed by the filters: every new search or category shows the skeleton while it loads. */}
+          <Suspense key={`${active?.slug ?? ""}|${q}|${requestedPage}`} fallback={<ProductGridSkeleton />}>
+            <ProductResults categoryIds={categoryIds} q={q} requestedPage={requestedPage} activeSlug={active?.slug} activeName={active?.name} />
+          </Suspense>
         </div>
       </section>
+    </>
+  );
+}
+
+
+function shopHref(slug: string | undefined, q: string, toPage = 1) {
+  const params = new URLSearchParams({ ...(slug && { categoria: slug }), ...(q && { q }), ...(toPage > 1 && { pagina: String(toPage) }) });
+  return `/tienda${params.size ? `?${params}` : ""}`;
+}
+
+async function ProductResults({
+  categoryIds,
+  q,
+  requestedPage,
+  activeSlug,
+  activeName,
+}: {
+  categoryIds?: string[];
+  q: string;
+  requestedPage: number;
+  activeSlug?: string;
+  activeName?: string;
+}) {
+  const { products, total, page, pages } = await getProductPage({ categoryIds, q: q || undefined, page: requestedPage });
+  // A page past the end (old link, fewer products now) goes to the last page.
+  if (requestedPage > pages) redirect(shopHref(activeSlug, q, pages));
+  const first = total ? (page - 1) * PAGE_SIZE + 1 : 0;
+  const last = Math.min(page * PAGE_SIZE, total);
+  const active = activeName ? { name: activeName, slug: activeSlug } : undefined;
+  const href = (slug?: string, toPage = 1) => shopHref(slug, q, toPage);
+
+  return (
+    <>
+      <p id="productos" className="mt-8 scroll-mt-28 text-sm text-white/50">
+        {total} producto{total === 1 ? "" : "s"}
+        {active && ` en ${active.name}`}
+        {q && ` para “${q}”`}
+        {pages > 1 && ` · mostrando ${first}–${last}`}
+      </p>
+
+      {products.length === 0 ? (
+        <div className="mt-6 rounded-3xl border border-dashed border-white/15 px-6 py-16 text-center">
+          <PackageSearch className="mx-auto size-10 text-white/30" />
+          <p className="mt-4 text-lg font-semibold text-white">No encontramos productos aquí</p>
+          <p className="mx-auto mt-2 max-w-md text-white/60">
+            Pronto agregaremos más referencias. Si buscas algo en particular, escríbenos y te cotizamos.
+          </p>
+          <a
+            href={waLink(`Hola, INNOVA 👋 Estoy buscando ${q ? `"${q}"` : "un producto"} en la tienda en línea. ¿Lo tienen disponible?`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-white"
+          >
+            Preguntar por WhatsApp
+          </a>
+        </div>
+      ) : (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+          {products.map((p, i) => (
+            <ProductCard key={p.id} product={p} priority={page === 1 && i < 4} />
+          ))}
+        </div>
+      )}
+
+      {pages > 1 && <Pagination page={page} pages={pages} hrefFor={(n) => `${href(active?.slug, n)}#productos`} />}
     </>
   );
 }
@@ -157,12 +186,12 @@ function Chip({ href, active, children, small }: { href: string; active?: boolea
       scroll={false}
       aria-current={active ? "page" : undefined}
       className={clsx(
-        "shrink-0 whitespace-nowrap rounded-full border font-semibold transition-colors",
+        "relative shrink-0 whitespace-nowrap rounded-full border font-semibold transition-colors",
         small ? "px-3 py-1.5 text-xs" : "px-4 py-2.5 text-sm",
         active ? "border-lime-400 bg-lime-400 text-navy-900" : "border-white/15 text-white/75 hover:border-white/40 hover:text-white",
       )}
     >
-      {children}
+      <LinkPending>{children}</LinkPending>
     </Link>
   );
 }
@@ -179,8 +208,10 @@ function Pagination({ page, pages, hrefFor }: { page: number; pages: number; hre
   return (
     <nav aria-label="Páginas" className="mt-10 flex items-center justify-center gap-1.5 sm:gap-2">
       {page > 1 ? (
-        <Link href={hrefFor(page - 1)} aria-label="Página anterior" className={clsx(arrow, "border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
-          <ChevronLeft className="size-5" />
+        <Link href={hrefFor(page - 1)} aria-label="Página anterior" className={clsx(arrow, "relative border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
+          <LinkPending>
+            <ChevronLeft className="size-5" />
+          </LinkPending>
         </Link>
       ) : (
         <span aria-hidden className={clsx(arrow, "border-white/5 text-white/20")}>
@@ -198,17 +229,19 @@ function Pagination({ page, pages, hrefFor }: { page: number; pages: number; hre
             href={hrefFor(n)}
             aria-current={n === page ? "page" : undefined}
             className={clsx(
-              "grid h-11 min-w-11 place-items-center rounded-full border px-3 font-mono text-sm font-semibold transition-colors",
+              "relative grid h-11 min-w-11 place-items-center rounded-full border px-3 font-mono text-sm font-semibold transition-colors",
               n === page ? "border-lime-400 bg-lime-400 text-navy-900" : "border-white/15 text-white/75 hover:border-white/40 hover:text-white",
             )}
           >
-            {n}
+            <LinkPending>{n}</LinkPending>
           </Link>
         ),
       )}
       {page < pages ? (
-        <Link href={hrefFor(page + 1)} aria-label="Página siguiente" className={clsx(arrow, "border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
-          <ChevronRight className="size-5" />
+        <Link href={hrefFor(page + 1)} aria-label="Página siguiente" className={clsx(arrow, "relative border-white/15 text-white hover:border-lime-400 hover:text-lime-400")}>
+          <LinkPending>
+            <ChevronRight className="size-5" />
+          </LinkPending>
         </Link>
       ) : (
         <span aria-hidden className={clsx(arrow, "border-white/5 text-white/20")}>

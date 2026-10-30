@@ -3,12 +3,13 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, ImagePlus, LoaderCircle, Star, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ImagePlus, Star, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { attachImage, deleteImage, moveImage, requestImageUpload, setProjectCover } from "@/app/admin/(panel)/media-actions";
 import { optimizeImage } from "@/lib/media/optimize";
+import { BusyContent, Spinner } from "@/components/ui/Busy";
 
 export type ManagedImage = { id: string; path: string; url: string; alt: string | null };
 
@@ -85,12 +86,16 @@ export function ImageManager({
     router.refresh();
   }
 
-  const run = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
+  // Which control is working ("<imageId>:up", ":delete"…): only it shows the spinner.
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const run = (key: string, fn: () => Promise<{ ok: boolean; error?: string }>) => {
+    setActiveKey(key); // outside the transition so the spinner shows right away
     start(async () => {
       const r = await fn();
       if (!r.ok) toast.error(r.error ?? "No se pudo completar la acción.");
       router.refresh();
     });
+  };
 
   return (
     <div>
@@ -106,14 +111,14 @@ export function ImageManager({
                 )}
                 <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-gradient-to-t from-black/85 to-transparent p-2 pt-6">
                   <div className="flex gap-1">
-                    <IconBtn label="Mover antes" disabled={busy || i === 0} onClick={() => run(() => moveImage({ kind, imageId: img.id, direction: "up" }))}>
+                    <IconBtn label="Mover antes" loading={busy && activeKey === `${img.id}:up`} disabled={busy || i === 0} onClick={() => run(`${img.id}:up`, () => moveImage({ kind, imageId: img.id, direction: "up" }))}>
                       <ArrowUp className="size-3.5" />
                     </IconBtn>
-                    <IconBtn label="Mover después" disabled={busy || i === images.length - 1} onClick={() => run(() => moveImage({ kind, imageId: img.id, direction: "down" }))}>
+                    <IconBtn label="Mover después" loading={busy && activeKey === `${img.id}:down`} disabled={busy || i === images.length - 1} onClick={() => run(`${img.id}:down`, () => moveImage({ kind, imageId: img.id, direction: "down" }))}>
                       <ArrowDown className="size-3.5" />
                     </IconBtn>
                     {kind === "project" && !isCover && (
-                      <IconBtn label="Usar como portada" disabled={busy} onClick={() => run(() => setProjectCover({ projectId: ownerId, path: img.path }))}>
+                      <IconBtn label="Usar como portada" loading={busy && activeKey === `${img.id}:cover`} disabled={busy} onClick={() => run(`${img.id}:cover`, () => setProjectCover({ projectId: ownerId, path: img.path }))}>
                         <Star className="size-3.5" />
                       </IconBtn>
                     )}
@@ -121,10 +126,11 @@ export function ImageManager({
                   <IconBtn
                     label="Eliminar"
                     danger
+                    loading={busy && activeKey === `${img.id}:delete`}
                     disabled={busy}
                     onClick={async () => {
                       if (await confirm({ title: "¿Eliminar esta imagen?", description: "Se borra de la web y del almacenamiento." }))
-                        run(() => deleteImage({ kind, imageId: img.id }));
+                        run(`${img.id}:delete`, () => deleteImage({ kind, imageId: img.id }));
                     }}
                   >
                     <Trash2 className="size-3.5" />
@@ -140,31 +146,53 @@ export function ImageManager({
       <button
         type="button"
         disabled={!!uploading}
+        aria-busy={!!uploading}
         onClick={() => input.current?.click()}
         className={clsx(
-          "flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-8 text-sm text-white/60 transition-colors hover:border-lime-400/60 hover:text-white disabled:opacity-60",
+          "flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-8 text-sm text-white/60 transition-colors hover:border-lime-400/60 hover:text-white disabled:cursor-wait",
           images.length > 0 && "mt-3",
         )}
       >
-        {uploading ? <LoaderCircle className="size-6 animate-spin" /> : <ImagePlus className="size-6" />}
-        {uploading ?? "Agregar imágenes (JPG, PNG o WebP)"}
+        {uploading ? <Spinner className="size-6" label={uploading} /> : <ImagePlus className="size-6" />}
+        <span aria-live="polite">{uploading ?? "Agregar imágenes (JPG, PNG o WebP)"}</span>
         {!uploading && <span className="text-xs text-white/40">Se convierten a WebP liviano (máx. ~150 KB) con miniatura automática.</span>}
       </button>
     </div>
   );
 }
 
-function IconBtn({ label, onClick, disabled, danger, children }: { label: string; onClick: () => void; disabled?: boolean; danger?: boolean; children: React.ReactNode }) {
+function IconBtn({
+  label,
+  onClick,
+  disabled,
+  danger,
+  loading,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  loading?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"
       title={label}
       aria-label={label}
-      disabled={disabled}
+      aria-busy={loading}
+      disabled={disabled || loading}
       onClick={onClick}
-      className={clsx("grid size-7 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition-colors disabled:opacity-30", danger ? "hover:bg-red-500" : "hover:bg-white/30")}
+      className={clsx(
+        "relative grid size-7 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition-colors",
+        loading ? "cursor-wait" : "disabled:opacity-30",
+        danger ? "hover:bg-red-500" : "hover:bg-white/30",
+      )}
     >
-      {children}
+      <BusyContent busy={!!loading} spinnerClassName="size-3.5">
+        {children}
+      </BusyContent>
     </button>
   );
 }

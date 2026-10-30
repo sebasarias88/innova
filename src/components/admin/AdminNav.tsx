@@ -4,6 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { adminNav } from "@/lib/admin/nav";
+import { useLinkStatus } from "next/link";
+import { LoaderCircle, type LucideIcon } from "lucide-react";
+
+/** The section icon turns into a spinner while that page loads. */
+function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
+  const { pending } = useLinkStatus();
+  return pending ? <LoaderCircle aria-label="Cargando…" className="size-4 motion-safe:animate-spin" /> : <Icon className="size-4" />;
+}
 
 /** Vertical list on desktop, horizontal scroller on mobile. */
 export function AdminNav() {
@@ -28,7 +36,7 @@ export function AdminNav() {
                 </span>
               ) : (
                 <Link href={href} className={cls} aria-current={active ? "page" : undefined}>
-                  <Icon className="size-4" /> {label}
+                  <NavIcon icon={Icon} /> {label}
                 </Link>
               )}
             </li>

@@ -2,7 +2,7 @@
 
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { LoaderCircle } from "lucide-react";
+import { BusyContent } from "@/components/ui/Busy";
 import clsx from "clsx";
 
 export function Field({ label, id, ...props }: { label: string; id: string } & InputHTMLAttributes<HTMLInputElement>) {
@@ -27,13 +27,14 @@ export function SubmitButton({ children, className }: { children: ReactNode; cla
     <button
       type="submit"
       disabled={pending}
+      aria-busy={pending}
       className={clsx(
-        "inline-flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-60",
+        "relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 transition-colors hover:bg-white",
+        pending ? "cursor-wait" : "disabled:cursor-not-allowed disabled:opacity-60",
         className,
       )}
     >
-      {pending && <LoaderCircle className="size-4 animate-spin" />}
-      {children}
+      <BusyContent busy={pending}>{children}</BusyContent>
     </button>
   );
 }
