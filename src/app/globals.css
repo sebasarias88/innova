@@ -34,6 +34,7 @@
   --animate-word-up: word-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-kenburns: kenburns 6s linear both;
   --animate-progress: progress 6s linear both;
+  --animate-shake: shake 0.4s ease-in-out;
 
   @keyframes blink {
     to { visibility: hidden; }
@@ -66,6 +67,11 @@
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
   }
 }
 

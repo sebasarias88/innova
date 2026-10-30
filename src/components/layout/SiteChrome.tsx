@@ -7,6 +7,8 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { AnimationGate } from "@/components/layout/AnimationGate";
 import { Toaster } from "@/components/admin/Toaster";
 import { Tracker } from "@/components/analytics/Tracker";
+import { OfflineBanner } from "@/components/pwa/OfflineBanner";
+import { ServiceWorker } from "@/components/pwa/ServiceWorker";
 
 /** Public website shell: header, footer, floating actions and smooth scroll. */
 export function SiteChrome({ children }: { children: ReactNode }) {
@@ -21,6 +23,8 @@ export function SiteChrome({ children }: { children: ReactNode }) {
         <AnimationGate />
         <Toaster />
         <Tracker />
+        <OfflineBanner />
+        <ServiceWorker />
       </SmoothScroll>
     </div>
   );
