@@ -11,6 +11,7 @@ import { QuickToggle } from "./QuickToggle";
 import { ThumbImg } from "@/components/ui/ThumbImg";
 import Form from "next/form";
 import { FilterButton, SearchStatusIcon } from "@/components/admin/FilterSubmit";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = { title: "Productos" };
@@ -49,6 +50,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     return `/admin/products?${params}`;
   };
   const filtered = Boolean(q || sp.category || sp.status);
+  // Clearing the search keeps the category/status filters.
+  const clearParams = new URLSearchParams({ ...(sp.category && { category: sp.category }), ...(sp.status && { status: sp.status }) });
+  const clearSearchHref = `/admin/products${clearParams.size ? `?${clearParams}` : ""}`;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -58,10 +62,18 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         actions={<LinkButton href="/admin/products/new" icon={<Plus className="size-4" />}>Nuevo producto</LinkButton>}
       />
 
-      <Form action="/admin/products" className="mb-5 grid gap-2 sm:grid-cols-[1fr_200px_170px_auto]">
+      <Form key={`${q}|${sp.category ?? ""}|${sp.status ?? ""}`} action="/admin/products" className="mb-5 grid gap-2 sm:grid-cols-[1fr_200px_170px_auto]">
         <label className="relative">
           <SearchStatusIcon className="absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input name="q" defaultValue={q} placeholder="Buscar por nombre, marca o referencia" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
+          <SearchInput
+            defaultValue={q}
+            clearHref={clearSearchHref}
+            placeholder="Buscar por nombre, marca o referencia"
+            ariaLabel="Buscar productos"
+            maxLength={80}
+            clearClassName="right-1"
+            className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-10 text-sm outline-none focus:border-lime-400/70"
+          />
         </label>
         <Select
           name="category"

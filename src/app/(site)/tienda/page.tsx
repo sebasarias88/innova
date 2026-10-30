@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ChipRail } from "./ChipRail";
-import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, PackageSearch, Search, Truck } from "lucide-react";
 import clsx from "clsx";
 import { PageHero } from "@/components/layout/PageHero";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -11,6 +11,7 @@ import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import { LinkPending } from "@/components/ui/LinkPending";
 import Form from "next/form";
 import { SearchButton } from "./SearchButton";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { PAGE_SIZE, getProductPage, getShopCategories } from "@/lib/shop/queries";
 import { waLink } from "@/lib/site";
 
@@ -64,29 +65,18 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Chip>
               ))}
             </ChipRail>
-            <Form action="/tienda" scroll={false} role="search" className="relative lg:w-96 lg:shrink-0">
+            {/* Keyed by the applied search: the box always shows what is really applied. */}
+            <Form key={`${categoria ?? ""}|${q}`} action="/tienda" scroll={false} role="search" className="relative lg:w-96 lg:shrink-0">
               {categoria && <input type="hidden" name="categoria" value={categoria} />}
               <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" />
-              <input
-                type="search"
-                name="q"
+              <SearchInput
                 defaultValue={q}
-                maxLength={60}
-                enterKeyHint="search"
+                clearHref={active ? `/tienda?categoria=${active.slug}` : "/tienda"}
                 placeholder="Buscar: cámara, alarma, UPS…"
-                aria-label="Buscar productos"
-                className="w-full rounded-full border border-white/15 bg-white/5 py-3 pl-11 pr-28 text-white placeholder:text-white/40 focus:border-lime-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+                ariaLabel="Buscar productos"
+                clearClassName="right-[5.5rem]"
+                className="w-full rounded-full border border-white/15 bg-white/5 py-3 pl-11 pr-32 text-white placeholder:text-white/40 focus:border-lime-400 focus:outline-none"
               />
-              {q && (
-                <Link
-                  href={active ? `/tienda?categoria=${active.slug}` : "/tienda"}
-                  scroll={false}
-                  aria-label="Borrar búsqueda"
-                  className="absolute right-[5.5rem] top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-white/50 hover:bg-white/10 hover:text-white"
-                >
-                  <X className="size-4" />
-                </Link>
-              )}
               <SearchButton />
             </Form>
           </div>
