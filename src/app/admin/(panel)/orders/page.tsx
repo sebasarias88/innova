@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { LinkPending } from "@/components/ui/LinkPending";
 import Form from "next/form";
 import { SearchStatusIcon } from "@/components/admin/FilterSubmit";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { formatCop, formatDateTime } from "@/lib/admin/format";
@@ -64,10 +65,18 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             </Link>
           ))}
         </nav>
-        <Form action="/admin/orders" className="relative lg:w-80">
+        <Form key={`${tab.value}|${q}`} action="/admin/orders" className="relative lg:w-80">
           <input type="hidden" name="tab" value={tab.value} />
           <SearchStatusIcon className="absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input name="q" defaultValue={q} placeholder="N.º, código INN-…, nombre o celular" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
+          <SearchInput
+            defaultValue={q}
+            clearHref={`/admin/orders?tab=${tab.value}`}
+            placeholder="N.º, código INN-…, nombre o celular"
+            ariaLabel="Buscar pedidos"
+            maxLength={60}
+            clearClassName="right-1"
+            className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-10 text-sm outline-none focus:border-lime-400/70"
+          />
         </Form>
       </div>
 
