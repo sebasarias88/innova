@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ImageOff, Plus, Search } from "lucide-react";
+import { ImageOff, Plus } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
 import { searchWords } from "@/lib/shop/search";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +9,8 @@ import { formatCop } from "@/lib/admin/format";
 import { Badge, EmptyState, LinkButton, PageHeader, Pagination, Table } from "@/components/admin/ui";
 import { QuickToggle } from "./QuickToggle";
 import { ThumbImg } from "@/components/ui/ThumbImg";
+import Form from "next/form";
+import { FilterButton, SearchStatusIcon } from "@/components/admin/FilterSubmit";
 import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = { title: "Productos" };
@@ -56,9 +58,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         actions={<LinkButton href="/admin/products/new" icon={<Plus className="size-4" />}>Nuevo producto</LinkButton>}
       />
 
-      <form className="mb-5 grid gap-2 sm:grid-cols-[1fr_200px_170px_auto]">
+      <Form action="/admin/products" className="mb-5 grid gap-2 sm:grid-cols-[1fr_200px_170px_auto]">
         <label className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/35" />
+          <SearchStatusIcon className="absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input name="q" defaultValue={q} placeholder="Buscar por nombre, marca o referencia" className="w-full rounded-xl border border-white/10 bg-navy-950/60 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-lime-400/70" />
         </label>
         <Select
@@ -78,8 +80,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             { value: "featured", label: "Destacados" },
           ]}
         />
-        <button className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold hover:border-white/40">Filtrar</button>
-      </form>
+        <FilterButton className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold hover:border-white/40" />
+      </Form>
 
       {!products?.length ? (
         <EmptyState

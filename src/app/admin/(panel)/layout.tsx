@@ -5,6 +5,7 @@ import { Logo } from "@/components/brand/Logo";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ExcludeThisDevice } from "@/components/analytics/ExcludeThisDevice";
 import { signOut } from "../actions";
+import { PendingSubmit } from "@/components/admin/PendingSubmit";
 
 export default async function PanelLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const admin = await requireAdmin();
@@ -17,9 +18,9 @@ export default async function PanelLayout({ children }: Readonly<{ children: Rea
             <Logo className="h-7 w-auto" priority />
           </Link>
           <form action={signOut} className="lg:hidden">
-            <button type="submit" aria-label="Cerrar sesión" className="grid size-9 place-items-center rounded-full border border-white/10 text-white/70">
+            <PendingSubmit aria-label="Cerrar sesión" className="grid size-9 place-items-center rounded-full border border-white/10 text-white/70">
               <LogOut className="size-4" />
-            </button>
+            </PendingSubmit>
           </form>
         </div>
         <div className="mt-4 lg:mt-8">
@@ -32,9 +33,11 @@ export default async function PanelLayout({ children }: Readonly<{ children: Rea
             <ExternalLink className="size-4" /> Ver sitio
           </Link>
           <form action={signOut}>
-            <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-white">
-              <LogOut className="size-4" /> Cerrar sesión
-            </button>
+            <PendingSubmit className="flex w-full items-center justify-start rounded-xl px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-white">
+              <span className="flex items-center gap-3">
+                <LogOut className="size-4" /> Cerrar sesión
+              </span>
+            </PendingSubmit>
           </form>
         </div>
       </aside>

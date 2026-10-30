@@ -7,6 +7,7 @@ import { ORDER_STATUS, PAYMENT_METHOD } from "@/lib/admin/status";
 import { getService } from "@/lib/services";
 import { Card, PageHeader } from "@/components/admin/ui";
 import { RangePicker } from "@/components/admin/RangePicker";
+import { DownloadButton } from "@/components/admin/DownloadButton";
 import { BarSeries, Kpi, RankList } from "@/components/admin/charts";
 import type { SalesReport } from "@/lib/admin/report-types";
 
@@ -33,12 +34,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         description="Cuánto se ha vendido y qué se vende más. Cuenta como venta un pedido pagado, confirmado, enviado o entregado."
         actions={
           <>
-            <a href={exportHref("xlsx")} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
+            <DownloadButton href={exportHref("xlsx")} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
               <FileSpreadsheet className="size-4" /> Excel
-            </a>
-            <a href={exportHref("pdf")} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
+            </DownloadButton>
+            <DownloadButton href={exportHref("pdf")} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold hover:border-lime-400 hover:text-lime-300">
               <FileText className="size-4" /> PDF
-            </a>
+            </DownloadButton>
           </>
         }
       />

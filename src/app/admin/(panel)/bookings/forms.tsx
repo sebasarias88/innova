@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { BusyContent } from "@/components/ui/Busy";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { ActionForm, SaveButton, SelectField, TextArea, TextField, Toggle } from "@/components/admin/fields";
@@ -118,6 +119,7 @@ export function RuleToggle({ id, active }: { id: string; active: boolean }) {
     <button
       type="button"
       disabled={pending}
+      aria-busy={pending}
       onClick={() =>
         start(async () => {
           const r = await toggleRule(id, !active);
@@ -126,11 +128,14 @@ export function RuleToggle({ id, active }: { id: string; active: boolean }) {
         })
       }
       className={clsx(
-        "rounded-full border px-2.5 py-1 text-[11px] font-semibold disabled:opacity-50",
+        "relative rounded-full border px-2.5 py-1 text-[11px] font-semibold disabled:cursor-wait",
         active ? "border-lime-400/30 bg-lime-400/10 text-lime-300" : "border-white/15 text-white/50",
       )}
     >
-      {active ? "Activo" : "Pausado"}
+      {/* The spinner stays until the refreshed list arrives (same transition). */}
+      <BusyContent busy={pending} spinnerClassName="size-3">
+        {active ? "Activo" : "Pausado"}
+      </BusyContent>
     </button>
   );
 }

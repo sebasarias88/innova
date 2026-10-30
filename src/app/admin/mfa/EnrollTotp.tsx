@@ -1,8 +1,9 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
+import { BusyContent } from "@/components/ui/Busy";
 import { useState, useTransition } from "react";
-import { Copy, Check, LoaderCircle, QrCode } from "lucide-react";
+import { Copy, Check, QrCode } from "lucide-react";
 import { startTotpEnrollment, type EnrollmentState } from "../actions";
 import { toast } from "sonner";
 import { FormError } from "@/components/admin/form";
@@ -53,10 +54,12 @@ export function EnrollTotp() {
         type="button"
         onClick={start}
         disabled={pending}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 transition-colors hover:bg-white disabled:opacity-60"
+        aria-busy={pending}
+        className="relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-navy-900 transition-colors hover:bg-white disabled:cursor-wait"
       >
-        {pending ? <LoaderCircle className="size-4 animate-spin" /> : <QrCode className="size-4" />}
-        Configurar autenticador
+        <BusyContent busy={pending}>
+          <QrCode className="size-4" /> Configurar autenticador
+        </BusyContent>
       </button>
     </div>
   );

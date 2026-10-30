@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarX2, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import clsx from "clsx";
+import { LinkPending } from "@/components/ui/LinkPending";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { TIME_ZONE, WEEKDAYS, formatClock, formatDate, formatMinutes, formatTime, whatsappUrl } from "@/lib/admin/format";
@@ -37,9 +38,9 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
           <Link
             key={t.value}
             href={`/admin/bookings?tab=${t.value}`}
-            className={clsx("whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold", t.value === tab ? "bg-white text-navy-900" : "text-white/60 hover:bg-white/5 hover:text-white")}
+            className={clsx("relative whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold", t.value === tab ? "bg-white text-navy-900" : "text-white/60 hover:bg-white/5 hover:text-white")}
           >
-            {t.label}
+            <LinkPending>{t.label}</LinkPending>
           </Link>
         ))}
       </nav>
@@ -69,11 +70,11 @@ async function Appointments({ view }: { view?: string }) {
   return (
     <>
       <div className="mb-5 flex gap-2 text-sm">
-        <Link href="/admin/bookings?tab=citas" className={clsx("rounded-full border px-3 py-1.5", !past ? "border-lime-400/50 text-lime-300" : "border-white/10 text-white/60")}>
-          Próximas
+        <Link href="/admin/bookings?tab=citas" className={clsx("relative rounded-full border px-3 py-1.5", !past ? "border-lime-400/50 text-lime-300" : "border-white/10 text-white/60")}>
+          <LinkPending>Próximas</LinkPending>
         </Link>
-        <Link href="/admin/bookings?tab=citas&view=past" className={clsx("rounded-full border px-3 py-1.5", past ? "border-lime-400/50 text-lime-300" : "border-white/10 text-white/60")}>
-          Anteriores
+        <Link href="/admin/bookings?tab=citas&view=past" className={clsx("relative rounded-full border px-3 py-1.5", past ? "border-lime-400/50 text-lime-300" : "border-white/10 text-white/60")}>
+          <LinkPending>Anteriores</LinkPending>
         </Link>
       </div>
       {groups.size === 0 ? (

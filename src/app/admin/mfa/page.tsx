@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AuthCard } from "@/components/admin/AuthCard";
 import { signOut } from "../actions";
+import { PendingSubmit } from "@/components/admin/PendingSubmit";
 import { EnrollTotp } from "./EnrollTotp";
 import { VerifyTotpForm } from "./VerifyTotpForm";
 
@@ -29,9 +30,7 @@ export default async function MfaPage() {
     >
       {factor ? <VerifyTotpForm factorId={factor.id} /> : <EnrollTotp />}
       <form action={signOut} className="mt-4 text-center">
-        <button type="submit" className="text-xs font-semibold text-white/50 underline-offset-4 hover:text-white hover:underline">
-          Cerrar sesión
-        </button>
+        <PendingSubmit className="text-xs font-semibold text-white/50 underline-offset-4 hover:text-white hover:underline">Cerrar sesión</PendingSubmit>
       </form>
     </AuthCard>
   );
