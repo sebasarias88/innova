@@ -10,6 +10,8 @@
  * Reads SUPABASE_URL and SUPABASE_SECRET_KEY from .env.local (never printed).
  * Photos come already optimized from scripts/import/images (WebP ≤150 KB + .thumb.webp).
  * Safe to run twice: products whose slug already exists are skipped.
+ * Manifest items with "existing": true only add photos to a product that is
+ * already in the store (and only if it has no photos yet).
  */
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -64,39 +66,72 @@ async function importProducts() {
   if (error) throw error;
   const categoryId = new Map(categories.map((c) => [c.slug, c.id]));
 
-  console.log(`\nProductos a crear como BORRADOR: ${manifest.length}`);
+  const toCreate = manifest.filter((i) => !i.existing).length;
+  const toFill = manifest.length - toCreate;
+  console.log(`\nProductos nuevos: ${toCreate} · Productos existentes que reciben fotos: ${toFill}`);
   let created = 0;
+  let filled = 0;
   for (const item of manifest) {
-    const cat = categoryId.get(item.category);
-    if (!cat) {
-      console.log(`  ✖ ${item.name}: no existe la categoría "${item.category}"`);
-      continue;
-    }
     const missing = item.images.filter((f) => !existsSync(join(imagesDir, f)) || !existsSync(join(imagesDir, thumbOf(f))));
     if (missing.length) {
-      console.log(`  ✖ ${item.name}: faltan imágenes ${missing.join(", ")}`);
+      console.log(`  ✖ ${item.name ?? item.slug}: faltan imágenes ${missing.join(", ")}`);
       continue;
     }
-    const { data: existing } = await db.from("products").select("id").eq("slug", item.slug).maybeSingle();
-    if (existing) {
-      console.log(`  · ${item.name}: ya existe (/${item.slug}), se omite`);
-      continue;
-    }
-    console.log(`  + ${item.name} → ${item.category} · ${item.images.length} foto(s)`);
-    if (!APPLY) continue;
+    const { data: existing } = await db.from("products").select("id, name, product_images(count)").eq("slug", item.slug).maybeSingle();
 
-    const { data: product, error: insError } = await db
-      .from("products")
-      .insert({ name: item.name, slug: item.slug, category_id: cat, brand: item.brand ?? null, price: 0, is_published: false, is_available: true })
-      .select("id")
-      .single();
-    if (insError) {
-      console.log(`    ✖ no se pudo crear: ${insError.message}`);
-      continue;
+    let productId;
+    if (item.existing) {
+      if (!existing) {
+        console.log(`  ✖ ${item.slug}: no existe en la tienda`);
+        continue;
+      }
+      if (existing.product_images?.[0]?.count > 0) {
+        console.log(`  · ${existing.name}: ya tiene fotos, se omite`);
+        continue;
+      }
+      console.log(`  + ${existing.name} · ${item.images.length} foto(s)`);
+      if (!APPLY) continue;
+      productId = existing.id;
+    } else {
+      const cat = categoryId.get(item.category);
+      if (!cat) {
+        console.log(`  ✖ ${item.name}: no existe la categoría "${item.category}"`);
+        continue;
+      }
+      if (existing) {
+        console.log(`  · ${item.name}: ya existe (/${item.slug}), se omite`);
+        continue;
+      }
+      const published = item.published ?? true;
+      console.log(`  + NUEVO ${item.name} → ${item.category} · ${item.images.length} foto(s) · ${published ? "publicado, Consultar precio" : "borrador"}`);
+      if (!APPLY) continue;
+      const { data: product, error: insError } = await db
+        .from("products")
+        .insert({
+          name: item.name,
+          slug: item.slug,
+          category_id: cat,
+          brand: item.brand ?? null,
+          sku: item.sku ?? null,
+          short_description: item.short_description ?? null,
+          description: item.description ?? null,
+          specs: item.specs ?? [],
+          price: 0,
+          is_published: published,
+          is_available: true,
+        })
+        .select("id")
+        .single();
+      if (insError) {
+        console.log(`    ✖ no se pudo crear: ${insError.message}`);
+        continue;
+      }
+      productId = product.id;
     }
+
     let order = 0;
     for (const file of item.images) {
-      const path = `products/${product.id}/${randomUUID()}.webp`;
+      const path = `products/${productId}/${randomUUID()}.webp`;
       const opts = { contentType: "image/webp", cacheControl: "31536000", upsert: false };
       const [a, b] = await Promise.all([
         db.storage.from(BUCKET).upload(path, readFileSync(join(imagesDir, file)), opts),
@@ -106,19 +141,20 @@ async function importProducts() {
         console.log(`    ✖ ${file}: ${(a.error ?? b.error).message}`);
         continue;
       }
-      const { error: imgError } = await db.from("product_images").insert({ product_id: product.id, path, alt: item.name, sort_order: order++ });
+      const { error: imgError } = await db.from("product_images").insert({ product_id: productId, path, alt: item.name ?? existing?.name, sort_order: order++ });
       if (imgError) console.log(`    ✖ ${file}: ${imgError.message}`);
     }
-    created++;
+    if (item.existing) filled++;
+    else created++;
   }
-  if (APPLY) console.log(`\n✔ ${created} productos creados como borrador (no publicados, precio $0).`);
+  if (APPLY) console.log(`\n✔ ${created} productos nuevos y ${filled} productos con fotos nuevas.`);
 }
 
 try {
   if (DELETE_DEMO) await deleteDemo();
   await importProducts();
   if (!APPLY) console.log("\nModo prueba: no se cambió nada. Agrega --apply para ejecutar.");
-  else console.log("\nAbre el admin → Productos para completar precio, descripción y opciones, y publicarlos.");
+  else console.log("\nAbre el admin y dale Guardar a cualquier producto para refrescar la tienda al instante.");
 } catch (e) {
   console.error("Error:", e.message ?? e);
   process.exit(1);
